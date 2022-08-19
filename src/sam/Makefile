@@ -1,6 +1,6 @@
 R=$(shell git rev-parse --show-toplevel)
 
-want = lib
+want = lib eg
 
 all: 
 	@figlet -W -f larry3d sam.lua>_all.lua; cat sam.lua>>_all.lua

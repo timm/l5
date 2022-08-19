@@ -6,6 +6,11 @@ local b4={}; for k,_ in pairs(_ENV) do b4[k]=k end
 function l.rogues()
   for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end end
 
+-- Maths ----------------------------------------------------------------------
+function l.rnd(num, places)
+  local mult = 10^(places or 3)
+  return math.floor(num * mult + 0.5) / mult end
+ 
 -- Lists -----------------------------------------------------------------------
 function l.any(t) return t[math.random(#t)] end
 
@@ -15,6 +20,10 @@ function l.copy(t)
   return setmetatable(u,getmetatable(t))  end
 
 function l.many(t,n,  u)  u={}; for i=1,n do u[1+#u]=l.any(t) end; return u end
+
+function l.per(t,p)
+  p=p or .5
+  p=math.floor((p*#t)+.5); return t[math.max(1,math.min(#t,p))] end
 
 function l.push(t,x) t[1+#t]=x; return x end
 

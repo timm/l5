@@ -1,8 +1,8 @@
--- sam.lua : reasoning via minimal sampling arcoss the data
+-- sam.lua : reasoning via minimal sampling arcoss the data   
 -- (c)2022 Tim Menzies <timm@ieee.org> BSD 2 clause license
 local l=require"lib"
 local any,cat,cli,coerce,copy,csv = l.any,l.cat,l.cli,l.coerce,l.copy,l.csv
-local lines,many,obj,push = l.lines,l.many,l.obj,l.push
+local lines,many,obj,per,push = l.lines,l.many,l.obj,l.per,l.push
 local rogues,words = l.rogues,l.words
 
 local rand = math.random
@@ -41,8 +41,14 @@ function Num:holds()
   if not self.ready then table.sort(self.has); self.ready=true end
   return self.has end
 
+function Num:mid() return per(self:holds(),.5) end
+
 function Num:norm(num)
   return self.hi - self.lo < 1E-9 and 0 or (num-self.lo)/(self.hi-self.lo) end
+
+function Num:div(  a) 
+  a=self:holds()
+  return (per(a,.9) - per(a,.1))/2.58 end
 
 -- Sym -------------------------------------------------------------------------
 function Sym:new(at,txt) 
@@ -54,42 +60,19 @@ function Sym:add(x)
     self.has[x] = 1+(self.has[x] or 0) end end
 
 function Sym:discretize(x) return x end
+
 function Sym:dist(x,y) 
     return (x=="?" or y=="?") and 1 or x==y and 0 or 1 end
 
+function Sym:mid(    mode,most)
+  for k,n in pairs(i.has) do if not mode or n>most then mode,most=k,n end end
+  return mode end
 
--- Row -------------------------------------------------------------------------
-function Row:new(cells) return {cells=cells, cooked=copy(cells)} end
+function Sym:div(  e)
+  local function p(x) return x*math.log(x,2) end
+  e=0; for _,v in pairs(i.has) do if v>0 then e=e-p(v/i.n) end; return e end end
 
--- Cols ------------------------------------------------------------------------
-function Cols:new(names)
-  self.names, self.x, self.y, self.all= names, {}, {}, {} 
-  for at,txt in pairs(names) do
-    local what = txt:find"^[A-Z]" and Num or Sym
-    local col  = push(self.all, what(at,txt))
-    if not txt:find":$" then
-      push(txt:find"[!+-]$" and self.y or self.x, col) end end end
-
--- Data ------------------------------------------------------------------------
-local function rows(src)
-  if type(src) == "table" then return src else
-    local u={}; csv(src, function(t) push(u,t) end); return u end end
-
-function Data:new(rows)
-  self.rows, self.cols = {},{}
-  for i,row in pairs(rows) do
-    if   i==1 
-    then self.cols = Cols(row) 
-    else push(self.rows, Row(row))
-         for cols in pairs{self.cols.x, self.cols.y} do
-           for col in pairs(cols) do col:add(row[col.at]) end end end end  
-  for cols in pairs{self.cols.x, self.cols.y} do
-    for _,row in pairs(self.rows) do
-        row.cooked[col.at] = col:discretize(row.cells[col.at]) end end end 
-
--- function Data:around(row1, rows)
---   return sort(map(rows, function(row2) return {row=row2,d = row1-row2} end),--#
---              lt"d") end
+-- Row ------------------------------
 -- function Data.far(XXX) end
 --
   
