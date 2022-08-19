@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# vim: ft=bash ts=2 sw=2 sts=2 et :
+ 
+here="$(dirname $(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd ))"
+
+alias gp="git add *;git commit -am save;git push;git status"
+alias grep='grep --color=auto'
+alias ls="ls -G"
+
+export BASH_SILENCE_DEPRECATION_WARNING=1
+export PATH="$PWD:/opt/homebrew/bin:$PATH"
+export EDITOR=$(which pico)
+
+doc() {
+  mkdir -p $here/docs
+  docco -o $here/docs $*
+  cp $here/etc/docco.css $here/docs
+}
+
+here() { cd $1; basename `pwd`; }
+#!/usr/bin/env bash
+
+PROMPT_COMMAND='echo -ne "🌙 $(git branch 2>/dev/null | grep '^*' | colrm 1 2):";PS1="$(here ..)/$(here .):\!\e[m ▶ "'
+
+clear
+tput bold; tput setaf 5
+cat<<-'EOF'
+ ___                         
+/\_ \                        
+\//\ \     __  __     __     
+  \ \ \   /\ \/\ \  /'__`\   
+   \_\ \_ \ \ \_\ \/\ \L\.\_ 
+   /\____\ \ \____/\ \__/.\_\
+   \/____/  \/___/  \/__/\/_/
+ 
+EOF
+tput bold; tput setaf 241
+echo "Short cuts:"
+alias | sed 's/alias /  /'
+echo ""
+tput sgr0
+
