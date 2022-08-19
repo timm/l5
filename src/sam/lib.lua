@@ -1,3 +1,5 @@
+-- lib.lua : some of my favorite lua tricks.
+-- (c)2022 Tim Menzies <timm@ieee.org> BSD 2 clause license
 local l={}
 -- Cache names -----------------------------------------------------------------
 local b4={}; for k,_ in pairs(_ENV) do b4[k]=k end
@@ -17,13 +19,15 @@ function l.many(t,n,  u)  u={}; for i=1,n do u[1+#u]=l.any(t) end; return u end
 function l.push(t,x) t[1+#t]=x; return x end
 
 -- Print table -----------------------------------------------------------------
-function l.cat(t,        show,u,pub)
+function l.chat(t) print(l.cat(t)); return t end
+
+function l.cat(t)
   if type(t)~="table" then return tostring(t) end
-  function show(k,v)
+  local function show(k,v)
     if not tostring(k):find"^[A-Z]"  then
       v=l.cat(v)
       return #t==0 and string.format(":%s %s",k,v) or tostring(v) end end
-  u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
+  local u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
   table.sort(u)
   return (t._is or "").."{"..table.concat(u," ").."}" end
 

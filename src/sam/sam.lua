@@ -1,12 +1,14 @@
-local l = require"etc"
+-- sam.lua : reasoning via minimal sampling arcoss the data
+-- (c)2022 Tim Menzies <timm@ieee.org> BSD 2 clause license
+local l=require"lib"
 local any,cat,cli,coerce,copy,csv = l.any,l.cat,l.cli,l.coerce,l.copy,l.csv
 local lines,many,obj,push = l.lines,l.many,l.obj,l.push
 local rogues,words = l.rogues,l.words
 
 local rand = math.random
-local the={ratios=256, bins=8, seed=10019, some=512}
-local Cols, Data, Num, Sym = obj"Cols", obj"Data", obj"Num", obj"Sym"
+local Cols,Data,Row,Num,Sym = obj"Cols", obj"Data", obj"Row",obj"Num", obj"Sym"
 
+local the={example="ls", ratios=256, bins=8, seed=10019, some=512}
 -- Num -------------------------------------------------------------------------
 function Num:new(at,txt) 
   txt = txt or ""
@@ -85,17 +87,16 @@ function Data:new(rows)
     for _,row in pairs(self.rows) do
         row.cooked[col.at] = col:discretize(row.cells[col.at]) end end end 
 
-function Data:dist(row1,row2)
-function Data:around(row1, rows)
-  return sort(map(rows, function(row2) return {row=row2,d = row1-row2} end),--#
-             lt"d") end
-function Data.far(XXX) end
-
+-- function Data:around(row1, rows)
+--   return sort(map(rows, function(row2) return {row=row2,d = row1-row2} end),--#
+--              lt"d") end
+-- function Data.far(XXX) end
+--
   
 function Data:half(rows, above, all)
    local all  = all or self.rows
    local some = many(all, the.some)
-   local left = above or far(any(some), some)
+   local left = above or far(any(some), some) end
 -- (defmethod half ((i rows) &optional all above)
 --   "Split rows in two by their distance to two remove points."
 --   (let* ((all   (or    all (? i _has)))
