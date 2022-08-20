@@ -7,6 +7,19 @@ local b4={}; for k,_ in pairs(_ENV) do b4[k]=k end
 function l.rogues()
   for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end end
 
+-- Print table -----------------------------------------------------------------
+function l.chat(t) print(l.cat(t)); return t end
+
+function l.cat(t)
+  if type(t)~="table" then return tostring(t) end
+  local function show(k,v)
+    if not tostring(k):find"^[A-Z]"  then
+      v=l.cat(v)
+      return #t==0 and string.format(":%s %s",k,v) or tostring(v) end end
+  local u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
+  table.sort(u)
+  return (t._is or "").."{"..table.concat(u," ").."}" end
+
 -- Maths ----------------------------------------------------------------------
 function l.rnd(num, places)
   local mult = 10^(places or 3)
@@ -20,6 +33,10 @@ function l.copy(t)
   local u={}; for k,v in pairs(t) do u[k] = l.copy(v) end
   return setmetatable(u,getmetatable(t))  end
 
+function l.least(t,x,   y)
+  for _,n in pairs(t) do y=n; if x <= y then break end end
+  return y end
+
 function l.many(t,n,  u)  u={}; for i=1,n do u[1+#u]=l.any(t) end; return u end
 
 function l.per(t,p)
@@ -27,19 +44,6 @@ function l.per(t,p)
   p=math.floor((p*#t)+.5); return t[math.max(1,math.min(#t,p))] end
 
 function l.push(t,x) t[1+#t]=x; return x end
-
--- Print table -----------------------------------------------------------------
-function l.chat(t) print(l.cat(t)); return t end
-
-function l.cat(t)
-  if type(t)~="table" then return tostring(t) end
-  local function show(k,v)
-    if not tostring(k):find"^[A-Z]"  then
-      v=l.cat(v)
-      return #t==0 and string.format(":%s %s",k,v) or tostring(v) end end
-  local u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
-  table.sort(u)
-  return (t._is or "").."{"..table.concat(u," ").."}" end
 
 -- Update slots in `t` from command line ---------------------------------------
 function l.cli(t)
