@@ -1,15 +1,21 @@
+help:
+	@grep -E '^[^ ]+:.*?## .*$$' $(MAKEFILE_LIST) \
+	| sort \
+	| awk 'BEGIN {print ""; FS = ":.*?## "}; \
+	             {printf "make \033[36m%-20s\033[0m : %s\n", $$1, $$2}'
+
 R=$(shell git rev-parse --show-toplevel)
 
 want = lib eg
 
-all: 
+all: ## all code => .pdf
 	@figlet -W -f larry3d sam.lua>_all.lua; cat sam.lua>>_all.lua
 	@$(foreach f,$(want),(figlet -W -f contessa $f>>_all.lua;cat $f.lua>>_all.lua;);)
 	@$(MAKE) ../../docs/_all.pdf
 	@rm _all.lua
 	@open   ../../docs/_all.pdf
 		
-../../docs/%.pdf : %.lua
+../../docs/%.pdf: %.lua  ## .lua ==> .pdf
 	mkdir -p $R/docs
 	echo "pdf-ing $@ ... "
 	@a2ps -B              \
@@ -28,3 +34,5 @@ all:
 		-o $@.ps $<
 	@ps2pdf $@.ps $@; rm $@.ps; git add $@
 	@open $@
+
+

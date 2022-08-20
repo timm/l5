@@ -9,10 +9,11 @@ local rand = math.random
 local Cols,Data,Row,Num,Sym = obj"Cols", obj"Data", obj"Row",obj"Num", obj"Sym"
 
 local the={example="ls", ratios=256, bins=8, seed=10019, some=512}
+
 -- Num -------------------------------------------------------------------------
 function Num:new(at,txt) 
   txt = txt or ""
-  return {n=0,at=at or 0, txt=txt, ready=false, has={},
+  return {n=0,at=at or 0, txt=txt, cache=nil, has={},
           hi= -math.huge, lo= math.huge, w=txt:find"-$" and -1 or 1} end
 
 function Num:add(x)
@@ -23,12 +24,12 @@ function Num:add(x)
     self.hi = math.max(x, self.hi)
     if     #self.has < the.ratios        then pos = 1 + (#self.has) 
     elseif rand()    < the.ratios/self.n then pos = rand(#self.has) end
-    if pos then self.ready=false 
+    if pos then self.cache=nil 
                 self.has[pos]=x end end end
 
-function Num:discretize(x)
-  local b = (self.hi - self.lo)/the.bins
-  return self.hi==self.lo and 1 or math.floor(x/b+.5)*b  end 
+function Num:discretize(x,  y)
+  for _,n in pairs(self.cache) do y=n; if x <= y then return y end end
+  return y end
 
 function Num:dist(x,y)
    if x=="?" and y=="?" then return 1 end
@@ -37,9 +38,17 @@ function Num:dist(x,y)
    else   x,y = self:norm(x), self:norm(y) end
   return math.abs(x-y) end
 
-function Num:holds()
-  if not self.ready then table.sort(self.has); self.ready=true end
-  return self.has end
+local function _breaks(a)
+  local b = #a//self.bins
+  local t,n  = {}, b
+  while n <= #a-b do if a[n]~=a[n+1] then push(t,a[n]); n=n+b else n=n+1 end end 
+  return t end 
+
+function Num:holds(    a,n,jump)
+  if not self.cache then 
+    table.sort(self.has)
+    self.cache = _breaks(self.has) end
+  return self.has, self.cache end
 
 function Num:mid() return per(self:holds(),.5) end
 

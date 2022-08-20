@@ -1,6 +1,7 @@
 -- lib.lua : some of my favorite lua tricks.
 -- (c)2022 Tim Menzies <timm@ieee.org> BSD 2 clause license
 local l={}
+
 -- Cache names -----------------------------------------------------------------
 local b4={}; for k,_ in pairs(_ENV) do b4[k]=k end
 function l.rogues()
