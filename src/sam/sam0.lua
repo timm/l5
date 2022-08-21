@@ -37,7 +37,6 @@ function Num(c,s)
           isNum=true, lo= math.huge, hi= -math.huge, sorted=true,
           w=(s or ""):find"-$" and -1 or 1} end
 
----- ---- ---- Data functions
 -- Add one or more items, to `col`.
 function adds(col,t) for _,v in pairs(t) do add(col,v) end; return col end
 function add(col,v)
@@ -60,6 +59,7 @@ function sorted(num)
   num.sorted = true
   return num. _has end
 
+---- ---- ---- Data functions
 -- Add a new `row` to `data`.
 function row(data,t)
   push(data.rows,t)
