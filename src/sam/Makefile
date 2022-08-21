@@ -12,6 +12,13 @@ bye: ## commit to github
 	git add *;git commit -am save;git push;git status
 
 
+../../docs/%.html: %.lua  ## make html
+	gawk -f $R/etc/lua2doc.awk $< > tmp.lua
+	echo "docco: $< -> $@"
+	docco -l classic -o $R/docs tmp.lua > /dev/null
+	gawk 'sub(/>tmp.lua</,">$(basename $<)<") 1 ' $R/docs/tmp.html > $@
+	cp $R/etc/docco.css $R/docs/docco.css
+
 all: ## all code => .pdf
 	@figlet -W -f larry3d sam.lua>_all.lua; cat sam.lua>>_all.lua
 	@$(foreach f,$(want),(figlet -W -f contessa $f>>_all.lua;cat $f.lua>>_all.lua;);)

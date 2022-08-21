@@ -22,8 +22,12 @@ local cols,dist,data,header,norm,row
 --   - Type names are lower case versions of constuctors. so in this code,
 --     `cols`,`data`,`num`,`sym` are made by functions `Cols` `Data`, `Num`, `Sym`
 
----- ---- ---- ---- Data 
----- ---- ---- Classes
+-- ## Data 
+
+
+-- ### Classes
+
+
 -- Holder of `rows` and their sumamries (in `cols`).
 function Data() return {cols=nil,  rows={}} end
 -- Hoder of summaries
@@ -37,7 +41,9 @@ function Num(c,s)
           isNum=true, lo= math.huge, hi= -math.huge, sorted=true,
           w=(s or ""):find"-$" and -1 or 1} end
 
----- ---- ---- Data functions
+-- ### Data functions
+
+
 -- Add one or more items, to `col`.
 function adds(col,t) for _,v in pairs(t) do add(col,v) end; return col end
 function add(col,v)
@@ -54,8 +60,8 @@ function add(col,v)
 function sorted(num)
   if not num.sorted then 
     table.sort(num._has)
-    if #num._has > 256+1 then
-      local tmp={};for i=1,#num._has,#num._has//256 do push(tmp,num._has[i]) end
+    if #num._has > 256 then
+      local tmp={};for i=2,#num._has-1,#num._has//256 do push(tmp,num._has[i]) end
       num._has= tmp end end
   num.sorted = true
   return num. _has end
@@ -92,7 +98,9 @@ function load(src)
 --     for _,row in pairs(data.rows) do
 --       if 
 --
----- ---- ---- ---- Cluster 
+-- ## Cluster 
+
+
 -- Distance between two rows (returns 0..1)
 function dist(data,t1,t2)
   local d = 0
@@ -113,13 +121,19 @@ function norm(col,v)
   if v=="?" or not col.isNum then return v else
     local lo = col.lo[c]
     local hi = col.hi[c]
-    return (hi - lo) <1E-9 and 0 or (v-lo)/(hi-lo) end end
----- ---- ---- ---- Lib
----- ---- ---- Lists
+    return (hi - lo) <1E-9 and 0 or (v-lo)/(hi-lo) end end
+-- ## Lib
+
+
+-- ### Lists
+
+
 -- Add `x` to a list. Return `x`.
 function push(t,x) t[1+#t]=x; return x end
 
----- ---- ---- Strings
+-- ### Strings
+
+
 -- `oo` prints the string from `o`.   
 -- `o` generates a string from a nested table.
 function oo(t) print(o(t)) return t end
