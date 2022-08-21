@@ -8,6 +8,10 @@ R=$(shell git rev-parse --show-toplevel)
 
 want = lib eg
 
+bye: ## commit to github
+	git add *;git commit -am save;git push;git status
+
+
 all: ## all code => .pdf
 	@figlet -W -f larry3d sam.lua>_all.lua; cat sam.lua>>_all.lua
 	@$(foreach f,$(want),(figlet -W -f contessa $f>>_all.lua;cat $f.lua>>_all.lua;);)

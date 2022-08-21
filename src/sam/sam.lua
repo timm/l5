@@ -8,12 +8,17 @@ local rogues,words = l.rogues,l.words
 local rand = math.random
 local Cols,Data,Row,Num,Sym = obj"Cols", obj"Data", obj"Row",obj"Num", obj"Sym"
 
-local the={example="ls", ratios=256, bins=8, seed=10019, some=512}
+local the={bins    = 10,
+           cohen   = .35,
+           example = "ls", 
+           ratios  = 256, 
+           seed    = 10019, 
+           some    = 512}
 
 -- Num -------------------------------------------------------------------------
 function Num:new(at,txt) 
   txt = txt or ""
-  return {n=0,at=at or 0, txt=txt, cached=nil, has={},
+  return {n=0,at=at or 0, txt=txt, details=nil, has={},
           hi= -math.huge, lo= math.huge, w=txt:find"-$" and -1 or 1} end
 
 function Num:add(x)
@@ -24,8 +29,17 @@ function Num:add(x)
     self.hi = math.max(x, self.hi)
     if     #self.has < the.ratios        then pos = 1 + (#self.has) 
     elseif rand()    < the.ratios/self.n then pos = rand(#self.has) end
-    if pos then self.cached=nil 
-                self.has[pos]=x end end end
+    if pos then self.details  = nil 
+                self.has[pos] = x end end end
+
+function Num:bin(x,     a,b,lo,hi)
+  local b = (self.hi - self.lo)/the.bins
+  return self.hi==self.lo and 1 or math.floor(x/b+.5)*b  end
+
+function Num:discretize(x)
+  _, details = self:holds()
+  for _,bin in pairs(details) do
+    if x> bin.lo and x<=bin.hi then return x end end end
 
 function Num:dist(x,y)
    if x=="?" and y=="?" then return 1 end
@@ -34,17 +48,24 @@ function Num:dist(x,y)
    else   x,y = self:norm(x), self:norm(y) end
   return math.abs(x-y) end
 
+local function _div(a,epsilon,bins,   inc,one,all)
+  inc = #a // bins
+  one = {lo=a[1], hi=a[1], n=0}
+  all = {one}
+  for i = 1,#a-inc do
+    if   one.n >= inc and a[i] ~= a[i+1] and one.hi-one.lo > epsilon 
+    then one = push(all, {lo=one.hi, hi=a[i], n=0}) end
+    one.hi = a[i]
+    one.n  = bin.n + 1 end 
+  all[1].lo     = -math.huge
+  all[#bins].hi = math.huge
+  return all end
+
 function Num:holds(    inc,i)
-  if   not self.cached 
-  then table.sort(self.has)
-       inc = #self.has // self.bins
-       self.cached,i = {}, inc
-       while i <= #self.has - inc do 
-         if   self.has[i] ~= self.has[i+1] 
-         then push(self.cached,self.has[i])
-              i = i+inc 
-         else i = i+1 end end  end
-  return self.has, self.cached end
+  if not self.details then 
+    table.sort(self.has)
+   self.details = _div(self.has, self:div()*my.cohen, my.bins); end
+  return self.has, self.details end
 
 function Num:mid() return per(self:holds(),.5) end
 
@@ -78,9 +99,34 @@ function Sym:div(  e)
   e=0; for _,v in pairs(i.has) do if v>0 then e=e-p(v/i.n) end; return e end end
 
 -- Row ------------------------------
--- function Data.far(XXX) end
---
-  
+function Row:new(t) return {cells=t, cooked=copy(t), evaled=false} end
+
+-- Cols ------------------------------
+function Cols:new(names)
+  self.names=names
+  self.x, self.y, self.all, self.klass = {},{},{},nil
+  for at,txt in pairs(names) do
+    col = push(self.all, (txt:find"^[A-Z]" and Num or Sym)(at,txt))
+    if not txt:find":$" then
+      push(txt:find"[!+-]$" and self.y or self.x, col)
+      if txt:find"!$" then self.klass=col end end end end
+
+function Cols:add(row)
+  for _,cols in pairs{i.x, i.y} do
+    for col in pairs(cols) do
+      col:add(row.cells[cols.at]) end end end
+
+-- Data ------------------------------
+function Data:new(s) 
+  self.rows, self.cols = {}, nil
+  if type(s)=="string" then csv(s, function(t)           self:add(t) end ) 
+                       else for _,t in pairs(s or {}) do self:add(t) end end end  
+
+function Data:add(t)
+  if   self.cols
+  then self.cols:add( push(self.rows, t.cells or Row(t)))
+  else self.cols= Cols(t) end 
+ 
 function Data:half(rows, above, all)
    local all  = all or self.rows
    local some = many(all, the.some)
@@ -104,4 +150,4 @@ function Data:half(rows, above, all)
 --       (values left right lefts rights c))))
 --
 -- -----------------------------------------------------------------------------
-return {the=the,Cols=Cols, Data=Data, Num=Num, Sym=Sym}
+return {the=the, Cols=Cols, Data=Data, Num=Num, Sym=Sym}
