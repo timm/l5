@@ -54,7 +54,7 @@ b, strong {
 }
 
 p {
-  text-align: right;
+  xtext-align: right;
   margin: 15px 0 0px;
 }
   .annotation ul, .annotation ol {
@@ -86,7 +86,7 @@ h2 {
   border-top: 2px solid #ccc;
 }
 h3 {
-   margin-left: 50px; text-align: left;
+   xmargin-left: 50px; text-align: left;
    xcolor: #219161;
    font-size: 1.7em; }
 

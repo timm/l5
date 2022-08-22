@@ -1,26 +1,24 @@
-local b4={}; for k,_ in pairs(_ENV) do b4[k]=k end
 local l=require"lib0"
-    
-local cli,coerce,copy,csv,o,oo = l.cli,l.coerce,l.copy,l.csv,l.o,l.oo
-local push,settings            = l.push,l.settings
-local Cols, Data, Num, Row, Sym, dist,div,header,mid,norm,row
-local the=settings [[
+local the=l.settings [[   
 SAM0 : semi-supervised multi-objective explainations
 (c) 2022 Tim Menzies <timm@ieee.org> BSD-2 license
 
 USAGE: lua eg0.lua [OPTIONS]
 
 OPTIONS:
- -e  --example  start-up example         = ls
- -h  --help     show help                = false
- -p  --p        distance coeffecient     = 2
- -S  --some     how many numbers to keep = 256
- -s  --seed     random number seed       = 10019]]
+ -e  --eg     start-up example         = nothing
+ -h  --help   show help                = false
+ -n  --nums   how many numbers to keep = 256
+ -p  --p      distance coeffecient     = 2
+ -s  --seed   random number seed       = 10019]]
 
--- ## Data 
+local copy,csv,o,oo = l.coerce,l.copy,l.csv,l.o,l.oo
+local per,push      = l.per, l.push
+   
+local adds,add, dist,div,mid,nums,read, record
+local Cols, Data, Num, Row, Sym
 
-
--- ### Classes
+-- ## Classes 
 
 
 -- Holder of `rows` and their sumamries (in `cols`).
@@ -39,57 +37,57 @@ function Num(c,s)
           isNum=true, lo= math.huge, hi= -math.huge, sorted=true,
           w=(s or ""):find"-$" and -1 or 1} end
 
--- Hold one record
+-- Hold one record, in `cells` (and `cooked` is for discretized data).
 function Row(t) return {cells=t, cooked=copy(t)} end
 
 -- ## Data Functions
 
 
--- Add one or more items, to `col`.
+-- ### Update
+
+
+-- Add one or more items, to `col`. From Num, keep at most `nums` items.
 function adds(col,t) for _,v in pairs(t) do add(col,v) end; return col end
 function add(col,v)
   if v~="?" then
     col.n = col.n + 1
-    if not col.isNum then col._has[v] = 1 + (col._has[v] or 0) else
-        push(col._has,v)
-        col.sorted = false
-        col.hi = math.max(col.hi, v)
-        col.lo = math.min(col.lo, v) 
-        if col.n % 2*the.some == 0 then sorted(col) end
-        end end end 
+    if not col.isNum then col._has[v] = 1 + (col._has[v] or 0) else 
+       col.lo = math.min(v, col.lo)
+       col.hi = math.max(v, col.hi)
+       local pos
+       if     #col._has < the.nums           then pos = 1 + (#col._has) 
+       elseif math.random() < the.nums/col.n then pos = math.random(#col._has) end
+       if pos then col.sorted = false 
+                   col._has[pos] = tonumber(v) end end end end
 
-function sorted(num)
-  if not num.sorted then 
-    table.sort(num._has)
-    if #num._has > the.some*1.1 then
-      local tmp={}
-      for i=1,#num._has,#num._has//the.some do push(tmp,num._has[i]) end
-      num._has= tmp end end
-  num.sorted = true
-  return num. _has end
+-- ### Query
 
+
+-- Return kept numbers, sorted. 
+function nums(num)
+  if not num.sorted then table.sort(num._has); num.sorted=true end
+  return num._has end
+
+-- Diversity (standard deviation for Nums, entropy for Syms)
 function div(col)
-  if  col.isNum then local a=sorted(col); return (per(a,.9)-per(a,.1))/2.58 else
+  if  col.isNum then local a=nums(col); return (per(a,.9)-per(a,.1))/2.58 else
     local function fun(p) return p*math.log(p,2) end
     local e=0
     for _,n in pairs(_has) do if n>0 then e=e-fun(n/col.n) end end
     return e end end
 
+-- Central tendancy (median for Nums, mode for Syms)
 function mid(col)
-  if col.isNum then return per(sorted(col),.5) else 
+  if col.isNum then return per(nums(col),.5) else 
     local most,mode = -1
     for k,v in pairs(_has) do if v>most then most,mode=k,v end end
     return mode end end
 
--- ### Data functions
+-- ## Data functions
 
 
--- Add a new `row` to `data`.
-function rowAdd(data,xs)
-  xs= push(data.rows, xs.cells and xs or Row(xs))
-  for _,todo in pairs{data.cols.x, data.cols.y} do
-    for _,col in pairs(todo) do 
-      add(col, xs.cells[col.at]) end end end
+-- ### Create
+
 
 -- Processes table of name strings (from row1 of csv file)
 local function _head(sNames)
@@ -104,47 +102,60 @@ local function _head(sNames)
   return cols end
 
 -- if `src` is a string, read rows from file; else read rows from a `src`  table
-function load(src)
+function read(src)
   local data,fun=Data()
-  function fun(t) if data.cols then rowAdd(data,t) else data.cols=_head(t) end end
+  function fun(t) if data.cols then record(data,t) else data.cols=_head(t) end end
   if type(src)=="string" then csv(src,fun) else 
     for _,t in pairs(src or {}) do fun(t) end end 
   return data end
 
--- ## Cluster 
+-- ### Update
 
+
+-- Add a new `row` to `data`, updating the `cols` with the new values.
+function record(data,xs)
+  local row= push(data.rows, xs.cells and xs or Row(xs)) -- ensure xs is a Row
+  for _,todo in pairs{data.cols.x, data.cols.y} do
+    for _,col in pairs(todo) do 
+      add(col, row.cells[col.at]) end end end
+
+-- ### Query
+
+
+-- Summarize `showCols` in `data` (default=`data.cols.y`) using `fun` (default=`mid`).
+function stats(data,  showCols,fun,    t)
+  showCols, fun = showCols or data.cols.y, fun or mid
+  t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
+
+-- ### Distance functions
+
+
+-- Distance between two values`v1,v2`  within `col`
+local function _dist1(col,  v1,v2)
+  if   v1=="?" and v2=="?" then return 1 end
+  if  not col.isNum        then return v1==v2 and 0 or 1 end 
+  local function norm(n) return (n-col.lo)/(col.hi-col.lo + 1E-32) end
+  if     v1=="?" then v2=norm(v2); v1 = v2<.5 and 1 or 0 
+  elseif v2=="?" then v1=norm(v1); v2 = v1<.5 and 1 or 0 
+  else   v1,v2 = norm(v1), norm(v2) end       
+  return  maths.abs(v1-v2) end 
 
 -- Distance between two rows (returns 0..1)
 function dist(data,t1,t2)
   local d = 0
   for _,col in pairs(data.cols.x) do 
-    local inc = 0
-    if   v1=="?" and v2=="?" 
-    then inc = 1 
-    else local v1 = norm(col,t1[col.at])
-         local v2 = norm(col,t2[col.at])
-         if   not col.isNum 
-         then inc = v1==v2 and 0 or 1 
-         else if v1=="?" then v1 = v2<.5 and 1 or 0 end
-              if v2=="?" then v2 = v1<.5 and 1 or 0 end
-              inc = maths.abs(v1-v2) end end 
-    d = d + inc^the.p 
-  end
-  return (d/data.cols.nx)^(1/the.p) end
+    d = d + _dist1(col, t1.cells[col.at], t2.cells[col.at])^the.p end
+  return (d/#data.cols.x)^(1/the.p) end
 
--- Numbers get normalized 0..1. Everything esle normalizes to itself.
-function norm(col,v)
-  if v=="?" or not col.isNum then return v else
-    local lo = col.lo[c]
-    local hi = col.hi[c]
-    return (hi - lo) <1E-9 and 0 or (v-lo)/(hi-lo) end end
-
-return {the=the,mid=mid,div=div,norm=norm,dist=dist,
+return {the=the,add=add,adds=adds,mid=mid,div=div,dist=dist,
+        nums=nums,record=record,
         Cols=Cols,Num=Num, Sym=Sym, Data=Data}
 -- ##  Notes
 
 
 -- - Each line is usually 80 chars (or less)
+-- - Two spaces before function argumnets denote optionals.
+-- - Four spaces before function argumnets denote local variables..
 -- - Private functions start with `_`
 -- - Arguments of private functions do anything at all
 -- - Local variables inside functions do anything at all
@@ -163,4 +174,3 @@ return {the=the,mid=mid,div=div,norm=norm,dist=dist,
 --   - Tables are `t` or, using the above, a table of numbers would be `ns`
 --   - Type names are lower case versions of constuctors. so in this code,
 --     `cols`,`data`,`num`,`sym` are made by functions `Cols` `Data`, `Num`, `Sym`
-

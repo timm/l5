@@ -21,7 +21,7 @@ bye: ## commit to github
 
 all: ## all code => .pdf
 	@figlet -W -f larry3d sam0.lua>_all.lua; cat sam0.lua>>_all.lua
-	@$(foreach f,$(want),(figlet -W -f contessa $f>>_all.lua;cat $f.lua>>_all.lua;);)
+	@$(foreach f,$(want),(figlet -W -f small $f>>_all.lua;cat $f.lua>>_all.lua;);)
 	@$(MAKE) ../../docs/_all.pdf
 	@rm _all.lua
 	@open   ../../docs/_all.pdf
