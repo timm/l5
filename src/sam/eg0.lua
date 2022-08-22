@@ -6,6 +6,11 @@ local add,div,mid,the  = _.add, _.div,_.mid,_.the
 local Num      = _.Num
 
 local eg,fails = {},0
+local function run(k,    b4,out)
+    math.randomseed(the.seed)
+    b4=copy(the); out=eg[k](); the=copy(b4); 
+    print(">>>>>>", k, out and "PASS" or "FAIL")
+    return out==true end
 -------------------------------------------------------------------------------
 function eg.the() oo(the); return true end
 
@@ -33,14 +38,9 @@ function eg.ls()
   for _,k in pairs(_egs()) do print(string.format("  %-7s",k)) end 
   return true end
 
-local function run(k,    b4,out)
-  math.randomseed(the.seed)
-  b4=copy(the); out=eg[k](); the=copy(b4); return out==true end
-
 function eg.all()
   for _,k in pairs(_egs()) do
-    if k ~= "all" then 
-      if not run(k) then fails = fails + 1; print("FAIL!",k) end end end 
+    if k ~= "all" then fails = fails + run(k) and 0 or 1 end end 
   return true end
 
 ----------------------------------------------------------------------------
