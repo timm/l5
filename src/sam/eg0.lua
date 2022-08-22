@@ -9,18 +9,18 @@ local eg,fails = {},0
 -------------------------------------------------------------------------------
 function eg.the() oo(the); return true end
 
-function eg.num(  n)
-  n=Num()
-  the.some = 100
-  for i=1,100 do add(n,i) end
-  return 49==mid(n) and 31.01==rnd(div(n),2)  end
+function eg.num(  num)
+  num=Num()
+  the.nums = 100
+  for i=1,100 do add(num,i) end
+  print(mid(num) ,rnd(div(num),2))
+  return 50==mid(num) and 31.01==rnd(div(num),2)  end
 
-function eg.bignum(  n)
-  n=Num()
-  the.some = 32
-  for i=1,1000 do add(n,i) end
-  oo(_.sorted(n))
-  print(type(n._has[1]))
+function eg.bignum(  num)
+  num=Num()
+  the.nums = 32
+  for i=1,1000 do add(num,i) end
+  oo(_.nums(num))
 end
 
 function eg.load() oo(load("../../data/auto93.csv").cols); return true end
@@ -45,6 +45,6 @@ function eg.all()
 
 ----------------------------------------------------------------------------
 the = cli(the)
-if eg[the.example] then run(the.example)  end
+if eg[the.eg] then run(the.eg)  end
 for k,v in pairs(_ENV) do if not l.b4[k] then print("?",k,type(v)) end end 
 os.exit(fails)

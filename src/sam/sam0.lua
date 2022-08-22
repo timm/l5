@@ -6,16 +6,16 @@ SAM0 : semi-supervised multi-objective explainations
 USAGE: lua eg0.lua [OPTIONS]
 
 OPTIONS:
- -e  --example  start-up example         = nothing
- -h  --help     show help                = false
- -p  --p        distance coeffecient     = 2
- -S  --some     how many numbers to keep = 256
- -s  --seed     random number seed       = 10019]]
+ -e  --eg     start-up example         = nothing
+ -h  --help   show help                = false
+ -n  --nums   how many numbers to keep = 256
+ -p  --p      distance coeffecient     = 2
+ -s  --seed   random number seed       = 10019]]
 
-local cli,coerce,copy,csv,o,oo = l.cli,l.coerce,l.copy,l.csv,l.o,l.oo
-local per,push,settings        = l.per, l.push,l.settings
+local coerce,copy,csv,o,oo = l.coerce,l.copy,l.csv,l.o,l.oo
+local per,push,settings    = l.per, l.push,l.settings
    
-local adds,add,dist,div,header,mid,norm,rowAdd,sorted
+local adds,add,dataAdd, dist,div,header,mid,norm,nums
 local Cols, Data, Num, Row, Sym
 
 ---- ---- ---- ---- Data 
@@ -36,49 +36,45 @@ function Num(c,s)
           isNum=true, lo= math.huge, hi= -math.huge, sorted=true,
           w=(s or ""):find"-$" and -1 or 1} end
 
--- Hold one record
+-- Hold one record, in `cells` (and `cooked` is for discretized data).
 function Row(t) return {cells=t, cooked=copy(t)} end
 
 ---- ---- ---- ---- Data Functions
--- Add one or more items, to `col`.
+-- Add one or more items, to `col`. From Num, keep at most `nums` items.
 function adds(col,t) for _,v in pairs(t) do add(col,v) end; return col end
 function add(col,v)
   if v~="?" then
     col.n = col.n + 1
-    if not col.isNum then col._has[v] = 1 + (col._has[v] or 0) else
-        push(col._has,v)
-        col.sorted = false
-        col.hi = math.max(col.hi, v)
-        col.lo = math.min(col.lo, v) 
-        if col.n % 2*the.some == 0 then sorted(col) end end end end 
+    if not col.isNum then col._has[v] = 1 + (col._has[v] or 0) else 
+       col.lo = math.min(v, col.lo)
+       col.hi = math.max(v, col.hi)
+       local pos
+       if     #col._has < the.nums           then pos = 1 + (#col._has) 
+       elseif math.random() < the.nums/col.n then pos = math.random(#col._has) end
+       if pos then col.sorted = false 
+                   col._has[pos] = tonumber(v) end end end end
 
-function sorted(num)
-  if not num.sorted then 
-    for i,x in pairs(num._has) do print(i,x,type(x)) end
-    table.sort(num._has)
-    if #num._has > the.some*1.1 then
-      local tmp={}
-      for i=1,#num._has,#num._has//the.some do push(tmp,num._has[i]) end
-      num._has= tmp end end
-  num.sorted = true
+function nums(num)
+  if not num.sorted then table.sort(num._has,function(x,y) return tonumber(x) < tonumber(y) end) end
+  num.sorted=true
   return num._has end
 
 function div(col)
-  if  col.isNum then local a=sorted(col); return (per(a,.9)-per(a,.1))/2.58 else
+  if  col.isNum then local a=nums(col); return (per(a,.9)-per(a,.1))/2.58 else
     local function fun(p) return p*math.log(p,2) end
     local e=0
     for _,n in pairs(_has) do if n>0 then e=e-fun(n/col.n) end end
     return e end end
 
 function mid(col)
-  if col.isNum then return per(sorted(col),.5) else 
+  if col.isNum then return per(nums(col),.5) else 
     local most,mode = -1
     for k,v in pairs(_has) do if v>most then most,mode=k,v end end
     return mode end end
 
 ---- ---- ---- Data functions
 -- Add a new `row` to `data`.
-function rowAdd(data,xs)
+function dataAdd(data,xs)
   xs= push(data.rows, xs.cells and xs or Row(xs))
   for _,todo in pairs{data.cols.x, data.cols.y} do
     for _,col in pairs(todo) do 
@@ -99,7 +95,7 @@ local function _head(sNames)
 -- if `src` is a string, read rows from file; else read rows from a `src`  table
 function load(src)
   local data,fun=Data()
-  function fun(t) if data.cols then rowAdd(data,t) else data.cols=_head(t) end end
+  function fun(t) if data.cols then dataAdd(data,t) else data.cols=_head(t) end end
   if type(src)=="string" then csv(src,fun) else 
     for _,t in pairs(src or {}) do fun(t) end end 
   return data end
@@ -131,7 +127,7 @@ function norm(col,v)
     return (hi - lo) <1E-9 and 0 or (v-lo)/(hi-lo) end end
 
 return {the=the,add=add,adds=adds,mid=mid,div=div,norm=norm,dist=dist,
-        sorted=sorted,
+        nums=nums,dataAdd=dataAdd,
         Cols=Cols,Num=Num, Sym=Sym, Data=Data}
 ---- ---- ---- ----  Notes
 -- - Each line is usually 80 chars (or less)

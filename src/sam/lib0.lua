@@ -50,7 +50,7 @@ function l.o(t)
       v = l.o(v)
       return #t==0 and string.format(":%s %s",k,v) or tostring(v) end end
   local u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
-  table.sort(u)
+  if #t==0 then table.sort(u) end
   return (t._is or "").."{"..table.concat(u," ").."}" end
 
 -- Convert string to something else.
@@ -59,7 +59,7 @@ function l.coerce(s)
     if s1=="true"  then return true end 
     if s1=="false" then return false end
     return s1 end 
-  return tonumber(s) or coerce1(s:match"^%s*(.-)%s*$") end
+  return math.tointeger(s) or tonumber(s) or coerce1(s:match"^%s*(.-)%s*$") end
 
 -- Iterator over csv files. Call `fun` for each record in `fname`.
 function l.csv(fname,fun)
