@@ -1,11 +1,16 @@
 local l={}
 
 l.b4={}; for k,v in pairs(_ENV) do l.b4[k]=v end 
---- Cluster ---------------------------------------------------------
+
 ---- ---- ---- Lists
 -- Add `x` to a list. Return `x`.
 function l.push(t,x) t[1+#t]=x; return x end
 
+-- Round
+function l.rnd(n, nPlaces)
+  local mult = 10^(nPlaces or 3)
+  return math.floor(n * mult + 0.5) / mult end
+ 
 -- Deepcopy
 function l.copy(t)
   if type(t) ~= "table" then return t end
@@ -18,7 +23,7 @@ function l.per(t,p)
 
 ---- ---- ---- Settings
 function l.settings(s)
-  t={}
+  local t={}
   s:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)",
          function(k,x) t[k]=l.coerce(x)end)
   t._help = s
@@ -31,9 +36,7 @@ function l.cli(t)
       if x=="-"..(slot:sub(1,1)) or x=="--"..slot then
         v = v=="false" and "true" or v=="true" and "false" or arg[n+1] end end
     t[slot] = l.coerce(v) end
-  print("help",t.help)
-  if t.help then print(t._help) end
-  print(3)
+  if t.help then os.exit(print("\n"..t._help.."\n")) end
   return t end
 
 ---- ---- ---- Strings

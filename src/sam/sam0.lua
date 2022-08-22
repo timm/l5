@@ -1,30 +1,22 @@
----                                   __     
----                                 /'__`\   
----   ____     __       ___ ___    /\ \/\ \  
----  /',__\  /'__`\   /' __` __`\  \ \ \ \ \ 
---- /\__, `\/\ \L\.\_ /\ \/\ \/\ \  \ \ \_\ \
---- \/\____/\ \__/.\_\\ \_\ \_\ \_\  \ \____/
----  \/___/  \/__/\/_/ \/_/\/_/\/_/   \/___/ 
----                                          
-local b4={}; for k,_ in pairs(_ENV) do b4[k]=k end
 local l=require"lib0"
-    
-local cli,coerce,copy,csv,o,oo = l.cli,l.coerce,l.copy,l.csv,l.o,l.oo
-local push,settings            = l.push,l.settings
-local Cols, Data, Num, Row, Sym, dist,div,header,mid,norm,row
-local the=settings [[
-
+local the=l.settings [[   
 SAM0 : semi-supervised multi-objective explainations
 (c) 2022 Tim Menzies <timm@ieee.org> BSD-2 license
 
 USAGE: lua eg0.lua [OPTIONS]
 
 OPTIONS:
- -e  --example  start-up example         = ls
+ -e  --example  start-up example         = nothing
  -h  --help     show help                = false
  -p  --p        distance coeffecient     = 2
  -S  --some     how many numbers to keep = 256
  -s  --seed     random number seed       = 10019]]
+
+local cli,coerce,copy,csv,o,oo = l.cli,l.coerce,l.copy,l.csv,l.o,l.oo
+local per,push,settings        = l.per, l.push,l.settings
+   
+local adds,add,dist,div,header,mid,norm,rowAdd,sorted
+local Cols, Data, Num, Row, Sym
 
 ---- ---- ---- ---- Data 
 ---- ---- ---- Classes
@@ -58,18 +50,18 @@ function add(col,v)
         col.sorted = false
         col.hi = math.max(col.hi, v)
         col.lo = math.min(col.lo, v) 
-        if col.n % 2*the.some == 0 then sorted(col) end
-        end end end 
+        if col.n % 2*the.some == 0 then sorted(col) end end end end 
 
 function sorted(num)
   if not num.sorted then 
+    for i,x in pairs(num._has) do print(i,x,type(x)) end
     table.sort(num._has)
     if #num._has > the.some*1.1 then
       local tmp={}
       for i=1,#num._has,#num._has//the.some do push(tmp,num._has[i]) end
       num._has= tmp end end
   num.sorted = true
-  return num. _has end
+  return num._has end
 
 function div(col)
   if  col.isNum then local a=sorted(col); return (per(a,.9)-per(a,.1))/2.58 else
@@ -136,9 +128,10 @@ function norm(col,v)
   if v=="?" or not col.isNum then return v else
     local lo = col.lo[c]
     local hi = col.hi[c]
-    return (hi - lo) <1E-9 and 0 or (v-lo)/(hi-lo) end end
+    return (hi - lo) <1E-9 and 0 or (v-lo)/(hi-lo) end end
 
-return {the=the,mid=mid,div=div,norm=norm,dist=dist,
+return {the=the,add=add,adds=adds,mid=mid,div=div,norm=norm,dist=dist,
+        sorted=sorted,
         Cols=Cols,Num=Num, Sym=Sym, Data=Data}
 ---- ---- ---- ----  Notes
 -- - Each line is usually 80 chars (or less)
