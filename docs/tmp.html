@@ -27,11 +27,37 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
-              
+              <p>In this code:</p>
+<ul>
+<li>Each line is usually 80 chars (or less)</li>
+<li>Two spaces before function argumnets denote optionals.</li>
+<li>Four spaces before function argumnets denote local variables..</li>
+<li>Private functions start with <code>_</code></li>
+<li>Arguments of private functions do anything at all</li>
+<li>Local variables inside functions do anything at all</li>
+<li>Arguments of public functions use type hints<ul>
+<li>Variable  <code>x</code> is is anything</li>
+<li>Prefix <code>is</code> is a boolean</li>
+<li>Prefix <code>fun</code> is a function</li>
+<li>Prefix <code>f</code> is a filename</li>
+<li>Prefix <code>n</code> is a string</li>
+<li>Prefix <code>s</code> is a string</li>
+<li>Prefix <code>c</code> is a column index</li>
+<li><code>col</code> denotes <code>num</code> or <code>sym</code></li>
+<li><code>x</code> is anything (table or number of boolean or string</li>
+<li><code>v</code> is a simple value (number or boolean  or  string)</li>
+<li>Suffix <code>s</code> is a list of things</li>
+<li>Tables are <code>t</code> or, using the above, a table of numbers would be <code>ns</code></li>
+<li>Type names are lower case versions of constuctors. so in this code,
+<code>cols</code>,<code>data</code>,<code>num</code>,<code>sym</code> are made by functions <code>Cols</code> <code>Data</code>, <code>Num</code>, <code>Sym</code></li>
+</ul>
+</li>
+</ul>
+
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib0&quot;</span>
-<span class="hljs-keyword">local</span> the=l.settings <span class="hljs-string">[[   
+<span class="hljs-keyword">local</span> the=l.settings(<span class="hljs-string">[[   
 SAM0 : semi-supervised multi-objective explainations
 (c) 2022 Tim Menzies &lt;timm@ieee.org&gt; BSD-2 license
 
@@ -42,7 +68,7 @@ OPTIONS:
  -h  --help   show help                = false
  -n  --nums   how many numbers to keep = 256
  -p  --p      distance coeffecient     = 2
- -s  --seed   random number seed       = 10019]]</span>
+ -s  --seed   random number seed       = 10019]]</span>)
 
 <span class="hljs-keyword">local</span> copy,csv,o,oo = l.coerce,l.copy,l.csv,l.o,l.oo
 <span class="hljs-keyword">local</span> per,push      = l.per, l.push
@@ -329,8 +355,8 @@ OPTIONS:
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">read</span><span class="hljs-params">(src)</span></span>
   <span class="hljs-keyword">local</span> data,fun=Data()
   <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fun</span><span class="hljs-params">(t)</span></span> <span class="hljs-keyword">if</span> data.cols <span class="hljs-keyword">then</span> record(data,t) <span class="hljs-keyword">else</span> data.cols=_head(t) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span>(src)==<span class="hljs-string">&quot;string&quot;</span> <span class="hljs-keyword">then</span> csv(src,fun) <span class="hljs-keyword">else</span> 
-    <span class="hljs-keyword">for</span> _,t <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(src <span class="hljs-keyword">or</span> {}) <span class="hljs-keyword">do</span> fun(t) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
+  <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span>(src)==<span class="hljs-string">&quot;string&quot;</span> <span class="hljs-keyword">then</span> csv(src,fun) 
+                         <span class="hljs-keyword">else</span> <span class="hljs-keyword">for</span> _,t <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(src <span class="hljs-keyword">or</span> {}) <span class="hljs-keyword">do</span> fun(t) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
   <span class="hljs-keyword">return</span> data <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -387,7 +413,7 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-22">&#x00a7;</a>
               </div>
-              <p>Summarize <code>showCols</code> in <code>data</code> (default=<code>data.cols.y</code>) using <code>fun</code> (default=<code>mid</code>).</p>
+              <p>For <code>showCols</code> (default=<code>data.cols.c</code>) in <code>data</code>, report <code>fun</code> (default=<code>mid</code>).</p>
 
             </div>
             
@@ -452,56 +478,6 @@ OPTIONS:
 <span class="hljs-keyword">return</span> {the=the,add=add,adds=adds,mid=mid,div=div,dist=dist,
         nums=nums,record=record,
         Cols=Cols,Num=Num, Sym=Sym, Data=Data}</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-26">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-26">&#x00a7;</a>
-              </div>
-              <h2 id="notes">Notes</h2>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-27">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-27">&#x00a7;</a>
-              </div>
-              <ul>
-<li>Each line is usually 80 chars (or less)</li>
-<li>Two spaces before function argumnets denote optionals.</li>
-<li>Four spaces before function argumnets denote local variables..</li>
-<li>Private functions start with <code>_</code></li>
-<li>Arguments of private functions do anything at all</li>
-<li>Local variables inside functions do anything at all</li>
-<li>Arguments of public functions use type hints<ul>
-<li>Variable  <code>x</code> is is anything</li>
-<li>Prefix <code>is</code> is a boolean</li>
-<li>Prefix <code>fun</code> is a function</li>
-<li>Prefix <code>f</code> is a filename</li>
-<li>Prefix <code>n</code> is a string</li>
-<li>Prefix <code>s</code> is a string</li>
-<li>Prefix <code>c</code> is a column index</li>
-<li><code>col</code> denotes <code>num</code> or <code>sym</code></li>
-<li><code>x</code> is anything (table or number of boolean or string</li>
-<li><code>v</code> is a simple value (number or boolean  or  string)</li>
-<li>Suffix <code>s</code> is a list of things</li>
-<li>Tables are <code>t</code> or, using the above, a table of numbers would be <code>ns</code></li>
-<li>Type names are lower case versions of constuctors. so in this code,
-<code>cols</code>,<code>data</code>,<code>num</code>,<code>sym</code> are made by functions <code>Cols</code> <code>Data</code>, <code>Num</code>, <code>Sym</code></li>
-</ul>
-</li>
-</ul>
-
-            </div>
             
         </li>
         

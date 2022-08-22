@@ -1,5 +1,27 @@
+-- In this code:
+-- - Each line is usually 80 chars (or less)
+-- - Two spaces before function argumnets denote optionals.
+-- - Four spaces before function argumnets denote local variables..
+-- - Private functions start with `_`
+-- - Arguments of private functions do anything at all
+-- - Local variables inside functions do anything at all
+-- - Arguments of public functions use type hints
+--   - Variable  `x` is is anything
+--   - Prefix `is` is a boolean
+--   - Prefix `fun` is a function
+--   - Prefix `f` is a filename
+--   - Prefix `n` is a string
+--   - Prefix `s` is a string
+--   - Prefix `c` is a column index
+--   - `col` denotes `num` or `sym`
+--   - `x` is anything (table or number of boolean or string
+--   - `v` is a simple value (number or boolean  or  string)
+--   - Suffix `s` is a list of things
+--   - Tables are `t` or, using the above, a table of numbers would be `ns`
+--   - Type names are lower case versions of constuctors. so in this code,
+--     `cols`,`data`,`num`,`sym` are made by functions `Cols` `Data`, `Num`, `Sym`
 local l=require"lib0"
-local the=l.settings [[   
+local the=l.settings([[   
 SAM0 : semi-supervised multi-objective explainations
 (c) 2022 Tim Menzies <timm@ieee.org> BSD-2 license
 
@@ -10,7 +32,7 @@ OPTIONS:
  -h  --help   show help                = false
  -n  --nums   how many numbers to keep = 256
  -p  --p      distance coeffecient     = 2
- -s  --seed   random number seed       = 10019]]
+ -s  --seed   random number seed       = 10019]])
 
 local copy,csv,o,oo = l.coerce,l.copy,l.csv,l.o,l.oo
 local per,push      = l.per, l.push
@@ -105,8 +127,8 @@ local function _head(sNames)
 function read(src)
   local data,fun=Data()
   function fun(t) if data.cols then record(data,t) else data.cols=_head(t) end end
-  if type(src)=="string" then csv(src,fun) else 
-    for _,t in pairs(src or {}) do fun(t) end end 
+  if type(src)=="string" then csv(src,fun) 
+                         else for _,t in pairs(src or {}) do fun(t) end end 
   return data end
 
 -- ### Update
@@ -122,7 +144,7 @@ function record(data,xs)
 -- ### Query
 
 
--- Summarize `showCols` in `data` (default=`data.cols.y`) using `fun` (default=`mid`).
+-- For `showCols` (default=`data.cols.c`) in `data`, report `fun` (default=`mid`).
 function stats(data,  showCols,fun,    t)
   showCols, fun = showCols or data.cols.y, fun or mid
   t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
@@ -150,27 +172,4 @@ function dist(data,t1,t2)
 return {the=the,add=add,adds=adds,mid=mid,div=div,dist=dist,
         nums=nums,record=record,
         Cols=Cols,Num=Num, Sym=Sym, Data=Data}
--- ##  Notes
 
-
--- - Each line is usually 80 chars (or less)
--- - Two spaces before function argumnets denote optionals.
--- - Four spaces before function argumnets denote local variables..
--- - Private functions start with `_`
--- - Arguments of private functions do anything at all
--- - Local variables inside functions do anything at all
--- - Arguments of public functions use type hints
---   - Variable  `x` is is anything
---   - Prefix `is` is a boolean
---   - Prefix `fun` is a function
---   - Prefix `f` is a filename
---   - Prefix `n` is a string
---   - Prefix `s` is a string
---   - Prefix `c` is a column index
---   - `col` denotes `num` or `sym`
---   - `x` is anything (table or number of boolean or string
---   - `v` is a simple value (number or boolean  or  string)
---   - Suffix `s` is a list of things
---   - Tables are `t` or, using the above, a table of numbers would be `ns`
---   - Type names are lower case versions of constuctors. so in this code,
---     `cols`,`data`,`num`,`sym` are made by functions `Cols` `Data`, `Num`, `Sym`
