@@ -1,3 +1,24 @@
+-- In this code:
+-- - Line strive to be 80 chars (or less)
+-- - Two spaces before function argumnets denote optionals.
+-- - Four spaces before function argumnets denote local variables.
+-- - Private functions start with `_`
+-- - Arguments of private functions do anything at all
+-- - Local variables inside functions do anything at all
+-- - Arguments of public functions use type hints
+--   - Variable  `x` is is anything
+--   - Prefix `is` is a boolean
+--   - Prefix `fun` is a function
+--   - Prefix `f` is a filename
+--   - Prefix `n` is a string
+--   - Prefix `s` is a string
+--   - Prefix `c` is a column index
+--   - `col` denotes `num` or `sym`
+--   - `x` is anything (table or number of boolean or string
+--   - `v` is a simple value (number or boolean  or  string)
+--   - Suffix `s` is a list of things
+--   - Tables are `t` or, using the above, a table of numbers would be `ns`
+--   - Type names are lower case versions of constuctors; e.g `col` isa `Cols`.
 local l=require"lib"
 local _=require"sam"
 
@@ -32,12 +53,14 @@ function eg.bignum(  num)
 function eg.read() 
  oo(read("../../data/auto93.csv").cols.y); return true end
 
-function eg.dist(  data)
+function eg.dist(  data,t)
   data=read("../../data/auto93.csv")
-  for i=2,#data.rows do
-    print(dist(data,data.rows[1], data.rows[i])) end 
+  t={}
+  for i=1,20 do push(t,rnd(dist(data,l.any(data.rows), l.any(data.rows)),2)) end 
+  table.sort(t)
+  oo(t)
   return true end
 
 -- -------------------------------------------------------------------------
 the = l.cli(the)
-os.exit( l.run(the.eg, eg, the))
+os.exit( l.run(the.eg, eg, the))

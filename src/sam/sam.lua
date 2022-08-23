@@ -1,28 +1,5 @@
--- sam.lua : Semi-supervised And Multi-objective explanation   
--- (c) 2022 Tim Menzies <timm@ieee.org> BSD-2 license
---   
--- In this code:
--- - Line strive to be 80 chars (or less)
--- - Two spaces before function argumnets denote optionals.
--- - Four spaces before function argumnets denote local variables.
--- - Private functions start with `_`
--- - Arguments of private functions do anything at all
--- - Local variables inside functions do anything at all
--- - Arguments of public functions use type hints
---   - Variable  `x` is is anything
---   - Prefix `is` is a boolean
---   - Prefix `fun` is a function
---   - Prefix `f` is a filename
---   - Prefix `n` is a string
---   - Prefix `s` is a string
---   - Prefix `c` is a column index
---   - `col` denotes `num` or `sym`
---   - `x` is anything (table or number of boolean or string
---   - `v` is a simple value (number or boolean  or  string)
---   - Suffix `s` is a list of things
---   - Tables are `t` or, using the above, a table of numbers would be `ns`
---   - Type names are lower case versions of constuctors. so in this code,
---     `cols`,`data`,`num`,`sym` are made by functions `Cols` `Data`, `Num`, `Sym`
+-- For a list of coding conventions in this file, see 
+-- [eg.lua](https://github.com/timm/lua/blob/main/src/sam/eg.lua).
 local l=require"lib"
 local the=l.settings([[   
 SAM : Semi-supervised And Multi-objective explainations
@@ -36,14 +13,11 @@ OPTIONS:
  -n  --nums   how many numbers to keep = 256
  -p  --p      distance coeffecient     = 2
  -s  --seed   random number seed       = 10019]])
-
 -- Commonly used lib functions.
 local o,oo,per,push = l.o,l.oo,l.per, l.push
 
-local Data,Cols,Sym,Num,Row
-local add,adds,clone,dist,div,mid,nums,record,read,stats
-
 ---- ---- ---- ---- Classes 
+local Data,Cols,Sym,Num,Row
 -- Holder of `rows` and their sumamries (in `cols`).
 function Data() return {cols=nil,  rows={}} end
 
@@ -64,6 +38,7 @@ function Num(c,s)
 function Row(t) return {cells=t, cooked=l.copy(t)} end
 
 ---- ---- ---- ---- Data Functions
+local add,adds,clone,div,mid,norm,nums,record,read,stats
 ---- ---- ---- Update
 -- Add one `col`. For Num, keep at most `nums` items.
 function add(col,v)
@@ -87,6 +62,10 @@ function nums(num)
   if not num.sorted then table.sort(num._has); num.sorted=true end
   return num._has end
 
+-- Normalized numbers 0..1. Everything else normalizes to itself.
+function norm(col,n) 
+  return x=="?" or not col.isNum and x or  (n-col.lo)/(col.hi-col.lo + 1E-32) end
+
 -- Diversity (standard deviation for Nums, entropy for Syms)
 function div(col)
   if  col.isNum then local a=nums(col); return (per(a,.9)-per(a,.1))/2.58 else
@@ -102,7 +81,10 @@ function mid(col)
     for k,v in pairs(col._has) do if v>most then mode,most=k,v end end
     return mode end end
 
----- ---- ---- ---- Data functions
+-- For `showCols` (default=`data.cols.x`) in `data`, report `fun` (default=`mid`).
+function stats(data,  showCols,fun,    t)
+  showCols, fun = showCols or data.cols.y, fun or mid
+  t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
 ---- ---- ---- Create
 -- Processes table of name strings (from row1 of csv file)
 local function _head(sNames)
@@ -140,28 +122,21 @@ function record(data,xs)
     for _,col in pairs(todo) do 
       add(col, row.cells[col.at]) end end end
 
----- ---- ---- Query
--- For `showCols` (default=`data.cols.x`) in `data`, report `fun` (default=`mid`).
-function stats(data,  showCols,fun,    t)
-  showCols, fun = showCols or data.cols.y, fun or mid
-  t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
-
 ---- ---- ---- ---- Distance functions
--- Distance between two values`v1,v2`  within `col`
-local function _dist1(col,  v1,v2)
-  if   v1=="?" and v2=="?" then return 1 end
-  if  not col.isNum        then return v1==v2 and 0 or 1 end 
-  local function norm(n) return (n-col.lo)/(col.hi-col.lo + 1E-32) end
-  if     v1=="?" then v2=norm(v2); v1 = v2<.5 and 1 or 0 
-  elseif v2=="?" then v1=norm(v1); v2 = v1<.5 and 1 or 0 
-  else   v1,v2 = norm(v1), norm(v2) end       
-  return  math.abs(v1-v2) end 
-
--- Distance between two rows (returns 0..1)
+local dist
+-- Distance between two rows (returns 0..1). For unknown values, assume max distance.
 function dist(data,t1,t2)
+  local function fun(col,  v1,v2)
+    if   v1=="?" and v2=="?" then return 1 end
+    if not col.isNum then return v1==v2 and 0 or 1 end 
+    v1,v2 = norm(col,v1), norm(col,v2)
+    if v1=="?" then v1 = v2<.5 and 1 or 0 end 
+    if v2=="?" then v2 = v1<.5 and 1 or 0 end
+    return math.abs(v1-v2) 
+  end -------
   local d = 0
   for _,col in pairs(data.cols.x) do 
-    d = d + _dist1(col, t1.cells[col.at], t2.cells[col.at])^the.p end
+    d = d + fun(col, t1.cells[col.at], t2.cells[col.at])^the.p end
   return (d/#data.cols.x)^(1/the.p) end
 
 -- ----------------------------------------------------------------------------
@@ -169,4 +144,4 @@ function dist(data,t1,t2)
 return {the=the, 
         Data=Data, Cols=Cols, Sym=Sym, Num=Num, Row=Row, 
         add=add, adds=adds, clone=clone, dist=dist,  div=div,
-        mid=mid, nums=nums, read=read, record=record, stats=stats}
+        mid=mid, nums=nums, read=read, record=record, stats=stats}

@@ -12,6 +12,19 @@ function l.rogues()
 -- Add `x` to a list. Return `x`.
 function l.push(t,x) t[1+#t]=x; return x end
 
+-- Sample one item
+function l.any(t) return t[math.random(#t)] end
+
+-- Sample many items
+function l.many(t,n,  u)  u={}; for i=1,n do u[1+#u]=l.any(t) end; return u end
+
+-- Deepcopy
+function l.copy(t)
+  if type(t) ~= "table" then return t end
+  local u={}; for k,v in pairs(t) do u[k] = l.copy(v) end
+  return setmetatable(u,getmetatable(t))  end
+
+
 -- Round
 function l.rnd(n, nPlaces)
   local mult = 10^(nPlaces or 3)
