@@ -9,7 +9,9 @@ USAGE: lua eg.lua [OPTIONS]
 
 OPTIONS:
  -e  --eg     start-up example         = nothing
+ -c  --cohen  small effect             = .35
  -h  --help   show help                = false
+ -m  --min    min size = n^(the.min)   = .5
  -n  --nums   how many numbers to keep = 256
  -p  --p      distance coeffecient     = 2
  -s  --seed   random number seed       = 10019]])
@@ -111,6 +113,30 @@ function record(data,xs)
   for _,todo in pairs{data.cols.x, data.cols.y} do
     for _,col in pairs(todo) do 
       add(col, row.cells[col.at]) end end end
+
+-- Unsupervised discretization.
+function unsuper(data)
+  local function sorter(col) 
+    return function (row1,row2)
+             local x,y = row1.cells[col.at], row2.cells[cols.at]
+             x = x=="?" and math.huge or x
+             y = y=="?" and math.huge or y
+             return x < y end end
+  for _,col in pairs(data.cols.x) do
+    if col.isNum then
+      local enough  = (#data.rows)^the.min
+      local epsilon = div(col)    *the.cohen
+      table.sort(data.rows,sorter(col))
+      n,lo,hi = 0, data.rows[1].cells[col.at], data.rows[1].cells[col.at]
+      for i,row in pairs(data.rows) do 
+        v = row.cells[col.at]
+        if v ~= "?" then
+          if i < #data.rows - enough then
+            w = data.rows[i+1].cells[col.at]
+            if v~=w and (hi-lo)>epsilon and n>enough then n,lo,hi = 0,v,v end end 
+          n  = n+1
+          hi = v
+          row.cooked[col.at] = lo end end end end end
 
 ---- ---- ---- Query
 -- Return kept numbers, sorted. 
