@@ -27,7 +27,7 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
-              <p>sam.lua : Semi-supervised And Multi-objective explanation<br>(c) 2022 Tim Menzies <a href="mailto:&#x74;&#105;&#x6d;&#x6d;&#x40;&#105;&#101;&#x65;&#101;&#46;&#111;&#114;&#x67;">&#x74;&#105;&#x6d;&#x6d;&#x40;&#105;&#101;&#x65;&#101;&#46;&#111;&#114;&#x67;</a> BSD-2 license</p>
+              <p>sam.lua : Semi-supervised And Multi-objective explanation<br>(c) 2022 Tim Menzies <a href="mailto:&#x74;&#105;&#109;&#x6d;&#64;&#105;&#101;&#101;&#x65;&#46;&#111;&#x72;&#103;">&#x74;&#105;&#109;&#x6d;&#64;&#105;&#101;&#101;&#x65;&#46;&#111;&#x72;&#103;</a> BSD-2 license</p>
 <p>In this code:</p>
 <ul>
 <li>Line strive to be 80 chars (or less)</li>
@@ -375,7 +375,8 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-20">&#x00a7;</a>
               </div>
-              <p>if <code>src</code> is a string, read rows from file; else read rows from a <code>src</code>  table</p>
+              <p>If <code>src</code> is a string, read rows from file; else read rows from a <code>src</code>  table
+When reading, use row1 to define the column headers.</p>
 
             </div>
             
@@ -500,7 +501,7 @@ OPTIONS:
   <span class="hljs-keyword">if</span>     v1==<span class="hljs-string">&quot;?&quot;</span> <span class="hljs-keyword">then</span> v2=norm(v2); v1 = v2&lt;<span class="hljs-number">.5</span> <span class="hljs-keyword">and</span> <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> <span class="hljs-number">0</span> 
   <span class="hljs-keyword">elseif</span> v2==<span class="hljs-string">&quot;?&quot;</span> <span class="hljs-keyword">then</span> v1=norm(v1); v2 = v1&lt;<span class="hljs-number">.5</span> <span class="hljs-keyword">and</span> <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> <span class="hljs-number">0</span> 
   <span class="hljs-keyword">else</span>   v1,v2 = norm(v1), norm(v2) <span class="hljs-keyword">end</span>       
-  <span class="hljs-keyword">return</span>  maths.<span class="hljs-built_in">abs</span>(v1-v2) <span class="hljs-keyword">end</span></pre></div></div>
+  <span class="hljs-keyword">return</span>  <span class="hljs-built_in">math</span>.<span class="hljs-built_in">abs</span>(v1-v2) <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -529,6 +530,19 @@ OPTIONS:
               
               <div class="sswrap ">
                 <a class="ss" href="#section-29">&#x00a7;</a>
+              </div>
+              <hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-30">&#x00a7;</a>
               </div>
               <p>That’s all folks.</p>
 

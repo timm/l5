@@ -164,6 +164,7 @@ function dist(data,t1,t2)
     d = d + _dist1(col, t1.cells[col.at], t2.cells[col.at])^the.p end
   return (d/#data.cols.x)^(1/the.p) end
 
+-- ----------------------------------------------------------------------------
 -- That's all folks.
 return {the=the, 
         Data=Data, Cols=Cols, Sym=Sym, Num=Num, Row=Row, 

@@ -1,7 +1,12 @@
 -- lib.lua: misc LUA functions   
 -- (c)2022 Tim Menzies <timm@ieee.org> BSD-2 licence
 local l={}
+
+---- ---- ---- ---- Meta
+-- Find rogue locals.
 l.b4={}; for k,v in pairs(_ENV) do l.b4[k]=v end 
+function l.rogues()
+  for k,v in pairs(_ENV) do if not l.b4[k] then print("?",k,type(v)) end end end
 
 ---- ---- ---- ---- Lists
 -- Add `x` to a list. Return `x`.
@@ -75,6 +80,32 @@ function l.cli(t)
     t[slot] = l.coerce(v) end
   if t.help then os.exit(print("\n"..t._help.."\n")) end
   return t end
+
+---- ---- ---- ---- Main 
+-- k=`ls`  : list all settings   
+-- k=`all` : run all demos
+-- k=x     : cache settings. reset settings, run one `fun`, update fails counter.
+
+function l.run(k,funs,settings)
+  local fails =0
+  local function _egs(   t)
+    t={}; for k,_ in pairs(funs) do t[1+#t]=k end; table.sort(t); return t end
+  if k=="ls" then 
+    print("\nExamples -e X):\nX=")
+    print(string.format("  %-7s","all"))  
+    print(string.format("  %-7s","ls")) 
+    for _,k in pairs(_egs()) do print(string.format("  %-7s",k)) end 
+  elseif k=="all" then
+    for _,k in pairs(_egs()) do 
+      fails=fails + (l.run(k,funs,settings) and 0 or 1) end
+  elseif funs[k] then
+    math.randomseed(settings.seed)
+    local b4={}; for k,v in pairs(settings) do b4[k]=v end
+    local out=funs[k]()
+    for k,v in pairs(b4) do settings[k]=v end
+    print("!!!!!!", k, out and "PASS" or "FAIL") end 
+  l.rogues() 
+  return fails end
 
 -- -------------------------------------------------
 -- That's all folks.

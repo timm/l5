@@ -128,7 +128,8 @@ local function _head(sNames)
       if s:find"!$"    then cols.klass=col end end end 
   return cols end
 
--- if `src` is a string, read rows from file; else read rows from a `src`  table
+-- If `src` is a string, read rows from file; else read rows from a `src`  table
+-- When reading, use row1 to define the column headers.
 function read(src,  data,     fun)
   data = data or Data()
   function fun(t) if data.cols then record(data,t) else data.cols=_head(t) end end
@@ -172,7 +173,7 @@ local function _dist1(col,  v1,v2)
   if     v1=="?" then v2=norm(v2); v1 = v2<.5 and 1 or 0 
   elseif v2=="?" then v1=norm(v1); v2 = v1<.5 and 1 or 0 
   else   v1,v2 = norm(v1), norm(v2) end       
-  return  maths.abs(v1-v2) end 
+  return  math.abs(v1-v2) end 
 
 -- Distance between two rows (returns 0..1)
 function dist(data,t1,t2)
@@ -181,6 +182,7 @@ function dist(data,t1,t2)
     d = d + _dist1(col, t1.cells[col.at], t2.cells[col.at])^the.p end
   return (d/#data.cols.x)^(1/the.p) end
 
+-- ----------------------------------------------------------------------------
 -- That's all folks.
 return {the=the, 
         Data=Data, Cols=Cols, Sym=Sym, Num=Num, Row=Row, 
