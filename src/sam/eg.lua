@@ -20,13 +20,11 @@
 --   - Tables are `t` or, using the above, a table of numbers would be `ns`
 --   - Type names are lower case versions of constuctors; e.g `col` isa `Cols`.
 --      
---  All the demo functions `eg.fun1`, `eg.fun2`, etc can be called via  
---  e.g. `lua eg.lua -e fun1`.
+--  All demo functions `eg.fun1` can be called via  `lua eg.lua -e fun1`.
 local eg= {}
--- -----------------------------------------------------------------------
+
 local l=require"lib"
 local _=require"sam"
-
 local o,oo,per,push,rnd = l.o,l.oo,l.per,l.push,l.rnd
 local add,adds,dist,div = _.add,_.adds,_.dist,_.div
 local mid, records, the = _.mid,_.records,_.the
@@ -87,7 +85,6 @@ function eg.dist(  data,t)
   table.sort(t)
   oo(t)
   return true end
-
 -- -------------------------------------------------------------------------
 the = l.cli(the)
 os.exit( l.runs(the.eg, eg, the))

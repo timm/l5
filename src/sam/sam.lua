@@ -23,17 +23,17 @@ function Data() return {cols=nil,  -- summaries of data
                         rows={}    -- kept data
                        } end
 
--- Holder of summaries of columns. 
--- Columns are created once, then shared across the following slots.
+-- Holds of summaries of columns. 
+-- Columns are created once, then may appear in  multiple slots.
 function Cols() return {
   names={},  -- all column names
-  all={},    -- holds all the columns (including the skipped ones)
-  klass=nil, -- shares the symbolic klass column (if it exists)
-  x={},      -- shares the independent columns (that are not skipped)
-  y={}       -- shared the depedent columns (that are not skipped)
+  all={},    -- all the columns (including the skipped ones)
+  klass=nil, -- the single dependent klass column (if it exists)
+  x={},      -- independent columns (that are not skipped)
+  y={}       -- depedent columns (that are not skipped)
   } end
 
--- Summary of a stream of symbols.
+-- Summarizers a stream of symbols.
 function Sym(c,s) 
   return {n=0,          -- items seen
           at=c or 0,    -- column position
@@ -41,7 +41,7 @@ function Sym(c,s)
           _has={}       -- kept data
          } end
 
--- Summary of a stream of numbers.
+-- Summarizes a stream of numbers.
 function Num(c,s) 
   return {n=0,at=c or 0, name=s or "", _has={}, -- as per Sym
           isNum=true,      -- mark that this is a number
@@ -51,15 +51,15 @@ function Num(c,s)
           w=(s or ""):find"-$" and -1 or 1 -- minimizing if w=-1
          } end
 
--- Hold one record
-function Row(t) return {cells=t,   -- one record
-                        cooked=nil -- used if we discretize data
+-- Holds one record
+function Row(t) return {cells=t,         -- one record
+                        cooked=i.copy(t) -- used if we discretize data
                        } end
 
 ---- ---- ---- ---- Data Functions
 local add,adds,clone,div,mid,norm,nums,record,records,stats
 ---- ---- ---- Create
--- Generate rows from some `src.  If `src` is a string, read rows from file; 
+-- Generate rows from some `src`.  If `src` is a string, read rows from file; 
 -- else read rows from a `src`  table. When reading, use row1 to define columns.
 function records(src,      data,head,body)
   function head(sNames)

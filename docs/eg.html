@@ -52,11 +52,18 @@
 </ul>
 </li>
 </ul>
-<p> All the demo functions <code>eg.fun1</code>, <code>eg.fun2</code>, etc can be called via<br> e.g. <code>lua eg.lua -e fun1</code>.</p>
+<p> All demo functions <code>eg.fun1</code> can be called via  <code>lua eg.lua -e fun1</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> eg= {}</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> eg= {}
+
+<span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span>
+<span class="hljs-keyword">local</span> _=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;sam&quot;</span>
+<span class="hljs-keyword">local</span> o,oo,per,push,rnd = l.o,l.oo,l.per,l.push,l.rnd
+<span class="hljs-keyword">local</span> add,adds,dist,div = _.add,_.adds,_.dist,_.div
+<span class="hljs-keyword">local</span> mid, records, the = _.mid,_.records,_.the
+<span class="hljs-keyword">local</span> Num,Sym      = _.Num, _.Sym</pre></div></div>
             
         </li>
         
@@ -66,39 +73,6 @@
               
               <div class="sswrap ">
                 <a class="ss" href="#section-2">&#x00a7;</a>
-              </div>
-              <hr>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-3">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-3">&#x00a7;</a>
-              </div>
-              
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span>
-<span class="hljs-keyword">local</span> _=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;sam&quot;</span>
-
-<span class="hljs-keyword">local</span> o,oo,per,push,rnd = l.o,l.oo,l.per,l.push,l.rnd
-<span class="hljs-keyword">local</span> add,adds,dist,div = _.add,_.adds,_.dist,_.div
-<span class="hljs-keyword">local</span> mid, records, the = _.mid,_.records,_.the
-<span class="hljs-keyword">local</span> Num,Sym      = _.Num, _.Sym</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-4">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-4">&#x00a7;</a>
               </div>
               <p>Settings come from big string top of “sam.lua” 
 (maybe updated from comamnd line)</p>
@@ -110,11 +84,11 @@
         </li>
         
         
-        <li id="section-5">
+        <li id="section-3">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-5">&#x00a7;</a>
+                <a class="ss" href="#section-3">&#x00a7;</a>
               </div>
               <p>The middle and diversity of a set of symbols is called “mode” 
 and “entropy” (and the latter is zero when all the symbols 
@@ -131,11 +105,11 @@ are the same).</p>
         </li>
         
         
-        <li id="section-6">
+        <li id="section-4">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-6">&#x00a7;</a>
+                <a class="ss" href="#section-4">&#x00a7;</a>
               </div>
               <p>The middle and diversity of a set of numbers is called “median” 
 and “standard deviation” (and the latter is zero when all the nums 
@@ -153,11 +127,11 @@ are the same).</p>
         </li>
         
         
-        <li id="section-7">
+        <li id="section-5">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-7">&#x00a7;</a>
+                <a class="ss" href="#section-5">&#x00a7;</a>
               </div>
               <p>Nums store only a sample of the numbers added to it (and that storage 
 is done such that the kept numbers span the range of inputs).</p>
@@ -174,11 +148,11 @@ is done such that the kept numbers span the range of inputs).</p>
         </li>
         
         
-        <li id="section-8">
+        <li id="section-6">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-8">&#x00a7;</a>
+                <a class="ss" href="#section-6">&#x00a7;</a>
               </div>
               <p>We can read data from disk-based csv files, where row1 lists a
 set of columns names. These names are used to work out what are Nums, or
@@ -192,11 +166,11 @@ ro Syms, or goals to minimize/maximize, or (indeed) what columns to ignre.</p>
         </li>
         
         
-        <li id="section-9">
+        <li id="section-7">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-9">&#x00a7;</a>
+                <a class="ss" href="#section-7">&#x00a7;</a>
               </div>
               <p>Any two rows have a distance 0..1 that satisfies equality, symmetry
 and the triangle inequality.</p>
@@ -222,11 +196,11 @@ and the triangle inequality.</p>
         </li>
         
         
-        <li id="section-10">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-10">&#x00a7;</a>
+                <a class="ss" href="#section-8">&#x00a7;</a>
               </div>
               <hr>
 
@@ -235,11 +209,11 @@ and the triangle inequality.</p>
         </li>
         
         
-        <li id="section-11">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-11">&#x00a7;</a>
+                <a class="ss" href="#section-9">&#x00a7;</a>
               </div>
               
             </div>

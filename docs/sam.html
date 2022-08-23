@@ -104,17 +104,17 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-5">&#x00a7;</a>
               </div>
-              <p>Holder of summaries of columns. 
-Columns are created once, then shared across the following slots.</p>
+              <p>Holds of summaries of columns. 
+Columns are created once, then may appear in  multiple slots.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Cols</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> {
   names={},  <span class="hljs-comment">-- all column names</span>
-  all={},    <span class="hljs-comment">-- holds all the columns (including the skipped ones)</span>
-  klass=<span class="hljs-literal">nil</span>, <span class="hljs-comment">-- shares the symbolic klass column (if it exists)</span>
-  x={},      <span class="hljs-comment">-- shares the independent columns (that are not skipped)</span>
-  y={}       <span class="hljs-comment">-- shared the depedent columns (that are not skipped)</span>
+  all={},    <span class="hljs-comment">-- all the columns (including the skipped ones)</span>
+  klass=<span class="hljs-literal">nil</span>, <span class="hljs-comment">-- symbolic klass column (if it exists)</span>
+  x={},      <span class="hljs-comment">-- independent columns (that are not skipped)</span>
+  y={}       <span class="hljs-comment">-- depedent columns (that are not skipped)</span>
   } <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -126,7 +126,7 @@ Columns are created once, then shared across the following slots.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-6">&#x00a7;</a>
               </div>
-              <p>Summary of a stream of symbols.</p>
+              <p>Summarizers a stream of symbols.</p>
 
             </div>
             
@@ -146,7 +146,7 @@ Columns are created once, then shared across the following slots.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-7">&#x00a7;</a>
               </div>
-              <p>Summary of a stream of numbers.</p>
+              <p>Summarizes a stream of numbers.</p>
 
             </div>
             
@@ -168,12 +168,12 @@ Columns are created once, then shared across the following slots.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-8">&#x00a7;</a>
               </div>
-              <p>Hold one record</p>
+              <p>Holds one record</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row</span><span class="hljs-params">(t)</span></span> <span class="hljs-keyword">return</span> {cells=t,   <span class="hljs-comment">-- one record</span>
-                        cooked=<span class="hljs-literal">nil</span> <span class="hljs-comment">-- used if we discretize data</span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row</span><span class="hljs-params">(t)</span></span> <span class="hljs-keyword">return</span> {cells=t,         <span class="hljs-comment">-- one record</span>
+                        cooked=i.copy(t) <span class="hljs-comment">-- used if we discretize data</span>
                        } <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -215,7 +215,8 @@ Columns are created once, then shared across the following slots.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-11">&#x00a7;</a>
               </div>
-              <p>Generate rows from some <code>src.  If </code>src<code>is a string, read rows from file;  else read rows from a</code>src`  table. When reading, use row1 to define columns.</p>
+              <p>Generate rows from some <code>src</code>.  If <code>src</code> is a string, read rows from file; 
+else read rows from a <code>src</code>  table. When reading, use row1 to define columns.</p>
 
             </div>
             
