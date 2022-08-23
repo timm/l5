@@ -21,23 +21,41 @@ local o,oo,per,push = l.o,l.oo,l.per, l.push
 
 local Data,Cols,Sym,Num,Row
 -- Holder of `rows` and their sumamries (in `cols`).
-function Data() return {cols=nil,  rows={}} end
+function Data() return {cols=nil,  -- summaries of data
+                        rows={}    -- kept data
+                       } end
 
 -- Hoder of summaries
-function Cols() return {klass=nil,names={},nums={}, x={}, y={}, all={}} end
+function Cols() return {
+  klass=nil, -- for any symbolic klass
+  names={},  -- all column names
+  x={},      -- for independent columns (that are not skipped)
+  y={},      -- for depedent columns (that are not skipped)
+  all={}     -- all columns (including the skipped ones)
+  } end
 
 -- Summary of a stream of symbols.
 function Sym(c,s) 
-  return {n=0,at=c or 0, name=s or "", _has={}} end
+  return {n=0,          -- items seen
+          at=c or 0,    -- column position
+          name=s or "", -- column name
+          _has={}       -- kept data
+         } end
 
 -- Summary of a stream of numbers.
 function Num(c,s) 
-  return {n=0,at=c or 0, name=s or "", _has={},
-          isNum=true, lo= math.huge, hi= -math.huge, sorted=true,
-          w=(s or ""):find"-$" and -1 or 1} end
+  return {n=0,at=c or 0, name=s or "", _has={}, -- as per Sym
+          isNum=true,      -- mark that this is a number
+          lo= math.huge,   -- lowest seen
+          hi= -math.huge,  -- highest seen
+          sorted=true,    -- no updates since last sort of data
+          w=(s or ""):find"-$" and -1 or 1 -- minimizing if w=-1
+         } end
 
--- Hold one record, in `cells` (and `cooked` is for discretized data).
-function Row(t) return {cells=t, cooked=l.copy(t)} end
+-- Hold one record
+function Row(t) return {cells=t,   -- one record
+                        cooked=nil -- used if we discretize data
+                       } end
 
 -- ## Data Functions
 
@@ -60,7 +78,7 @@ function records(src,      data,oneRow,head)
         if s:find"!$"    then cols.klass=col end end end 
     return cols 
   end ------------
-  function body(t) 
+  function body(t) -- treat first row differently (defines the columns)
     if data.cols then record(data,t) else data.cols=head(t) end 
   end ----------
   data =  Data()
@@ -94,7 +112,7 @@ function add(col,v)
 -- Add many things to col
 function adds(col,t) for _,v in pairs(t) do add(col,v) end; return col end
 
--- Add a new `row` to `data`. Calls `add()` to  updatie the `cols` with new values.
+-- Add a `row` to `data`. Calls `add()` to  updatie the `cols` with new values.
 function record(data,xs)
   local row= push(data.rows, xs.cells and xs or Row(xs)) -- ensure xs is a Row
   for _,todo in pairs{data.cols.x, data.cols.y} do
@@ -137,7 +155,7 @@ function stats(data,  showCols,fun,    t)
 
 
 local dist
--- Distance between two rows (returns 0..1). For unknown values, assume max distance.
+-- Distance between rows (returns 0..1). For unknown values, assume max distance.
 function dist(data,t1,t2)
   local function fun(col,  v1,v2)
     if   v1=="?" and v2=="?" then return 1 end

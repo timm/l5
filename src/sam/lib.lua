@@ -98,25 +98,29 @@ function l.cli(t)
 -- In this function:
 -- - `k`=`ls`  : list all settings   
 -- - `k`=`all` : run all demos   
--- - `k`=x     : cache settings. reset settings, run one `fun`, update fails counter.
-
-function l.run(k,funs,settings)
+-- - `k`=x     : run one thing
+-- 
+-- For each run, beforehand, reset random number seed. Afterwards,
+-- discard and settings changes made during that one run. 
+-- If any run does not return `true`, increment `fails`.
+-- Return fails counter.
+function l.runs(k,funs,settings)
   local fails =0
   local function _egs(   t)
     t={}; for k,_ in pairs(funs) do t[1+#t]=k end; table.sort(t); return t end
-  if k=="ls" then 
+  if k=="ls" then -- list all
     print("\nExamples -e X):\nX=")
     print(string.format("  %-7s","all"))  
     print(string.format("  %-7s","ls")) 
     for _,k in pairs(_egs()) do print(string.format("  %-7s",k)) end 
-  elseif k=="all" then
+  elseif k=="all" then -- run all
     for _,k in pairs(_egs()) do 
       fails=fails + (l.run(k,funs,settings) and 0 or 1) end
-  elseif funs[k] then
-    math.randomseed(settings.seed)
+  elseif funs[k] then -- run one
+    math.randomseed(settings.seed) -- reset seed
     local b4={}; for k,v in pairs(settings) do b4[k]=v end
     local out=funs[k]()
-    for k,v in pairs(b4) do settings[k]=v end
+    for k,v in pairs(b4) do settings[k]=v end -- restore old settings
     print("!!!!!!", k, out and "PASS" or "FAIL") end 
   l.rogues() 
   return fails end

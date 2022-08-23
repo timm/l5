@@ -91,7 +91,9 @@ OPTIONS:
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> {cols=<span class="hljs-literal">nil</span>,  rows={}} <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> {cols=<span class="hljs-literal">nil</span>,  <span class="hljs-comment">-- summaries of data</span>
+                        rows={}    <span class="hljs-comment">-- kept data</span>
+                       } <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -106,7 +108,13 @@ OPTIONS:
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Cols</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> {klass=<span class="hljs-literal">nil</span>,names={},nums={}, x={}, y={}, all={}} <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Cols</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> {
+  klass=<span class="hljs-literal">nil</span>, <span class="hljs-comment">-- for any symbolic klass</span>
+  names={},  <span class="hljs-comment">-- all column names</span>
+  x={},      <span class="hljs-comment">-- for independent columns (that are not skipped)</span>
+  y={},      <span class="hljs-comment">-- for depedent columns (that are not skipped)</span>
+  all={}     <span class="hljs-comment">-- all columns (including the skipped ones)</span>
+  } <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -122,7 +130,11 @@ OPTIONS:
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sym</span><span class="hljs-params">(c,s)</span></span> 
-  <span class="hljs-keyword">return</span> {n=<span class="hljs-number">0</span>,at=c <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>, name=s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>, _has={}} <span class="hljs-keyword">end</span></pre></div></div>
+  <span class="hljs-keyword">return</span> {n=<span class="hljs-number">0</span>,          <span class="hljs-comment">-- items seen</span>
+          at=c <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>,    <span class="hljs-comment">-- column position</span>
+          name=s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-comment">-- column name</span>
+          _has={}       <span class="hljs-comment">-- kept data</span>
+         } <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -138,9 +150,13 @@ OPTIONS:
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num</span><span class="hljs-params">(c,s)</span></span> 
-  <span class="hljs-keyword">return</span> {n=<span class="hljs-number">0</span>,at=c <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>, name=s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>, _has={},
-          isNum=<span class="hljs-literal">true</span>, lo= <span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>, hi= -<span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>, sorted=<span class="hljs-literal">true</span>,
-          w=(s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>):<span class="hljs-built_in">find</span><span class="hljs-string">&quot;-$&quot;</span> <span class="hljs-keyword">and</span> <span class="hljs-number">-1</span> <span class="hljs-keyword">or</span> <span class="hljs-number">1</span>} <span class="hljs-keyword">end</span></pre></div></div>
+  <span class="hljs-keyword">return</span> {n=<span class="hljs-number">0</span>,at=c <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>, name=s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>, _has={}, <span class="hljs-comment">-- as per Sym</span>
+          isNum=<span class="hljs-literal">true</span>,      <span class="hljs-comment">-- mark that this is a number</span>
+          lo= <span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>,   <span class="hljs-comment">-- lowest seen</span>
+          hi= -<span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>,  <span class="hljs-comment">-- highest seen</span>
+          sorted=<span class="hljs-literal">true</span>,    <span class="hljs-comment">-- no updates since last sort of data</span>
+          w=(s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>):<span class="hljs-built_in">find</span><span class="hljs-string">&quot;-$&quot;</span> <span class="hljs-keyword">and</span> <span class="hljs-number">-1</span> <span class="hljs-keyword">or</span> <span class="hljs-number">1</span> <span class="hljs-comment">-- minimizing if w=-1</span>
+         } <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -151,11 +167,13 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-8">&#x00a7;</a>
               </div>
-              <p>Hold one record, in <code>cells</code> (and <code>cooked</code> is for discretized data).</p>
+              <p>Hold one record</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row</span><span class="hljs-params">(t)</span></span> <span class="hljs-keyword">return</span> {cells=t, cooked=l.copy(t)} <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row</span><span class="hljs-params">(t)</span></span> <span class="hljs-keyword">return</span> {cells=t,   <span class="hljs-comment">-- one record</span>
+                        cooked=<span class="hljs-literal">nil</span> <span class="hljs-comment">-- used if we discretize data</span>
+                       } <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -212,7 +230,7 @@ OPTIONS:
         <span class="hljs-keyword">if</span> s:<span class="hljs-built_in">find</span><span class="hljs-string">&quot;!$&quot;</span>    <span class="hljs-keyword">then</span> cols.klass=col <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
     <span class="hljs-keyword">return</span> cols 
   <span class="hljs-keyword">end</span> <span class="hljs-comment">------------</span>
-  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">body</span><span class="hljs-params">(t)</span></span> 
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">body</span><span class="hljs-params">(t)</span></span> <span class="hljs-comment">-- treat first row differently (defines the columns)</span>
     <span class="hljs-keyword">if</span> data.cols <span class="hljs-keyword">then</span> record(data,t) <span class="hljs-keyword">else</span> data.cols=head(t) <span class="hljs-keyword">end</span> 
   <span class="hljs-keyword">end</span> <span class="hljs-comment">----------</span>
   data =  Data()
@@ -301,7 +319,7 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-16">&#x00a7;</a>
               </div>
-              <p>Add a new <code>row</code> to <code>data</code>. Calls <code>add()</code> to  updatie the <code>cols</code> with new values.</p>
+              <p>Add a <code>row</code> to <code>data</code>. Calls <code>add()</code> to  updatie the <code>cols</code> with new values.</p>
 
             </div>
             
@@ -439,7 +457,7 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-24">&#x00a7;</a>
               </div>
-              <p>Distance between two rows (returns 0..1). For unknown values, assume max distance.</p>
+              <p>Distance between rows (returns 0..1). For unknown values, assume max distance.</p>
 
             </div>
             

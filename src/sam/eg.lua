@@ -63,4 +63,4 @@ function eg.dist(  data,t)
 
 -- -------------------------------------------------------------------------
 the = l.cli(the)
-os.exit( l.run(the.eg, eg, the))
+os.exit( l.runs(the.eg, eg, the))
