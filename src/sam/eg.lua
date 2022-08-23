@@ -12,9 +12,8 @@ local function run(k,    b4,out)
     b4 = l.copy(the); out=eg[k](); the = l.copy(b4); 
     print("!!!!!!", k, out and "PASS" or "FAIL")
     return out==true end
--- -----------------------------------------------------------------------------
-function eg.the() oo(the); return true end
 
+-- -----------------------------------------------------------------------------
 local function _egs(   t)
   t={}; for k,_ in pairs(eg) do t[1+#t]=k end; table.sort(t);  return t end
 
@@ -28,7 +27,9 @@ function eg.all()
     if k ~= "all" then fails = fails + (run(k) and 0 or 1) end end 
   return true end
 
- -- -----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
+function eg.the() oo(the); return true end
+
 function eg.ent(  sym,ent)
   sym= adds(Sym(), {"a","a","a","a","b","b","c"})
   ent= div(sym)

@@ -116,7 +116,8 @@ local function _head(sNames)
       if s:find"!$"    then cols.klass=col end end end 
   return cols end
 
--- if `src` is a string, read rows from file; else read rows from a `src`  table
+-- If `src` is a string, read rows from file; else read rows from a `src`  table
+-- When reading, use row1 to define the column headers.
 function read(src,  data,     fun)
   data = data or Data()
   function fun(t) if data.cols then record(data,t) else data.cols=_head(t) end end
