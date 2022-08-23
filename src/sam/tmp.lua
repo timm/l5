@@ -1,93 +1,140 @@
--- In this code:
--- - Line strive to be 80 chars (or less)
--- - Two spaces before function argumnets denote optionals.
--- - Four spaces before function argumnets denote local variables.
--- - Private functions start with `_`
--- - Arguments of private functions do anything at all
--- - Local variables inside functions do anything at all
--- - Arguments of public functions use type hints
---   - Variable  `x` is is anything
---   - Prefix `is` is a boolean
---   - Prefix `fun` is a function
---   - Prefix `f` is a filename
---   - Prefix `n` is a string
---   - Prefix `s` is a string
---   - Prefix `c` is a column index
---   - `col` denotes `num` or `sym`
---   - `x` is anything (table or number of boolean or string
---   - `v` is a simple value (number or boolean  or  string)
---   - Suffix `s` is a list of things
---   - Tables are `t` or, using the above, a table of numbers would be `ns`
---   - Type names are lower case versions of constuctors; e.g `col` isa `Cols`.
---      
---  All the demo functions `eg.fun1`, `eg.fun2`, etc can be called via  
---  e.g. `lua eg.lua -e fun1`.
-local eg= {}
--- -----------------------------------------------------------------------
-local l=require"lib"
-local _=require"sam"
+-- lib.lua: misc LUA functions   
+-- (c)2022 Tim Menzies <timm@ieee.org> BSD-2 licence
+local l={}
 
-local o,oo,per,push,rnd = l.o,l.oo,l.per,l.push,l.rnd
-local add,adds,dist,div = _.add,_.adds,_.dist,_.div
-local mid, records, the = _.mid,_.records,_.the
-local Num,Sym      = _.Num, _.Sym
+-- ## Meta
 
--- Settings come from big string top of "sam.lua" 
--- (maybe updated from comamnd line)
-function eg.the() oo(the); return true end
 
--- The middle and diversity of a set of symbols is called "mode" 
--- and "entropy" (and the latter is zero when all the symbols 
--- are the same).
-function eg.ent(  sym,ent)
-  sym= adds(Sym(), {"a","a","a","a","b","b","c"})
-  ent= div(sym)
-  print(ent,mid(sym))
-  return 1.37 <= ent and ent <=1.38 end
+-- Find rogue locals.
+l.b4={}; for k,v in pairs(_ENV) do l.b4[k]=v end 
+function l.rogues()
+  for k,v in pairs(_ENV) do if not l.b4[k] then print("?",k,type(v)) end end end
 
--- The middle and diversity of a set of numbers is called "median" 
--- and "standard deviation" (and the latter is zero when all the nums 
--- are the same).
-function eg.num(  num)
-  num=Num()
-  for i=1,100 do add(num,i) end
-  local med,ent = mid(num), rnd(div(num),2)
-  print(mid(num) ,rnd(div(num),2))
-  return 50<= med and med<= 52 and 30.5 <ent and ent <32 end 
+-- ## Lists
 
--- Nums store only a sample of the numbers added to it (and that storage 
--- is done such that the kept numbers span the range of inputs).
-function eg.bignum(  num)
-  num=Num()
-  the.nums = 32
-  for i=1,1000 do add(num,i) end
-  oo(_.nums(num))
-  return 32==#num._has end
 
--- We can read data from disk-based csv files, where row1 lists a
--- set of columns names. These names are used to work out what are Nums, or
--- ro Syms, or goals to minimize/maximize, or (indeed) what columns to ignre.
-function eg.records() 
- oo(records("../../data/auto93.csv").cols.y); return true end
+-- Add `x` to a list. Return `x`.
+function l.push(t,x) t[1+#t]=x; return x end
 
--- Any two rows have a distance 0..1 that satisfies equality, symmetry
--- and the triangle inequality.
-function eg.dist(  data,t)
-  data=records("../../data/auto93.csv")
-  t={}
-  for i=1,100 do 
-     local A,B,C = l.any(data.rows), l.any(data.rows), l.any(data.rows)
-     local a,b,c = dist(data,B,C), dist(data,A,C), dist(data,A,B)
-     assert(a<=1 and b<=1 and c<=1)
-     assert(a>=0 and b>=0 and c>=0)
-     assert( dist(data,A,A) == 0)              -- equality
-     assert( dist(data,A,B) == dist(data,B,A)) -- symmetry
-     assert(a+b>=c)                            -- triangle inequality
-     for _,x in pairs{a} do push(t,rnd(x,2)) end  end
-  table.sort(t)
-  oo(t)
-  return true end
+-- Sample one item
+function l.any(t) return t[math.random(#t)] end
 
--- -------------------------------------------------------------------------
-the = l.cli(the)
-os.exit( l.runs(the.eg, eg, the))
+-- Sample many items
+function l.many(t,n,  u)  u={}; for i=1,n do u[1+#u]=l.any(t) end; return u end
+
+-- Deepcopy
+function l.copy(t)
+  if type(t) ~= "table" then return t end
+  local u={}; for k,v in pairs(t) do u[k] = l.copy(v) end
+  return setmetatable(u,getmetatable(t))  end
+
+
+-- Round
+function l.rnd(n, nPlaces)
+  local mult = 10^(nPlaces or 3)
+  return math.floor(n * mult + 0.5) / mult end
+ 
+-- Deepcopy
+function l.copy(t)
+  if type(t) ~= "table" then return t end
+  local u={}; for k,v in pairs(t) do u[k] = l.copy(v) end
+  return u end
+
+-- Return the `p`-th thing from the sorted list `t`.
+function l.per(t,p)
+  p=math.floor(((p or .5)*#t)+.5); return t[math.max(1,math.min(#t,p))] end
+
+-- ## Strings
+
+
+-- `o` generates a string from a nested table.
+function l.o(t)
+  if type(t) ~=  "table" then return tostring(t) end
+  local function show(k,v)
+    if not tostring(k):find"^_"  then
+      v = l.o(v)
+      return #t==0 and string.format(":%s %s",k,v) or tostring(v) end end
+  local u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
+  if #t==0 then table.sort(u) end
+  return (t._is or "").."{"..table.concat(u," ").."}" end
+
+-- `oo` prints the string from `o`.   
+function l.oo(t) print(l.o(t)) return t end
+--
+-- Convert string to something else.
+function l.coerce(s)
+  local function coerce1(s1)
+    if s1=="true"  then return true end 
+    if s1=="false" then return false end
+    return s1 end 
+  return math.tointeger(s) or tonumber(s) or coerce1(s:match"^%s*(.-)%s*$") end
+
+-- Iterator over csv files. Call `fun` for each record in `fname`.
+function l.csv(fname,fun)
+  local src = io.input(fname)
+  while true do
+    local s = io.read()
+    if not s then return io.close(src) else 
+      local t={}
+      for s1 in s:gmatch("([^,]+)") do t[1+#t] = l.coerce(s1) end
+      fun(t) end end end 
+
+-- ## Settings
+
+
+-- Parse help string looking for slot names and default values
+function l.settings(s)
+  local t={}
+  s:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)",
+         function(k,x) t[k]=l.coerce(x)end)
+  t._help = s
+  return t end
+
+-- Update `t` from values after command-line flags. Booleans need no values
+-- (we just flip the defeaults).
+function l.cli(t)
+  for slot,v in pairs(t) do
+    v = tostring(v)
+    for n,x in ipairs(arg) do
+      if x=="-"..(slot:sub(1,1)) or x=="--"..slot then
+        v = v=="false" and "true" or v=="true" and "false" or arg[n+1] end end
+    t[slot] = l.coerce(v) end
+  if t.help then os.exit(print("\n"..t._help.."\n")) end
+  return t end
+
+-- ## Main 
+
+
+-- In this function:
+-- - `k`=`ls`  : list all settings   
+-- - `k`=`all` : run all demos   
+-- - `k`=x     : run one thing
+-- 
+-- For each run, beforehand, reset random number seed. Afterwards,
+-- discard and settings changes made during that one run. 
+-- If any run does not return `true`, increment `fails`.
+-- Return fails counter.
+function l.runs(k,funs,settings)
+  local fails =0
+  local function _egs(   t)
+    t={}; for k,_ in pairs(funs) do t[1+#t]=k end; table.sort(t); return t end
+  if k=="ls" then -- list all
+    print("\nExamples -e X):\nX=")
+    print(string.format("  %-7s","all"))  
+    print(string.format("  %-7s","ls")) 
+    for _,k in pairs(_egs()) do print(string.format("  %-7s",k)) end 
+  elseif k=="all" then -- run all
+    for _,k in pairs(_egs()) do 
+      fails=fails + (l.run(k,funs,settings) and 0 or 1) end
+  elseif funs[k] then -- run one
+    math.randomseed(settings.seed) -- reset seed
+    local b4={}; for k,v in pairs(settings) do b4[k]=v end
+    local out=funs[k]()
+    for k,v in pairs(b4) do settings[k]=v end -- restore old settings
+    print("!!!!!!", k, out and "PASS" or "FAIL") end 
+  l.rogues() 
+  return fails end
+
+-- -------------------------------------------------
+-- That's all folks.
+return l
