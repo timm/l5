@@ -52,50 +52,11 @@
 </ul>
 </li>
 </ul>
+<p> All the demo functions <code>eg.fun1</code>, <code>eg.fun2</code>, etc can be called via<br> e.g. <code>lua eg.lua -e fun1</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span>
-<span class="hljs-keyword">local</span> _=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;sam&quot;</span>
-
-<span class="hljs-keyword">local</span> o,oo,per,push,rnd = l.o,l.oo,l.per,l.push,l.rnd
-<span class="hljs-keyword">local</span> add,adds,dist,div = _.add,_.adds,_.dist,_.div
-<span class="hljs-keyword">local</span> mid, records, the = _.mid,_.records,_.the
-<span class="hljs-keyword">local</span> Num,Sym      = _.Num, _.Sym
-
-<span class="hljs-keyword">local</span> eg= {}
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.the</span><span class="hljs-params">()</span></span> oo(the); <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span>
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.ent</span><span class="hljs-params">(  sym,ent)</span></span>
-  sym= adds(Sym(), {<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;b&quot;</span>,<span class="hljs-string">&quot;b&quot;</span>,<span class="hljs-string">&quot;c&quot;</span>})
-  ent= div(sym)
-  <span class="hljs-built_in">print</span>(ent,mid(sym))
-  <span class="hljs-keyword">return</span> <span class="hljs-number">1.37</span> &lt;= ent <span class="hljs-keyword">and</span> ent &lt;=<span class="hljs-number">1.38</span> <span class="hljs-keyword">end</span>
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.num</span><span class="hljs-params">(  num)</span></span>
-  num=Num()
-  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">100</span> <span class="hljs-keyword">do</span> add(num,i) <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">local</span> med,ent = mid(num), rnd(div(num),<span class="hljs-number">2</span>)
-  <span class="hljs-built_in">print</span>(mid(num) ,rnd(div(num),<span class="hljs-number">2</span>))
-  <span class="hljs-keyword">return</span> <span class="hljs-number">50</span>&lt;= med <span class="hljs-keyword">and</span> med&lt;= <span class="hljs-number">52</span> <span class="hljs-keyword">and</span> <span class="hljs-number">30.5</span> &lt;ent <span class="hljs-keyword">and</span> ent &lt;<span class="hljs-number">32</span> <span class="hljs-keyword">end</span> 
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.bignum</span><span class="hljs-params">(  num)</span></span>
-  num=Num()
-  the.nums = <span class="hljs-number">32</span>
-  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">1000</span> <span class="hljs-keyword">do</span> add(num,i) <span class="hljs-keyword">end</span>
-  oo(_.nums(num))
-  <span class="hljs-keyword">return</span> <span class="hljs-number">32</span>==#num._has <span class="hljs-keyword">end</span>
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.read</span><span class="hljs-params">()</span></span> 
- oo(records(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>).cols.y); <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span>
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.dist</span><span class="hljs-params">(  data,t)</span></span>
-  data=records(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>)
-  t={}
-  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">256</span> <span class="hljs-keyword">do</span> push(t,rnd(dist(data,l.any(data.rows), l.any(data.rows)),<span class="hljs-number">2</span>)) <span class="hljs-keyword">end</span> 
-  <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(t)
-  oo(t)
-  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> eg= {}</pre></div></div>
             
         </li>
         
@@ -118,6 +79,167 @@
               
               <div class="sswrap ">
                 <a class="ss" href="#section-3">&#x00a7;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span>
+<span class="hljs-keyword">local</span> _=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;sam&quot;</span>
+
+<span class="hljs-keyword">local</span> o,oo,per,push,rnd = l.o,l.oo,l.per,l.push,l.rnd
+<span class="hljs-keyword">local</span> add,adds,dist,div = _.add,_.adds,_.dist,_.div
+<span class="hljs-keyword">local</span> mid, records, the = _.mid,_.records,_.the
+<span class="hljs-keyword">local</span> Num,Sym      = _.Num, _.Sym</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-4">&#x00a7;</a>
+              </div>
+              <p>Settings come from big string top of “sam.lua” 
+(maybe updated from comamnd line)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.the</span><span class="hljs-params">()</span></span> oo(the); <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-5">&#x00a7;</a>
+              </div>
+              <p>The middle and diversity of a set of symbols is called “mode” 
+and “entropy” (and the latter is zero when all the symbols 
+are the same).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.ent</span><span class="hljs-params">(  sym,ent)</span></span>
+  sym= adds(Sym(), {<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;b&quot;</span>,<span class="hljs-string">&quot;b&quot;</span>,<span class="hljs-string">&quot;c&quot;</span>})
+  ent= div(sym)
+  <span class="hljs-built_in">print</span>(ent,mid(sym))
+  <span class="hljs-keyword">return</span> <span class="hljs-number">1.37</span> &lt;= ent <span class="hljs-keyword">and</span> ent &lt;=<span class="hljs-number">1.38</span> <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-6">&#x00a7;</a>
+              </div>
+              <p>The middle and diversity of a set of numbers is called “median” 
+and “standard deviation” (and the latter is zero when all the nums 
+are the same).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.num</span><span class="hljs-params">(  num)</span></span>
+  num=Num()
+  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">100</span> <span class="hljs-keyword">do</span> add(num,i) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">local</span> med,ent = mid(num), rnd(div(num),<span class="hljs-number">2</span>)
+  <span class="hljs-built_in">print</span>(mid(num) ,rnd(div(num),<span class="hljs-number">2</span>))
+  <span class="hljs-keyword">return</span> <span class="hljs-number">50</span>&lt;= med <span class="hljs-keyword">and</span> med&lt;= <span class="hljs-number">52</span> <span class="hljs-keyword">and</span> <span class="hljs-number">30.5</span> &lt;ent <span class="hljs-keyword">and</span> ent &lt;<span class="hljs-number">32</span> <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-7">&#x00a7;</a>
+              </div>
+              <p>Nums store only a sample of the numbers added to it (and that storage 
+is done such that the kept numbers span the range of inputs).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.bignum</span><span class="hljs-params">(  num)</span></span>
+  num=Num()
+  the.nums = <span class="hljs-number">32</span>
+  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">1000</span> <span class="hljs-keyword">do</span> add(num,i) <span class="hljs-keyword">end</span>
+  oo(_.nums(num))
+  <span class="hljs-keyword">return</span> <span class="hljs-number">32</span>==#num._has <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-8">&#x00a7;</a>
+              </div>
+              <p>We can read data from disk-based csv files, where row1 lists a
+set of columns names. These names are used to work out what are Nums, or
+ro Syms, or goals to minimize/maximize, or (indeed) what columns to ignre.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.records</span><span class="hljs-params">()</span></span> 
+ oo(records(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>).cols.y); <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-9">&#x00a7;</a>
+              </div>
+              <p>Any two rows have a distance 0..1 that satisfies equality, symmetry
+and the triangle inequality.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.dist</span><span class="hljs-params">(  data,t)</span></span>
+  data=records(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>)
+  t={}
+  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">100</span> <span class="hljs-keyword">do</span> 
+     <span class="hljs-keyword">local</span> A,B,C = l.any(data.rows), l.any(data.rows), l.any(data.rows)
+     <span class="hljs-keyword">local</span> a,b,c = dist(data,B,C), dist(data,A,C), dist(data,A,B)
+     <span class="hljs-built_in">assert</span>(a&lt;=<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> b&lt;=<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> c&lt;=<span class="hljs-number">1</span>)
+     <span class="hljs-built_in">assert</span>(a&gt;=<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> b&gt;=<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> c&gt;=<span class="hljs-number">0</span>)
+     <span class="hljs-built_in">assert</span>( dist(data,A,A) == <span class="hljs-number">0</span>)              <span class="hljs-comment">-- equality</span>
+     <span class="hljs-built_in">assert</span>( dist(data,A,B) == dist(data,B,A)) <span class="hljs-comment">-- symmetry</span>
+     <span class="hljs-built_in">assert</span>(a+b&gt;=c)                            <span class="hljs-comment">-- triangle inequality</span>
+     <span class="hljs-keyword">for</span> _,x <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>{a} <span class="hljs-keyword">do</span> push(t,rnd(x,<span class="hljs-number">2</span>)) <span class="hljs-keyword">end</span>  <span class="hljs-keyword">end</span>
+  <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(t)
+  oo(t)
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-10">&#x00a7;</a>
+              </div>
+              <hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-11">&#x00a7;</a>
               </div>
               
             </div>

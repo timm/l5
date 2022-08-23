@@ -104,16 +104,17 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-5">&#x00a7;</a>
               </div>
-              <p>Hoder of summaries</p>
+              <p>Holder of summaries of columns. 
+Columns are created once, then shared across the following slots.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Cols</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> {
-  klass=<span class="hljs-literal">nil</span>, <span class="hljs-comment">-- for any symbolic klass</span>
   names={},  <span class="hljs-comment">-- all column names</span>
-  x={},      <span class="hljs-comment">-- for independent columns (that are not skipped)</span>
-  y={},      <span class="hljs-comment">-- for depedent columns (that are not skipped)</span>
-  all={}     <span class="hljs-comment">-- all columns (including the skipped ones)</span>
+  all={},    <span class="hljs-comment">-- holds all the columns (including the skipped ones)</span>
+  klass=<span class="hljs-literal">nil</span>, <span class="hljs-comment">-- shares the symbolic klass column (if it exists)</span>
+  x={},      <span class="hljs-comment">-- shares the independent columns (that are not skipped)</span>
+  y={}       <span class="hljs-comment">-- shared the depedent columns (that are not skipped)</span>
   } <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -218,7 +219,7 @@ OPTIONS:
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">records</span><span class="hljs-params">(src,      data,oneRow,head)</span></span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">records</span><span class="hljs-params">(src,      data,head,body)</span></span>
   <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">head</span><span class="hljs-params">(sNames)</span></span>
     <span class="hljs-keyword">local</span> cols = Cols()
     cols.names = namess

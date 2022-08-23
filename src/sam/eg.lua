@@ -19,6 +19,11 @@
 --   - Suffix `s` is a list of things
 --   - Tables are `t` or, using the above, a table of numbers would be `ns`
 --   - Type names are lower case versions of constuctors; e.g `col` isa `Cols`.
+--      
+--  All the demo functions `eg.fun1`, `eg.fun2`, etc can be called via  
+--  e.g. `lua eg.lua -e fun1`.
+local eg= {}
+-- -----------------------------------------------------------------------
 local l=require"lib"
 local _=require"sam"
 
@@ -27,15 +32,22 @@ local add,adds,dist,div = _.add,_.adds,_.dist,_.div
 local mid, records, the = _.mid,_.records,_.the
 local Num,Sym      = _.Num, _.Sym
 
-local eg= {}
+-- Settings come from big string top of "sam.lua" 
+-- (maybe updated from comamnd line)
 function eg.the() oo(the); return true end
 
+-- The middle and diversity of a set of symbols is called "mode" 
+-- and "entropy" (and the latter is zero when all the symbols 
+-- are the same).
 function eg.ent(  sym,ent)
   sym= adds(Sym(), {"a","a","a","a","b","b","c"})
   ent= div(sym)
   print(ent,mid(sym))
   return 1.37 <= ent and ent <=1.38 end
 
+-- The middle and diversity of a set of numbers is called "median" 
+-- and "standard deviation" (and the latter is zero when all the nums 
+-- are the same).
 function eg.num(  num)
   num=Num()
   for i=1,100 do add(num,i) end
@@ -43,6 +55,8 @@ function eg.num(  num)
   print(mid(num) ,rnd(div(num),2))
   return 50<= med and med<= 52 and 30.5 <ent and ent <32 end 
 
+-- Nums store only a sample of the numbers added to it (and that storage 
+-- is done such that the kept numbers span the range of inputs).
 function eg.bignum(  num)
   num=Num()
   the.nums = 32
@@ -50,13 +64,26 @@ function eg.bignum(  num)
   oo(_.nums(num))
   return 32==#num._has end
 
-function eg.read() 
+-- We can read data from disk-based csv files, where row1 lists a
+-- set of columns names. These names are used to work out what are Nums, or
+-- ro Syms, or goals to minimize/maximize, or (indeed) what columns to ignre.
+function eg.records() 
  oo(records("../../data/auto93.csv").cols.y); return true end
 
+-- Any two rows have a distance 0..1 that satisfies equality, symmetry
+-- and the triangle inequality.
 function eg.dist(  data,t)
   data=records("../../data/auto93.csv")
   t={}
-  for i=1,256 do push(t,rnd(dist(data,l.any(data.rows), l.any(data.rows)),2)) end 
+  for i=1,100 do 
+     local A,B,C = l.any(data.rows), l.any(data.rows), l.any(data.rows)
+     local a,b,c = dist(data,B,C), dist(data,A,C), dist(data,A,B)
+     assert(a<=1 and b<=1 and c<=1)
+     assert(a>=0 and b>=0 and c>=0)
+     assert( dist(data,A,A) == 0)              -- equality
+     assert( dist(data,A,B) == dist(data,B,A)) -- symmetry
+     assert(a+b>=c)                            -- triangle inequality
+     for _,x in pairs{a} do push(t,rnd(x,2)) end  end
   table.sort(t)
   oo(t)
   return true end

@@ -61,7 +61,7 @@ local add,adds,clone,div,mid,norm,nums,record,records,stats
 ---- ---- ---- Create
 -- Generate rows from some `src.  If `src` is a string, read rows from file; 
 -- else read rows from a `src`  table. When reading, use row1 to define columns.
-function records(src,      data,oneRow,head)
+function records(src,      data,head,body)
   function head(sNames)
     local cols = Cols()
     cols.names = namess
