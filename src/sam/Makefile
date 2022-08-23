@@ -20,6 +20,8 @@ bye: ## commit to github
 
 all: $(want) ## all code => .pdf
 	@figlet -W -f larry3d sam>_all.lua
+	echo "SAM : Semi-supervised And Multi-objective explainations">>_all.lua
+	echo "(c) 2022 Tim Menzies <timm@ieee.org> BSD-2 license">>_all.lua
 	@$(foreach f,$^, $(MAKE) ../../docs/$(shell basename $f .lua).html;)
 	@$(foreach f,$^,(figlet -W -f small $f>>_all.lua;cat $f>>_all.lua;);)
 	@$(MAKE) ../../docs/_all.pdf

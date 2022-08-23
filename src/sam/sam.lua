@@ -42,10 +42,7 @@ local add,adds,clone,div,mid,norm,nums,record,records,stats
 ---- ---- ---- Create
 -- Generate rows from some `src.  If `src` is a string, read rows from file; 
 -- else read rows from a `src`  table. When reading, use row1 to define columns.
-function records(src,  data,     oneRow,head)
-  data = data or Data()
-  function oneRow(t) 
-    if data.cols then record(data,t) else data.cols=head(t) end end
+function records(src,      data,oneRow,head)
   function head(sNames)
     local cols = Cols()
     cols.names = namess
@@ -56,9 +53,13 @@ function records(src,  data,     oneRow,head)
         push(s:find"[!+-]" and cols.y or cols.x, col) -- some cols are goal cols
         if s:find"!$"    then cols.klass=col end end end 
     return cols 
-  end -------------
-  if type(src)=="string" then l.csv(src, oneRow) 
-                         else for _,t in pairs(src or {}) do oneRow(t) end end 
+  end ------------
+  function body(t) 
+    if data.cols then record(data,t) else data.cols=head(t) end 
+  end ----------
+  data =  Data()
+  if type(src)=="string" then l.csv(src, body) else 
+    for _,t in pairs(src or {}) do body(t) end end 
   return data end
 
 -- Return a new data with same structure as `data1`. Optionally, oad in `rows`.

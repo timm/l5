@@ -200,10 +200,7 @@ OPTIONS:
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">records</span><span class="hljs-params">(src,  data,     oneRow,head)</span></span>
-  data = data <span class="hljs-keyword">or</span> Data()
-  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">oneRow</span><span class="hljs-params">(t)</span></span> 
-    <span class="hljs-keyword">if</span> data.cols <span class="hljs-keyword">then</span> record(data,t) <span class="hljs-keyword">else</span> data.cols=head(t) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">records</span><span class="hljs-params">(src,      data,oneRow,head)</span></span>
   <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">head</span><span class="hljs-params">(sNames)</span></span>
     <span class="hljs-keyword">local</span> cols = Cols()
     cols.names = namess
@@ -214,9 +211,13 @@ OPTIONS:
         push(s:<span class="hljs-built_in">find</span><span class="hljs-string">&quot;[!+-]&quot;</span> <span class="hljs-keyword">and</span> cols.y <span class="hljs-keyword">or</span> cols.x, col) <span class="hljs-comment">-- some cols are goal cols</span>
         <span class="hljs-keyword">if</span> s:<span class="hljs-built_in">find</span><span class="hljs-string">&quot;!$&quot;</span>    <span class="hljs-keyword">then</span> cols.klass=col <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
     <span class="hljs-keyword">return</span> cols 
-  <span class="hljs-keyword">end</span> <span class="hljs-comment">-------------</span>
-  <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span>(src)==<span class="hljs-string">&quot;string&quot;</span> <span class="hljs-keyword">then</span> l.csv(src, oneRow) 
-                         <span class="hljs-keyword">else</span> <span class="hljs-keyword">for</span> _,t <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(src <span class="hljs-keyword">or</span> {}) <span class="hljs-keyword">do</span> oneRow(t) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
+  <span class="hljs-keyword">end</span> <span class="hljs-comment">------------</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">body</span><span class="hljs-params">(t)</span></span> 
+    <span class="hljs-keyword">if</span> data.cols <span class="hljs-keyword">then</span> record(data,t) <span class="hljs-keyword">else</span> data.cols=head(t) <span class="hljs-keyword">end</span> 
+  <span class="hljs-keyword">end</span> <span class="hljs-comment">----------</span>
+  data =  Data()
+  <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span>(src)==<span class="hljs-string">&quot;string&quot;</span> <span class="hljs-keyword">then</span> l.csv(src, body) <span class="hljs-keyword">else</span> 
+    <span class="hljs-keyword">for</span> _,t <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(src <span class="hljs-keyword">or</span> {}) <span class="hljs-keyword">do</span> body(t) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
   <span class="hljs-keyword">return</span> data <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
