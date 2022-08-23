@@ -115,6 +115,7 @@ function record(data,xs)
       add(col, row.cells[col.at]) end end end
 
 -- Unsupervised discretization.
+-- ??? have i go the unlnwons handles rite?
 function unsuper(data)
   local function cell(row,col) return row.cells[col.at] end
   local function sorter(col) return
