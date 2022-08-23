@@ -38,14 +38,14 @@ function Num(c,s)
 function Row(t) return {cells=t, cooked=l.copy(t)} end
 
 ---- ---- ---- ---- Data Functions
-local add,adds,clone,div,mid,norm,nums,record,read,stats
+local add,adds,clone,div,mid,norm,nums,record,records,stats
 ---- ---- ---- Create
--- Processes table of name strings (from row1 of csv file)
--- If `src` is a string, read rows from file; else read rows from a `src`  table
--- When reading, use row1 to define the column headers.
-function read(src,  data,     fun,head)
+-- Generate rows from some `src.  If `src` is a string, read rows from file; 
+-- else read rows from a `src`  table. When reading, use row1 to define columns.
+function records(src,  data,     oneRow,head)
   data = data or Data()
-  function fun(t) if data.cols then record(data,t) else data.cols=head(t) end end
+  function oneRow(t) 
+    if data.cols then record(data,t) else data.cols=head(t) end end
   function head(sNames)
     local cols = Cols()
     cols.names = namess
@@ -57,9 +57,16 @@ function read(src,  data,     fun,head)
         if s:find"!$"    then cols.klass=col end end end 
     return cols 
   end -------------
-  if type(src)=="string" then l.csv(src,fun) 
-                         else for _,t in pairs(src or {}) do fun(t) end end 
+  if type(src)=="string" then l.csv(src, oneRow) 
+                         else for _,t in pairs(src or {}) do oneRow(t) end end 
   return data end
+
+-- Return a new data with same structure as `data1`. Optionally, oad in `rows`.
+function clone(data1,  rows)
+  data2=Data()
+  data2.cols = _head(data1.cols.names)
+  for _,row in pairs(rows or {}) do record(data2,row) end
+  return data2 end
 
 ---- ---- ---- Update
 -- Add one thing to `col`. For Num, keep at most `nums` items.
@@ -113,13 +120,7 @@ function mid(col)
 -- For `showCols` (default=`data.cols.x`) in `data`, report `fun` (default=`mid`).
 function stats(data,  showCols,fun,    t)
   showCols, fun = showCols or data.cols.y, fun or mid
-  t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
--- Return a new data with same structure as `data1`. Optionally, oad in `rows`.
-function clone(data1,  rows)
-  data2=Data()
-  data2.cols = _head(data1.cols.names)
-  for _,row in pairs(rows or {}) do record(data2,row) end
-  return data2 end
+  t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
 
 ---- ---- ---- ---- Distance functions
 local dist
@@ -143,4 +144,4 @@ function dist(data,t1,t2)
 return {the=the, 
         Data=Data, Cols=Cols, Sym=Sym, Num=Num, Row=Row, 
         add=add, adds=adds, clone=clone, dist=dist,  div=div,
-        mid=mid, nums=nums, read=read, record=record, stats=stats}
+        mid=mid, nums=nums, records=records, record=record, stats=stats}

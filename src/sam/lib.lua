@@ -95,9 +95,10 @@ function l.cli(t)
   return t end
 
 ---- ---- ---- ---- Main 
--- k=`ls`  : list all settings   
--- k=`all` : run all demos
--- k=x     : cache settings. reset settings, run one `fun`, update fails counter.
+-- In this function:
+-- - `k`=`ls`  : list all settings   
+-- - `k`=`all` : run all demos   
+-- - `k`=x     : cache settings. reset settings, run one `fun`, update fails counter.
 
 function l.run(k,funs,settings)
   local fails =0

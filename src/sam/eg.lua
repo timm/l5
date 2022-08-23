@@ -24,7 +24,7 @@ local _=require"sam"
 
 local o,oo,per,push,rnd = l.o,l.oo,l.per,l.push,l.rnd
 local add,adds,dist,div = _.add,_.adds,_.dist,_.div
-local mid, read, the = _.mid,_.read,_.the
+local mid, records, the = _.mid,_.records,_.the
 local Num,Sym      = _.Num, _.Sym
 
 local eg= {}
@@ -51,12 +51,12 @@ function eg.bignum(  num)
   return 32==#num._has end
 
 function eg.read() 
- oo(read("../../data/auto93.csv").cols.y); return true end
+ oo(records("../../data/auto93.csv").cols.y); return true end
 
 function eg.dist(  data,t)
-  data=read("../../data/auto93.csv")
+  data=records("../../data/auto93.csv")
   t={}
-  for i=1,20 do push(t,rnd(dist(data,l.any(data.rows), l.any(data.rows)),2)) end 
+  for i=1,256 do push(t,rnd(dist(data,l.any(data.rows), l.any(data.rows)),2)) end 
   table.sort(t)
   oo(t)
   return true end

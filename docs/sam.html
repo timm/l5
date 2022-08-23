@@ -172,7 +172,7 @@ OPTIONS:
             
             <div class="content"><div class='highlight'><pre>
 
-<span class="hljs-keyword">local</span> add,adds,clone,div,mid,norm,nums,record,<span class="hljs-built_in">read</span>,stats</pre></div></div>
+<span class="hljs-keyword">local</span> add,adds,clone,div,mid,norm,nums,record,records,stats</pre></div></div>
             
         </li>
         
@@ -196,15 +196,14 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-11">&#x00a7;</a>
               </div>
-              <p>Processes table of name strings (from row1 of csv file)
-If <code>src</code> is a string, read rows from file; else read rows from a <code>src</code>  table
-When reading, use row1 to define the column headers.</p>
+              <p>Generate rows from some <code>src.  If </code>src<code>is a string, read rows from file;  else read rows from a</code>src`  table. When reading, use row1 to define columns.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">read</span><span class="hljs-params">(src,  data,     fun,head)</span></span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">records</span><span class="hljs-params">(src,  data,     oneRow,head)</span></span>
   data = data <span class="hljs-keyword">or</span> Data()
-  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fun</span><span class="hljs-params">(t)</span></span> <span class="hljs-keyword">if</span> data.cols <span class="hljs-keyword">then</span> record(data,t) <span class="hljs-keyword">else</span> data.cols=head(t) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">oneRow</span><span class="hljs-params">(t)</span></span> 
+    <span class="hljs-keyword">if</span> data.cols <span class="hljs-keyword">then</span> record(data,t) <span class="hljs-keyword">else</span> data.cols=head(t) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
   <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">head</span><span class="hljs-params">(sNames)</span></span>
     <span class="hljs-keyword">local</span> cols = Cols()
     cols.names = namess
@@ -216,8 +215,8 @@ When reading, use row1 to define the column headers.</p>
         <span class="hljs-keyword">if</span> s:<span class="hljs-built_in">find</span><span class="hljs-string">&quot;!$&quot;</span>    <span class="hljs-keyword">then</span> cols.klass=col <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
     <span class="hljs-keyword">return</span> cols 
   <span class="hljs-keyword">end</span> <span class="hljs-comment">-------------</span>
-  <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span>(src)==<span class="hljs-string">&quot;string&quot;</span> <span class="hljs-keyword">then</span> l.csv(src,fun) 
-                         <span class="hljs-keyword">else</span> <span class="hljs-keyword">for</span> _,t <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(src <span class="hljs-keyword">or</span> {}) <span class="hljs-keyword">do</span> fun(t) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
+  <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span>(src)==<span class="hljs-string">&quot;string&quot;</span> <span class="hljs-keyword">then</span> l.csv(src, oneRow) 
+                         <span class="hljs-keyword">else</span> <span class="hljs-keyword">for</span> _,t <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(src <span class="hljs-keyword">or</span> {}) <span class="hljs-keyword">do</span> oneRow(t) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
   <span class="hljs-keyword">return</span> data <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -229,9 +228,15 @@ When reading, use row1 to define the column headers.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-12">&#x00a7;</a>
               </div>
-              <h3 id="update">Update</h3>
+              <p>Return a new data with same structure as <code>data1</code>. Optionally, oad in <code>rows</code>.</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">clone</span><span class="hljs-params">(data1,  rows)</span></span>
+  data2=Data()
+  data2.cols = _head(data1.cols.names)
+  <span class="hljs-keyword">for</span> _,row <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(rows <span class="hljs-keyword">or</span> {}) <span class="hljs-keyword">do</span> record(data2,row) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> data2 <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -241,6 +246,19 @@ When reading, use row1 to define the column headers.</p>
               
               <div class="sswrap ">
                 <a class="ss" href="#section-13">&#x00a7;</a>
+              </div>
+              <h3 id="update">Update</h3>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-14">&#x00a7;</a>
               </div>
               <p>Add one thing to <code>col</code>. For Num, keep at most <code>nums</code> items.</p>
 
@@ -261,11 +279,11 @@ When reading, use row1 to define the column headers.</p>
         </li>
         
         
-        <li id="section-14">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-14">&#x00a7;</a>
+                <a class="ss" href="#section-15">&#x00a7;</a>
               </div>
               <p>Add many things to col</p>
 
@@ -276,11 +294,11 @@ When reading, use row1 to define the column headers.</p>
         </li>
         
         
-        <li id="section-15">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-15">&#x00a7;</a>
+                <a class="ss" href="#section-16">&#x00a7;</a>
               </div>
               <p>Add a new <code>row</code> to <code>data</code>. Calls <code>add()</code> to  updatie the <code>cols</code> with new values.</p>
 
@@ -295,11 +313,11 @@ When reading, use row1 to define the column headers.</p>
         </li>
         
         
-        <li id="section-16">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-16">&#x00a7;</a>
+                <a class="ss" href="#section-17">&#x00a7;</a>
               </div>
               <h3 id="query">Query</h3>
 
@@ -308,11 +326,11 @@ When reading, use row1 to define the column headers.</p>
         </li>
         
         
-        <li id="section-17">
+        <li id="section-18">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-17">&#x00a7;</a>
+                <a class="ss" href="#section-18">&#x00a7;</a>
               </div>
               <p>Return kept numbers, sorted. </p>
 
@@ -325,11 +343,11 @@ When reading, use row1 to define the column headers.</p>
         </li>
         
         
-        <li id="section-18">
+        <li id="section-19">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-18">&#x00a7;</a>
+                <a class="ss" href="#section-19">&#x00a7;</a>
               </div>
               <p>Normalized numbers 0..1. Everything else normalizes to itself.</p>
 
@@ -341,11 +359,11 @@ When reading, use row1 to define the column headers.</p>
         </li>
         
         
-        <li id="section-19">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-19">&#x00a7;</a>
+                <a class="ss" href="#section-20">&#x00a7;</a>
               </div>
               <p>Diversity (standard deviation for Nums, entropy for Syms)</p>
 
@@ -361,11 +379,11 @@ When reading, use row1 to define the column headers.</p>
         </li>
         
         
-        <li id="section-20">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-20">&#x00a7;</a>
+                <a class="ss" href="#section-21">&#x00a7;</a>
               </div>
               <p>Central tendancy (median for Nums, mode for Syms)</p>
 
@@ -380,11 +398,11 @@ When reading, use row1 to define the column headers.</p>
         </li>
         
         
-        <li id="section-21">
+        <li id="section-22">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-21">&#x00a7;</a>
+                <a class="ss" href="#section-22">&#x00a7;</a>
               </div>
               <p>For <code>showCols</code> (default=<code>data.cols.x</code>) in <code>data</code>, report <code>fun</code> (default=<code>mid</code>).</p>
 
@@ -393,25 +411,6 @@ When reading, use row1 to define the column headers.</p>
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">stats</span><span class="hljs-params">(data,  showCols,fun,    t)</span></span>
   showCols, fun = showCols <span class="hljs-keyword">or</span> data.cols.y, fun <span class="hljs-keyword">or</span> mid
   t={}; <span class="hljs-keyword">for</span> _,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(showCols) <span class="hljs-keyword">do</span> t[col.name]=fun(col) <span class="hljs-keyword">end</span>; <span class="hljs-keyword">return</span> t <span class="hljs-keyword">end</span></pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-22">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-22">&#x00a7;</a>
-              </div>
-              <p>Return a new data with same structure as <code>data1</code>. Optionally, oad in <code>rows</code>.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">clone</span><span class="hljs-params">(data1,  rows)</span></span>
-  data2=Data()
-  data2.cols = _head(data1.cols.names)
-  <span class="hljs-keyword">for</span> _,row <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(rows <span class="hljs-keyword">or</span> {}) <span class="hljs-keyword">do</span> record(data2,row) <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">return</span> data2 <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -486,7 +485,7 @@ When reading, use row1 to define the column headers.</p>
             <div class="content"><div class='highlight'><pre><span class="hljs-keyword">return</span> {the=the, 
         Data=Data, Cols=Cols, Sym=Sym, Num=Num, Row=Row, 
         add=add, adds=adds, clone=clone, dist=dist,  div=div,
-        mid=mid, nums=nums, <span class="hljs-built_in">read</span>=<span class="hljs-built_in">read</span>, record=record, stats=stats}</pre></div></div>
+        mid=mid, nums=nums, records=records, record=record, stats=stats}</pre></div></div>
             
         </li>
         

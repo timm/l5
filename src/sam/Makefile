@@ -6,29 +6,29 @@ help:
 
 R=$(shell git rev-parse --show-toplevel)
 
-want = eg sam lib 
+want = eg.lua sam.lua lib.lua 
 
 bye: ## commit to github
 	git add *;git commit -am save;git push;git status
 
-
 ../../docs/%.html: %.lua  ## make html
-	gawk -f $R/etc/lua2doc.awk $< > tmp.lua
-	echo "docco: $< -> $@"
-	docco -l classic -o $R/docs tmp.lua > /dev/null
-	gawk 'sub(/>tmp.lua</,">$(basename $<)<") 1 ' $R/docs/tmp.html > $@
-	cp $R/etc/docco.css $R/docs/docco.css
+	@gawk -f $R/etc/lua2doc.awk $< > tmp.lua
+	@echo "docco: $< -> $@"
+	@docco -l classic -o $R/docs tmp.lua > /dev/null
+	@gawk 'sub(/>tmp.lua</,">$(basename $<)<") 1 ' $R/docs/tmp.html > $@
+	@cp $R/etc/docco.css $R/docs/docco.css
 
-all: ## all code => .pdf
+all: $(want) ## all code => .pdf
 	@figlet -W -f larry3d sam>_all.lua
-	@$(foreach f,$(want),(figlet -W -f small $f>>_all.lua;cat $f.lua>>_all.lua;);)
+	@$(foreach f,$^, $(MAKE) ../../docs/$(shell basename $f .lua).html;)
+	@$(foreach f,$^,(figlet -W -f small $f>>_all.lua;cat $f>>_all.lua;);)
 	@$(MAKE) ../../docs/_all.pdf
 	@rm _all.lua
 	@open   ../../docs/_all.pdf
 		
 ../../docs/%.pdf: %.lua  ## .lua ==> .pdf
-	mkdir -p $R/docs
-	echo "pdf-ing $@ ... "
+	@mkdir -p $R/docs
+	@echo "pdf-ing $@ ... "
 	@a2ps -B              \
 		-q                   \
 	  --chars-per-line=82   \

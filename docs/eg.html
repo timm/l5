@@ -60,7 +60,7 @@
 
 <span class="hljs-keyword">local</span> o,oo,per,push,rnd = l.o,l.oo,l.per,l.push,l.rnd
 <span class="hljs-keyword">local</span> add,adds,dist,div = _.add,_.adds,_.dist,_.div
-<span class="hljs-keyword">local</span> mid, <span class="hljs-built_in">read</span>, the = _.mid,_.<span class="hljs-built_in">read</span>,_.the
+<span class="hljs-keyword">local</span> mid, records, the = _.mid,_.records,_.the
 <span class="hljs-keyword">local</span> Num,Sym      = _.Num, _.Sym
 
 <span class="hljs-keyword">local</span> eg= {}
@@ -87,12 +87,12 @@
   <span class="hljs-keyword">return</span> <span class="hljs-number">32</span>==#num._has <span class="hljs-keyword">end</span>
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.read</span><span class="hljs-params">()</span></span> 
- oo(<span class="hljs-built_in">read</span>(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>).cols.y); <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span>
+ oo(records(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>).cols.y); <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span>
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.dist</span><span class="hljs-params">(  data,t)</span></span>
-  data=<span class="hljs-built_in">read</span>(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>)
+  data=records(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>)
   t={}
-  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">20</span> <span class="hljs-keyword">do</span> push(t,rnd(dist(data,l.any(data.rows), l.any(data.rows)),<span class="hljs-number">2</span>)) <span class="hljs-keyword">end</span> 
+  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">256</span> <span class="hljs-keyword">do</span> push(t,rnd(dist(data,l.any(data.rows), l.any(data.rows)),<span class="hljs-number">2</span>)) <span class="hljs-keyword">end</span> 
   <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(t)
   oo(t)
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
