@@ -1,39 +1,50 @@
--- eg.lua : demo code for sam.lua
--- (c)2022 Tim Menzies <timm@ieee.org> BSD 2 clause license
 local l=require"lib"
 local _=require"sam"
-local cat,chat,cli,copy,per = l.cat,l.chat,l.cli,l.copy,l.per
-local rogues = l.rnd,l.rogues
-local Num = _.Num
-local the,eg,fails = _.the,{},0
+local copy,cli = l.copy, l.cli
+local o,oo,per,rnd = l.o, l.oo, l.per,l.rnd
+local add,div,mid,the  = _.add, _.div,_.mid,_.the
+local Num      = _.Num
 
+local eg,fails = {},0
 local function run(k,    b4,out)
-  math.randomseed(the.seed)
-  b4=copy(the); out=eg[k].fun(); the=copy(b4); return out==true end
+    math.randomseed(the.seed)
+    b4=copy(the); out=eg[k](); the=copy(b4); 
+    print(">>>>>>", k, out and "PASS" or "FAIL")
+    return out==true end
+-------------------------------------------------------------------------------
+function eg.the() oo(the); return true end
 
-local function egs(   t)
-  t={}; for k,v in pairs(eg) do t[1+#t]=k end; table.sort(t);  return t end
+function eg.num(  num)
+  num=Num()
+  the.nums = 100
+  for i=1,100 do add(num,i) end
+  print(mid(num) ,rnd(div(num),2))
+  return 50==mid(num) and 31.01==rnd(div(num),2)  end
 
-eg.the = {doc="show config", fun=function () 
-  chat(the); return true end}
+function eg.bignum(  num)
+  num=Num()
+  the.nums = 32
+  for i=1,1000 do add(num,i) end
+  oo(_.nums(num))
+end
 
-eg.ls = {doc="list examples", fun=function ()
-  print("\nExamples (lua eg.lua -f X):\nX=")
-  for _,k in pairs(egs()) do print(string.format("%7s : %s",k,eg[k].doc)) end 
-  return true end}
+function eg.read() oo(read("../../data/auto93.csv").cols); return true end
 
-eg.all = {doc="run all examples", fun=function()
-  for _,k in pairs(egs()) do
-    if k ~= "all" then 
-      if not run(k) then fails = fails + 1; print("FAIL!",k) end end end end}
+local function _egs(   t)
+  t={}; for k,_ in pairs(eg) do t[1+#t]=k end; table.sort(t);  return t end
 
-eg.nums = {doc="numbers", fun=function(   n)
-  n=Num()
-  the.keep = 64
-  for i=1,100 do n:add(i) end
-  return 52==n:mid(r) and 32.56==rnd(n:div(),2)  end}
+function eg.ls()
+  print("\nExamples (lua eg0.lua -f X):\nX=")
+  for _,k in pairs(_egs()) do print(string.format("  %-7s",k)) end 
+  return true end
 
+function eg.all()
+  for _,k in pairs(_egs()) do
+    if k ~= "all" then fails = fails + run(k) and 0 or 1 end end 
+  return true end
+
+----------------------------------------------------------------------------
 the = cli(the)
-if eg[the.example] then eg[the.example].fun() end
-rogues()
-os.exit(fails) 
+if eg[the.eg] then run(the.eg)  end
+for k,v in pairs(_ENV) do if not l.b4[k] then print("?",k,type(v)) end end 
+os.exit(fails)

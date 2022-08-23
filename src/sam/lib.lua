@@ -1,92 +1,75 @@
--- lib.lua : some of my favorite lua tricks.
--- (c)2022 Tim Menzies <timm@ieee.org> BSD 2 clause license
 local l={}
 
--- Cache names -----------------------------------------------------------------
-local b4={}; for k,_ in pairs(_ENV) do b4[k]=k end
-function l.rogues()
-  for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end end
+l.b4={}; for k,v in pairs(_ENV) do l.b4[k]=v end 
 
--- Print table -----------------------------------------------------------------
-function l.chat(t) print(l.cat(t)); return t end
+---- ---- ---- Lists
+-- Add `x` to a list. Return `x`.
+function l.push(t,x) t[1+#t]=x; return x end
 
-function l.cat(t)
-  if type(t)~="table" then return tostring(t) end
-  local function show(k,v)
-    if not tostring(k):find"^[A-Z]"  then
-      v=l.cat(v)
-      return #t==0 and string.format(":%s %s",k,v) or tostring(v) end end
-  local u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
-  table.sort(u)
-  return (t._is or "").."{"..table.concat(u," ").."}" end
-
--- Maths ----------------------------------------------------------------------
-function l.rnd(num, places)
-  local mult = 10^(places or 3)
-  return math.floor(num * mult + 0.5) / mult end
+-- Round
+function l.rnd(n, nPlaces)
+  local mult = 10^(nPlaces or 3)
+  return math.floor(n * mult + 0.5) / mult end
  
--- Lists -----------------------------------------------------------------------
-function l.any(t) return t[math.random(#t)] end
-
+-- Deepcopy
 function l.copy(t)
   if type(t) ~= "table" then return t end
   local u={}; for k,v in pairs(t) do u[k] = l.copy(v) end
-  return setmetatable(u,getmetatable(t))  end
+  return u end
 
-function l.least(t,x,   y)
-  for _,n in pairs(t) do y=n; if x <= y then break end end
-  return y end
-
-function l.many(t,n,  u)  u={}; for i=1,n do u[1+#u]=l.any(t) end; return u end
-
+-- Return the `p`-th thing from the sorted list `t`.
 function l.per(t,p)
-  p=p or .5
-  p=math.floor((p*#t)+.5); return t[math.max(1,math.min(#t,p))] end
+  p=math.floor(((p or .5)*#t)+.5); return t[math.max(1,math.min(#t,p))] end
 
-function l.push(t,x) t[1+#t]=x; return x end
+---- ---- ---- Settings
+function l.settings(s)
+  local t={}
+  s:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)",
+         function(k,x) t[k]=l.coerce(x)end)
+  t._help = s
+  return t end
 
--- Update slots in `t` from command line ---------------------------------------
 function l.cli(t)
   for slot,v in pairs(t) do
     v = tostring(v)
     for n,x in ipairs(arg) do
       if x=="-"..(slot:sub(1,1)) or x=="--"..slot then
         v = v=="false" and "true" or v=="true" and "false" or arg[n+1] end end
-    t[slot] =  l.coerce(v) end
+    t[slot] = l.coerce(v) end
+  if t.help then os.exit(print("\n"..t._help.."\n")) end
   return t end
 
--- Define classes --------------------------------------------------------------
-function l.obj(name)
-  local function new(k,...)
-    local self = setmetatable({},k)
-    return setmetatable(k.new(self,...) or self,k) end
-  local t={_is = name, __tostring = l.cat}
-  t.__index = t
-  return setmetatable(t,{__call=new}) end
+---- ---- ---- Strings
+-- `oo` prints the string from `o`.   
+-- `o` generates a string from a nested table.
+function l.oo(t) print(l.o(t)) return t end
+function l.o(t)
+  if type(t) ~=  "table" then return tostring(t) end
+  local function show(k,v)
+    if not tostring(k):find"^_"  then
+      v = l.o(v)
+      return #t==0 and string.format(":%s %s",k,v) or tostring(v) end end
+  local u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
+  if #t==0 then table.sort(u) end
+  return (t._is or "").."{"..table.concat(u," ").."}" end
 
--- Coerce ----------------------------------------------------------------------
-function l.coerce(str)
-  local function coerce1(str)
-    if str=="true"  then return true end 
-    if str=="false" then return false end
-    return str end 
-  return tonumber(str) or coerce1(str:match"^%s*(.-)%s*$") end
+-- Convert string to something else.
+function l.coerce(s)
+  local function coerce1(s1)
+    if s1=="true"  then return true end 
+    if s1=="false" then return false end
+    return s1 end 
+  return math.tointeger(s) or tonumber(s) or coerce1(s:match"^%s*(.-)%s*$") end
 
--- Coerce lines from csv file (fiterling result through `fun`).
-function l.csv(filename, fun)
-  l.lines(filename, function(t) fun(l.words(t,",",l.coerce)) end) end
-
---- Call `fun  on all lines from `filename`.
-function l.lines(filename, fun)
-  local src = io.input(filename)
+-- Iterator over csv files. Call `fun` for each record in `fname`.
+function l.csv(fname,fun)
+  local src = io.input(fname)
   while true do
-    local str = io.read()
-    if not str then return io.close(src) else fun(str) end end end
+    local s = io.read()
+    if not s then return io.close(src) else 
+      local t={}
+      for s1 in s:gmatch("([^,]+)") do t[1+#t] = l.coerce(s1) end
+      fun(t) end end end 
 
--- Split  `str` on `sep`, filtering parts through `fun`.
-function l.words(str,sep,fun,      t)
-  fun = fun or function(z) return z end
-  sep = l.string.format("([^%s]+)",sep)
-  t={};for x in str:gmatch(sep) do t[1+#t]=fun(x) end;return t end
-
+---- ---- ----
 return l

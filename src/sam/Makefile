@@ -6,7 +6,7 @@ help:
 
 R=$(shell git rev-parse --show-toplevel)
 
-want = lib0 eg0
+want = lib eg
 
 bye: ## commit to github
 	git add *;git commit -am save;git push;git status
@@ -20,7 +20,7 @@ bye: ## commit to github
 	cp $R/etc/docco.css $R/docs/docco.css
 
 all: ## all code => .pdf
-	@figlet -W -f larry3d sam0.lua>_all.lua; cat sam0.lua>>_all.lua
+	@figlet -W -f larry3d sam.lua>_all.lua; cat sam.lua>>_all.lua
 	@$(foreach f,$(want),(figlet -W -f small $f>>_all.lua;cat $f.lua>>_all.lua;);)
 	@$(MAKE) ../../docs/_all.pdf
 	@rm _all.lua

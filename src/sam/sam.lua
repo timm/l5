@@ -1,153 +1,165 @@
--- sam.lua : reasoning via minimal sampling arcoss the data   
--- (c)2022 Tim Menzies <timm@ieee.org> BSD 2 clause license
+-- In this code:
+-- - Line strive to be 80 chars (or less)
+-- - Two spaces before function argumnets denote optionals.
+-- - Four spaces before function argumnets denote local variables.
+-- - Private functions start with `_`
+-- - Arguments of private functions do anything at all
+-- - Local variables inside functions do anything at all
+-- - Arguments of public functions use type hints
+--   - Variable  `x` is is anything
+--   - Prefix `is` is a boolean
+--   - Prefix `fun` is a function
+--   - Prefix `f` is a filename
+--   - Prefix `n` is a string
+--   - Prefix `s` is a string
+--   - Prefix `c` is a column index
+--   - `col` denotes `num` or `sym`
+--   - `x` is anything (table or number of boolean or string
+--   - `v` is a simple value (number or boolean  or  string)
+--   - Suffix `s` is a list of things
+--   - Tables are `t` or, using the above, a table of numbers would be `ns`
+--   - Type names are lower case versions of constuctors. so in this code,
+--     `cols`,`data`,`num`,`sym` are made by functions `Cols` `Data`, `Num`, `Sym`
 local l=require"lib"
-local any,cat,cli,coerce,copy,csv = l.any,l.cat,l.cli,l.coerce,l.copy,l.csv
-local lines,many,obj,per,push = l.lines,l.many,l.obj,l.per,l.push
-local rogues,words = l.rogues,l.words
+local the=l.settings([[   
+SAM : Semi-supervised And Multi-objective explainations
+(c) 2022 Tim Menzies <timm@ieee.org> BSD-2 license
 
-local rand = math.random
-local Cols,Data,Row,Num,Sym = obj"Cols", obj"Data", obj"Row",obj"Num", obj"Sym"
+USAGE: lua eg.lua [OPTIONS]
 
-local the={bins    = 10,
-           cohen   = .35,
-           example = "ls", 
-           ratios  = 256, 
-           seed    = 10019, 
-           some    = 512}
+OPTIONS:
+ -e  --eg     start-up example         = nothing
+ -h  --help   show help                = false
+ -n  --nums   how many numbers to keep = 256
+ -p  --p      distance coeffecient     = 2
+ -s  --seed   random number seed       = 10019]])
 
--- Num -------------------------------------------------------------------------
-function Num:new(at,txt) 
-  txt = txt or ""
-  return {n=0,at=at or 0, txt=txt, details=nil, has={},
-          hi= -math.huge, lo= math.huge, w=txt:find"-$" and -1 or 1} end
+local copy,csv,o,oo = l.coerce,l.copy,l.csv,l.o,l.oo
+local per,push      = l.per, l.push
+   
+local adds,add, dist,div,mid,nums,read, record, stats
+local Cols, Data, Num, Row, Sym
 
-function Num:add(x)
-  if x ~= "?" then
-    local pos
-    self.n  = self.n + 1
-    self.lo = math.min(x, self.lo)
-    self.hi = math.max(x, self.hi)
-    if     #self.has < the.ratios        then pos = 1 + (#self.has) 
-    elseif rand()    < the.ratios/self.n then pos = rand(#self.has) end
-    if pos then self.details  = nil 
-                self.has[pos] = x end end end
+---- ---- ---- ---- Classes 
+-- Holder of `rows` and their sumamries (in `cols`).
+function Data() return {cols=nil,  rows={}} end
 
-function Num:bin(x,     a,b,lo,hi)
-  local b = (self.hi - self.lo)/the.bins
-  return self.hi==self.lo and 1 or math.floor(x/b+.5)*b  end
+-- Hoder of summaries
+function Cols() return {klass=nil, names={}, nums={}, x={}, y={}, all={}} end
 
-function Num:discretize(x)
-  _, details = self:holds()
-  for _,bin in pairs(details) do
-    if x> bin.lo and x<=bin.hi then return x end end end
+-- Summary of a stream of symbols.
+function Sym(c,s) 
+  return {n=0,at=c or 0, name=s or "", _has={}} end
 
-function Num:dist(x,y)
-   if x=="?" and y=="?" then return 1 end
-   if     x=="?" then y=self:norm(y); x=y<.5 and 1 or 0
-   elseif y=="?" then x=self:norm(x); y=x<.5 and 1 or 0
-   else   x,y = self:norm(x), self:norm(y) end
-  return math.abs(x-y) end
+-- Summary of a stream of numbers.
+function Num(c,s) 
+  return {n=0,at=c or 0, name=s or "", _has={},
+          isNum=true, lo= math.huge, hi= -math.huge, sorted=true,
+          w=(s or ""):find"-$" and -1 or 1} end
 
-local function _div(a,epsilon,bins,   inc,one,all)
-  inc = #a // bins
-  one = {lo=a[1], hi=a[1], n=0}
-  all = {one}
-  for i = 1,#a-inc do
-    if   one.n >= inc and a[i] ~= a[i+1] and one.hi-one.lo > epsilon 
-    then one = push(all, {lo=one.hi, hi=a[i], n=0}) end
-    one.hi = a[i]
-    one.n  = bin.n + 1 end 
-  all[1].lo     = -math.huge
-  all[#bins].hi = math.huge
-  return all end
+-- Hold one record, in `cells` (and `cooked` is for discretized data).
+function Row(t) return {cells=t, cooked=copy(t)} end
 
-function Num:holds(    inc,i)
-  if not self.details then 
-    table.sort(self.has)
-   self.details = _div(self.has, self:div()*my.cohen, my.bins); end
-  return self.has, self.details end
+---- ---- ---- ---- Data Functions
+---- ---- ---- Update
+-- Add one or more items, to `col`. From Num, keep at most `nums` items.
+function adds(col,t) for _,v in pairs(t) do add(col,v) end; return col end
+function add(col,v)
+  if v~="?" then
+    col.n = col.n + 1
+    if not col.isNum then col._has[v] = 1 + (col._has[v] or 0) else 
+       col.lo = math.min(v, col.lo)
+       col.hi = math.max(v, col.hi)
+       local pos
+       if     #col._has < the.nums           then pos = 1 + (#col._has) 
+       elseif math.random() < the.nums/col.n then pos = math.random(#col._has) end
+       if pos then col.sorted = false 
+                   col._has[pos] = tonumber(v) end end end end
 
-function Num:mid() return per(self:holds(),.5) end
+---- ---- ---- Query
+-- Return kept numbers, sorted. 
+function nums(num)
+  if not num.sorted then table.sort(num._has); num.sorted=true end
+  return num._has end
 
-function Num:norm(num)
-  return self.hi - self.lo < 1E-9 and 0 or (num-self.lo)/(self.hi-self.lo) end
+-- Diversity (standard deviation for Nums, entropy for Syms)
+function div(col)
+  if  col.isNum then local a=nums(col); return (per(a,.9)-per(a,.1))/2.58 else
+    local function fun(p) return p*math.log(p,2) end
+    local e=0
+    for _,n in pairs(_has) do if n>0 then e=e-fun(n/col.n) end end
+    return e end end
 
-function Num:div(  a) 
-  a=self:holds()
-  return (per(a,.9) - per(a,.1))/2.58 end
+-- Central tendancy (median for Nums, mode for Syms)
+function mid(col)
+  if col.isNum then return per(nums(col),.5) else 
+    local most,mode = -1
+    for k,v in pairs(_has) do if v>most then most,mode=k,v end end
+    return mode end end
 
--- Sym -------------------------------------------------------------------------
-function Sym:new(at,txt) 
-  return {n=0,at=at or 0, txt=txt or "", ready=false, has={}} end
+---- ---- ---- ---- Data functions
+---- ---- ---- Create
+-- Processes table of name strings (from row1 of csv file)
+local function _head(sNames)
+  local cols = Cols()
+  cols.names = namess
+  for c,s in pairs(sNames) do
+    local col = push(cols.all, -- Numerics start with Uppercase. 
+                     (s:find"^[A-Z]*" and Num or Sym)(c,s))
+    if not s:find":$" then -- some columns are skipped
+      push(s:find"[!+-]" and cols.y or cols.x, col) -- some cols are goal cols
+      if s:find"!$"    then cols.klass=col end end end 
+  return cols end
 
-function Sym:add(x)
-  if x ~= "?" then
-    self.n = self.n + 1
-    self.has[x] = 1+(self.has[x] or 0) end end
+-- if `src` is a string, read rows from file; else read rows from a `src`  table
+function read(src,  data,     fun)
+  data = data or Data()
+  function fun(t) if data.cols then record(data,t) else data.cols=_head(t) end end
+  if type(src)=="string" then csv(src,fun) 
+                         else for _,t in pairs(src or {}) do fun(t) end end 
+  return data end
 
-function Sym:discretize(x) return x end
+-- Return a new data with same structure as `data1`. Optionally, oad in `rows`.
+function clone(data1,  rows)
+  data2=Data()
+  data2.cols = _head(data1.cols.names)
+  for _,row in pairs(rows or {}) do record(data2,row) end
+  return data2 end
 
-function Sym:dist(x,y) 
-    return (x=="?" or y=="?") and 1 or x==y and 0 or 1 end
+---- ---- ---- Update
+-- Add a new `row` to `data`, updating the `cols` with the new values.
+function record(data,xs)
+  local row= push(data.rows, xs.cells and xs or Row(xs)) -- ensure xs is a Row
+  for _,todo in pairs{data.cols.x, data.cols.y} do
+    for _,col in pairs(todo) do 
+      add(col, row.cells[col.at]) end end end
 
-function Sym:mid(    mode,most)
-  for k,n in pairs(i.has) do if not mode or n>most then mode,most=k,n end end
-  return mode end
+---- ---- ---- Query
+-- For `showCols` (default=`data.cols.x`) in `data`, report `fun` (default=`mid`).
+function stats(data,  showCols,fun,    t)
+  showCols, fun = showCols or data.cols.y, fun or mid
+  t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
 
-function Sym:div(  e)
-  local function p(x) return x*math.log(x,2) end
-  e=0; for _,v in pairs(i.has) do if v>0 then e=e-p(v/i.n) end; return e end end
+---- ---- ---- ---- Distance functions
+-- Distance between two values`v1,v2`  within `col`
+local function _dist1(col,  v1,v2)
+  if   v1=="?" and v2=="?" then return 1 end
+  if  not col.isNum        then return v1==v2 and 0 or 1 end 
+  local function norm(n) return (n-col.lo)/(col.hi-col.lo + 1E-32) end
+  if     v1=="?" then v2=norm(v2); v1 = v2<.5 and 1 or 0 
+  elseif v2=="?" then v1=norm(v1); v2 = v1<.5 and 1 or 0 
+  else   v1,v2 = norm(v1), norm(v2) end       
+  return  maths.abs(v1-v2) end 
 
--- Row ------------------------------
-function Row:new(t) return {cells=t, cooked=copy(t), evaled=false} end
+-- Distance between two rows (returns 0..1)
+function dist(data,t1,t2)
+  local d = 0
+  for _,col in pairs(data.cols.x) do 
+    d = d + _dist1(col, t1.cells[col.at], t2.cells[col.at])^the.p end
+  return (d/#data.cols.x)^(1/the.p) end
 
--- Cols ------------------------------
-function Cols:new(names)
-  self.names=names
-  self.x, self.y, self.all, self.klass = {},{},{},nil
-  for at,txt in pairs(names) do
-    col = push(self.all, (txt:find"^[A-Z]" and Num or Sym)(at,txt))
-    if not txt:find":$" then
-      push(txt:find"[!+-]$" and self.y or self.x, col)
-      if txt:find"!$" then self.klass=col end end end end
+-- That's all folks.
+return {the=the,add=add,adds=adds,mid=mid,div=div,dist=dist,
+        nums=nums,record=record,
+        Cols=Cols,Num=Num, Sym=Sym, Data=Data}
 
-function Cols:add(row)
-  for _,cols in pairs{i.x, i.y} do
-    for col in pairs(cols) do
-      col:add(row.cells[cols.at]) end end end
-
--- Data ------------------------------
-function Data:new(s) 
-  self.rows, self.cols = {}, nil
-  if type(s)=="string" then csv(s, function(t)           self:add(t) end ) 
-                       else for _,t in pairs(s or {}) do self:add(t) end end end  
-
-function Data:add(t)
-  if   self.cols
-  then self.cols:add( push(self.rows, t.cells or Row(t)))
-  else self.cols= Cols(t) end 
- 
-function Data:half(rows, above, all)
-   local all  = all or self.rows
-   local some = many(all, the.some)
-   local left = above or far(any(some), some) end
--- (defmethod half ((i rows) &optional all above)
---   "Split rows in two by their distance to two remove points."
---   (let* ((all   (or    all (? i _has)))
---          (some  (many  all (! my some)))
---          (left  (or    above (far (any some) some)))
---          (right (far   left some))
---          (c     (dists left right))
---          (n 0)  lefts rights)
---     (labels ((project (row)
---                 (let ((a (dists row left))
---                       (b (dists row right)))
---                   (cons (/ (+ (* a a) (* c c) (- (* b b))) (* 2 c)) row))))
---       (dolist (one (sort (mapcar #'project all) #'car<))
---         (if (<= (incf n) (/ (length all) 2))
---           (push (cdr one) lefts)
---           (push (cdr one) rights)))
---       (values left right lefts rights c))))
---
--- -----------------------------------------------------------------------------
-return {the=the, Cols=Cols, Data=Data, Num=Num, Sym=Sym}
