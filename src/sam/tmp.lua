@@ -43,7 +43,9 @@ local o,oo,per,push = l.o,l.oo,l.per, l.push
 local Data,Cols,Sym,Num,Row
 local add,adds,clone,dist,div,mid,nums,record,read,stats
 
----- ---- ---- ---- Classes 
+-- ## Classes 
+
+
 -- Holder of `rows` and their sumamries (in `cols`).
 function Data() return {cols=nil,  rows={}} end
 
@@ -63,8 +65,12 @@ function Num(c,s)
 -- Hold one record, in `cells` (and `cooked` is for discretized data).
 function Row(t) return {cells=t, cooked=l.copy(t)} end
 
----- ---- ---- ---- Data Functions
----- ---- ---- Update
+-- ## Data Functions
+
+
+-- ### Update
+
+
 -- Add one `col`. For Num, keep at most `nums` items.
 function add(col,v)
   if v~="?" then
@@ -81,7 +87,9 @@ function add(col,v)
 -- Add many items
 function adds(col,t) for _,v in pairs(t) do add(col,v) end; return col end
 
----- ---- ---- Query
+-- ### Query
+
+
 -- Return kept numbers, sorted. 
 function nums(num)
   if not num.sorted then table.sort(num._has); num.sorted=true end
@@ -102,8 +110,12 @@ function mid(col)
     for k,v in pairs(col._has) do if v>most then mode,most=k,v end end
     return mode end end
 
----- ---- ---- ---- Data functions
----- ---- ---- Create
+-- ## Data functions
+
+
+-- ### Create
+
+
 -- Processes table of name strings (from row1 of csv file)
 local function _head(sNames)
   local cols = Cols()
@@ -131,7 +143,9 @@ function clone(data1,  rows)
   for _,row in pairs(rows or {}) do record(data2,row) end
   return data2 end
 
----- ---- ---- Update
+-- ### Update
+
+
 -- Add a new `row` to `data`, updating the `cols` with the new values.
 function record(data,xs)
   local row= push(data.rows, xs.cells and xs or Row(xs)) -- ensure xs is a Row
@@ -139,13 +153,17 @@ function record(data,xs)
     for _,col in pairs(todo) do 
       add(col, row.cells[col.at]) end end end
 
----- ---- ---- Query
+-- ### Query
+
+
 -- For `showCols` (default=`data.cols.x`) in `data`, report `fun` (default=`mid`).
 function stats(data,  showCols,fun,    t)
   showCols, fun = showCols or data.cols.y, fun or mid
   t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
 
----- ---- ---- ---- Distance functions
+-- ## Distance functions
+
+
 -- Distance between two values`v1,v2`  within `col`
 local function _dist1(col,  v1,v2)
   if   v1=="?" and v2=="?" then return 1 end
@@ -154,7 +172,7 @@ local function _dist1(col,  v1,v2)
   if     v1=="?" then v2=norm(v2); v1 = v2<.5 and 1 or 0 
   elseif v2=="?" then v1=norm(v1); v2 = v1<.5 and 1 or 0 
   else   v1,v2 = norm(v1), norm(v2) end       
-  return  math.abs(v1-v2) end 
+  return  maths.abs(v1-v2) end 
 
 -- Distance between two rows (returns 0..1)
 function dist(data,t1,t2)

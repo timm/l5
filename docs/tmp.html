@@ -27,11 +27,12 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
-              <p>In this code:</p>
+              <p>sam.lua : Semi-supervised And Multi-objective explanation<br>(c) 2022 Tim Menzies <a href="mailto:&#x74;&#105;&#x6d;&#x6d;&#x40;&#105;&#101;&#x65;&#101;&#46;&#111;&#114;&#x67;">&#x74;&#105;&#x6d;&#x6d;&#x40;&#105;&#101;&#x65;&#101;&#46;&#111;&#114;&#x67;</a> BSD-2 license</p>
+<p>In this code:</p>
 <ul>
-<li>Each line is usually 80 chars (or less)</li>
+<li>Line strive to be 80 chars (or less)</li>
 <li>Two spaces before function argumnets denote optionals.</li>
-<li>Four spaces before function argumnets denote local variables..</li>
+<li>Four spaces before function argumnets denote local variables.</li>
 <li>Private functions start with <code>_</code></li>
 <li>Arguments of private functions do anything at all</li>
 <li>Local variables inside functions do anything at all</li>
@@ -56,25 +57,19 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib0&quot;</span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span>
 <span class="hljs-keyword">local</span> the=l.settings(<span class="hljs-string">[[   
-SAM0 : semi-supervised multi-objective explainations
+SAM : Semi-supervised And Multi-objective explainations
 (c) 2022 Tim Menzies &lt;timm@ieee.org&gt; BSD-2 license
 
-USAGE: lua eg0.lua [OPTIONS]
+USAGE: lua eg.lua [OPTIONS]
 
 OPTIONS:
  -e  --eg     start-up example         = nothing
  -h  --help   show help                = false
  -n  --nums   how many numbers to keep = 256
  -p  --p      distance coeffecient     = 2
- -s  --seed   random number seed       = 10019]]</span>)
-
-<span class="hljs-keyword">local</span> copy,csv,o,oo = l.coerce,l.copy,l.csv,l.o,l.oo
-<span class="hljs-keyword">local</span> per,push      = l.per, l.push
-   
-<span class="hljs-keyword">local</span> adds,add, dist,div,mid,nums,<span class="hljs-built_in">read</span>, record
-<span class="hljs-keyword">local</span> Cols, Data, Num, Row, Sym</pre></div></div>
+ -s  --seed   random number seed       = 10019]]</span>)</pre></div></div>
             
         </li>
         
@@ -85,9 +80,14 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-2">&#x00a7;</a>
               </div>
-              <h2 id="classes">Classes</h2>
+              <p>Commonly used lib functions.</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> o,oo,per,push = l.o,l.oo,l.per, l.push
+
+<span class="hljs-keyword">local</span> Data,Cols,Sym,Num,Row
+<span class="hljs-keyword">local</span> add,adds,clone,dist,div,mid,nums,record,<span class="hljs-built_in">read</span>,stats</pre></div></div>
             
         </li>
         
@@ -98,11 +98,9 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-3">&#x00a7;</a>
               </div>
-              <p>Holder of <code>rows</code> and their sumamries (in <code>cols</code>).</p>
+              <h2 id="classes">Classes</h2>
 
             </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> {cols=<span class="hljs-literal">nil</span>,  rows={}} <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -113,11 +111,11 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-4">&#x00a7;</a>
               </div>
-              <p>Hoder of summaries</p>
+              <p>Holder of <code>rows</code> and their sumamries (in <code>cols</code>).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Cols</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> {klass=<span class="hljs-literal">nil</span>, names={}, nums={}, x={}, y={}, all={}} <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> {cols=<span class="hljs-literal">nil</span>,  rows={}} <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -127,6 +125,21 @@ OPTIONS:
               
               <div class="sswrap ">
                 <a class="ss" href="#section-5">&#x00a7;</a>
+              </div>
+              <p>Hoder of summaries</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Cols</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> {klass=<span class="hljs-literal">nil</span>,names={},nums={}, x={}, y={}, all={}} <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-6">&#x00a7;</a>
               </div>
               <p>Summary of a stream of symbols.</p>
 
@@ -138,11 +151,11 @@ OPTIONS:
         </li>
         
         
-        <li id="section-6">
+        <li id="section-7">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-6">&#x00a7;</a>
+                <a class="ss" href="#section-7">&#x00a7;</a>
               </div>
               <p>Summary of a stream of numbers.</p>
 
@@ -156,30 +169,17 @@ OPTIONS:
         </li>
         
         
-        <li id="section-7">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-7">&#x00a7;</a>
-              </div>
-              <p>Hold one record, in <code>cells</code> (and <code>cooked</code> is for discretized data).</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row</span><span class="hljs-params">(t)</span></span> <span class="hljs-keyword">return</span> {cells=t, cooked=copy(t)} <span class="hljs-keyword">end</span></pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-8">
             <div class="annotation">
               
               <div class="sswrap ">
                 <a class="ss" href="#section-8">&#x00a7;</a>
               </div>
-              <h2 id="data-functions">Data Functions</h2>
+              <p>Hold one record, in <code>cells</code> (and <code>cooked</code> is for discretized data).</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row</span><span class="hljs-params">(t)</span></span> <span class="hljs-keyword">return</span> {cells=t, cooked=l.copy(t)} <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -190,7 +190,7 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-9">&#x00a7;</a>
               </div>
-              <h3 id="update">Update</h3>
+              <h2 id="data-functions">Data Functions</h2>
 
             </div>
             
@@ -203,12 +203,24 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-10">&#x00a7;</a>
               </div>
-              <p>Add one or more items, to <code>col</code>. From Num, keep at most <code>nums</code> items.</p>
+              <h3 id="update">Update</h3>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">adds</span><span class="hljs-params">(col,t)</span></span> <span class="hljs-keyword">for</span> _,v <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(t) <span class="hljs-keyword">do</span> add(col,v) <span class="hljs-keyword">end</span>; <span class="hljs-keyword">return</span> col <span class="hljs-keyword">end</span>
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">add</span><span class="hljs-params">(col,v)</span></span>
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-11">&#x00a7;</a>
+              </div>
+              <p>Add one <code>col</code>. For Num, keep at most <code>nums</code> items.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">add</span><span class="hljs-params">(col,v)</span></span>
   <span class="hljs-keyword">if</span> v~=<span class="hljs-string">&quot;?&quot;</span> <span class="hljs-keyword">then</span>
     col.n = col.n + <span class="hljs-number">1</span>
     <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> col.isNum <span class="hljs-keyword">then</span> col._has[v] = <span class="hljs-number">1</span> + (col._has[v] <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>) <span class="hljs-keyword">else</span> 
@@ -223,11 +235,26 @@ OPTIONS:
         </li>
         
         
-        <li id="section-11">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-11">&#x00a7;</a>
+                <a class="ss" href="#section-12">&#x00a7;</a>
+              </div>
+              <p>Add many items</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">adds</span><span class="hljs-params">(col,t)</span></span> <span class="hljs-keyword">for</span> _,v <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(t) <span class="hljs-keyword">do</span> add(col,v) <span class="hljs-keyword">end</span>; <span class="hljs-keyword">return</span> col <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-13">&#x00a7;</a>
               </div>
               <h3 id="query">Query</h3>
 
@@ -236,11 +263,11 @@ OPTIONS:
         </li>
         
         
-        <li id="section-12">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-12">&#x00a7;</a>
+                <a class="ss" href="#section-14">&#x00a7;</a>
               </div>
               <p>Return kept numbers, sorted. </p>
 
@@ -253,11 +280,11 @@ OPTIONS:
         </li>
         
         
-        <li id="section-13">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-13">&#x00a7;</a>
+                <a class="ss" href="#section-15">&#x00a7;</a>
               </div>
               <p>Diversity (standard deviation for Nums, entropy for Syms)</p>
 
@@ -267,40 +294,8 @@ OPTIONS:
   <span class="hljs-keyword">if</span>  col.isNum <span class="hljs-keyword">then</span> <span class="hljs-keyword">local</span> a=nums(col); <span class="hljs-keyword">return</span> (per(a,<span class="hljs-number">.9</span>)-per(a,<span class="hljs-number">.1</span>))/<span class="hljs-number">2.58</span> <span class="hljs-keyword">else</span>
     <span class="hljs-keyword">local</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fun</span><span class="hljs-params">(p)</span></span> <span class="hljs-keyword">return</span> p*<span class="hljs-built_in">math</span>.<span class="hljs-built_in">log</span>(p,<span class="hljs-number">2</span>) <span class="hljs-keyword">end</span>
     <span class="hljs-keyword">local</span> e=<span class="hljs-number">0</span>
-    <span class="hljs-keyword">for</span> _,n <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(_has) <span class="hljs-keyword">do</span> <span class="hljs-keyword">if</span> n&gt;<span class="hljs-number">0</span> <span class="hljs-keyword">then</span> e=e-fun(n/col.n) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">for</span> _,n <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(col._has) <span class="hljs-keyword">do</span> <span class="hljs-keyword">if</span> n&gt;<span class="hljs-number">0</span> <span class="hljs-keyword">then</span> e=e-fun(n/col.n) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
     <span class="hljs-keyword">return</span> e <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-14">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-14">&#x00a7;</a>
-              </div>
-              <p>Central tendancy (median for Nums, mode for Syms)</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">mid</span><span class="hljs-params">(col)</span></span>
-  <span class="hljs-keyword">if</span> col.isNum <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> per(nums(col),<span class="hljs-number">.5</span>) <span class="hljs-keyword">else</span> 
-    <span class="hljs-keyword">local</span> most,mode = <span class="hljs-number">-1</span>
-    <span class="hljs-keyword">for</span> k,v <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(_has) <span class="hljs-keyword">do</span> <span class="hljs-keyword">if</span> v&gt;most <span class="hljs-keyword">then</span> most,mode=k,v <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
-    <span class="hljs-keyword">return</span> mode <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-15">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-15">&#x00a7;</a>
-              </div>
-              <h2 id="data-functions">Data functions</h2>
-
-            </div>
             
         </li>
         
@@ -311,9 +306,15 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-16">&#x00a7;</a>
               </div>
-              <h3 id="create">Create</h3>
+              <p>Central tendancy (median for Nums, mode for Syms)</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">mid</span><span class="hljs-params">(col)</span></span>
+  <span class="hljs-keyword">if</span> col.isNum <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> per(nums(col),<span class="hljs-number">.5</span>) <span class="hljs-keyword">else</span> 
+    <span class="hljs-keyword">local</span> most,mode = <span class="hljs-number">-1</span>
+    <span class="hljs-keyword">for</span> k,v <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(col._has) <span class="hljs-keyword">do</span> <span class="hljs-keyword">if</span> v&gt;most <span class="hljs-keyword">then</span> mode,most=k,v <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">return</span> mode <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -323,6 +324,32 @@ OPTIONS:
               
               <div class="sswrap ">
                 <a class="ss" href="#section-17">&#x00a7;</a>
+              </div>
+              <h2 id="data-functions">Data functions</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-18">&#x00a7;</a>
+              </div>
+              <h3 id="create">Create</h3>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-19">&#x00a7;</a>
               </div>
               <p>Processes table of name strings (from row1 of csv file)</p>
 
@@ -342,31 +369,50 @@ OPTIONS:
         </li>
         
         
-        <li id="section-18">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-18">&#x00a7;</a>
+                <a class="ss" href="#section-20">&#x00a7;</a>
               </div>
               <p>if <code>src</code> is a string, read rows from file; else read rows from a <code>src</code>  table</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">read</span><span class="hljs-params">(src)</span></span>
-  <span class="hljs-keyword">local</span> data,fun=Data()
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">read</span><span class="hljs-params">(src,  data,     fun)</span></span>
+  data = data <span class="hljs-keyword">or</span> Data()
   <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fun</span><span class="hljs-params">(t)</span></span> <span class="hljs-keyword">if</span> data.cols <span class="hljs-keyword">then</span> record(data,t) <span class="hljs-keyword">else</span> data.cols=_head(t) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span>(src)==<span class="hljs-string">&quot;string&quot;</span> <span class="hljs-keyword">then</span> csv(src,fun) 
+  <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span>(src)==<span class="hljs-string">&quot;string&quot;</span> <span class="hljs-keyword">then</span> l.csv(src,fun) 
                          <span class="hljs-keyword">else</span> <span class="hljs-keyword">for</span> _,t <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(src <span class="hljs-keyword">or</span> {}) <span class="hljs-keyword">do</span> fun(t) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
   <span class="hljs-keyword">return</span> data <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
         
-        <li id="section-19">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-19">&#x00a7;</a>
+                <a class="ss" href="#section-21">&#x00a7;</a>
+              </div>
+              <p>Return a new data with same structure as <code>data1</code>. Optionally, oad in <code>rows</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">clone</span><span class="hljs-params">(data1,  rows)</span></span>
+  data2=Data()
+  data2.cols = _head(data1.cols.names)
+  <span class="hljs-keyword">for</span> _,row <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(rows <span class="hljs-keyword">or</span> {}) <span class="hljs-keyword">do</span> record(data2,row) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> data2 <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-22">&#x00a7;</a>
               </div>
               <h3 id="update">Update</h3>
 
@@ -375,11 +421,11 @@ OPTIONS:
         </li>
         
         
-        <li id="section-20">
+        <li id="section-23">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-20">&#x00a7;</a>
+                <a class="ss" href="#section-23">&#x00a7;</a>
               </div>
               <p>Add a new <code>row</code> to <code>data</code>, updating the <code>cols</code> with the new values.</p>
 
@@ -394,11 +440,11 @@ OPTIONS:
         </li>
         
         
-        <li id="section-21">
+        <li id="section-24">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-21">&#x00a7;</a>
+                <a class="ss" href="#section-24">&#x00a7;</a>
               </div>
               <h3 id="query">Query</h3>
 
@@ -407,13 +453,13 @@ OPTIONS:
         </li>
         
         
-        <li id="section-22">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-22">&#x00a7;</a>
+                <a class="ss" href="#section-25">&#x00a7;</a>
               </div>
-              <p>For <code>showCols</code> (default=<code>data.cols.c</code>) in <code>data</code>, report <code>fun</code> (default=<code>mid</code>).</p>
+              <p>For <code>showCols</code> (default=<code>data.cols.x</code>) in <code>data</code>, report <code>fun</code> (default=<code>mid</code>).</p>
 
             </div>
             
@@ -424,24 +470,24 @@ OPTIONS:
         </li>
         
         
-        <li id="section-23">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-23">&#x00a7;</a>
+                <a class="ss" href="#section-26">&#x00a7;</a>
               </div>
-              <h3 id="distance-functions">Distance functions</h3>
+              <h2 id="distance-functions">Distance functions</h2>
 
             </div>
             
         </li>
         
         
-        <li id="section-24">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-24">&#x00a7;</a>
+                <a class="ss" href="#section-27">&#x00a7;</a>
               </div>
               <p>Distance between two values<code>v1,v2</code>  within <code>col</code></p>
 
@@ -459,11 +505,11 @@ OPTIONS:
         </li>
         
         
-        <li id="section-25">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-25">&#x00a7;</a>
+                <a class="ss" href="#section-28">&#x00a7;</a>
               </div>
               <p>Distance between two rows (returns 0..1)</p>
 
@@ -473,11 +519,25 @@ OPTIONS:
   <span class="hljs-keyword">local</span> d = <span class="hljs-number">0</span>
   <span class="hljs-keyword">for</span> _,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(data.cols.x) <span class="hljs-keyword">do</span> 
     d = d + _dist1(col, t1.cells[col.at], t2.cells[col.at])^the.p <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">return</span> (d/#data.cols.x)^(<span class="hljs-number">1</span>/the.p) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> (d/#data.cols.x)^(<span class="hljs-number">1</span>/the.p) <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-29">&#x00a7;</a>
+              </div>
+              <p>That’s all folks.</p>
 
-<span class="hljs-keyword">return</span> {the=the,add=add,adds=adds,mid=mid,div=div,dist=dist,
-        nums=nums,record=record,
-        Cols=Cols,Num=Num, Sym=Sym, Data=Data}</pre></div></div>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">return</span> {the=the, 
+        Data=Data, Cols=Cols, Sym=Sym, Num=Num, Row=Row, 
+        add=add, adds=adds, clone=clone, dist=dist,  div=div,
+        mid=mid, nums=nums, <span class="hljs-built_in">read</span>=<span class="hljs-built_in">read</span>, record=record, stats=stats}</pre></div></div>
             
         </li>
         

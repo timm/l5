@@ -1,8 +1,9 @@
+-- lib.lua: misc LUA functions   
+-- (c)2022 Tim Menzies <timm@ieee.org> BSD-2 licence
 local l={}
-
 l.b4={}; for k,v in pairs(_ENV) do l.b4[k]=v end 
 
----- ---- ---- Lists
+---- ---- ---- ---- Lists
 -- Add `x` to a list. Return `x`.
 function l.push(t,x) t[1+#t]=x; return x end
 
@@ -21,28 +22,8 @@ function l.copy(t)
 function l.per(t,p)
   p=math.floor(((p or .5)*#t)+.5); return t[math.max(1,math.min(#t,p))] end
 
----- ---- ---- Settings
-function l.settings(s)
-  local t={}
-  s:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)",
-         function(k,x) t[k]=l.coerce(x)end)
-  t._help = s
-  return t end
-
-function l.cli(t)
-  for slot,v in pairs(t) do
-    v = tostring(v)
-    for n,x in ipairs(arg) do
-      if x=="-"..(slot:sub(1,1)) or x=="--"..slot then
-        v = v=="false" and "true" or v=="true" and "false" or arg[n+1] end end
-    t[slot] = l.coerce(v) end
-  if t.help then os.exit(print("\n"..t._help.."\n")) end
-  return t end
-
----- ---- ---- Strings
--- `oo` prints the string from `o`.   
+---- ---- ---- ---- Strings
 -- `o` generates a string from a nested table.
-function l.oo(t) print(l.o(t)) return t end
 function l.o(t)
   if type(t) ~=  "table" then return tostring(t) end
   local function show(k,v)
@@ -53,6 +34,9 @@ function l.o(t)
   if #t==0 then table.sort(u) end
   return (t._is or "").."{"..table.concat(u," ").."}" end
 
+-- `oo` prints the string from `o`.   
+function l.oo(t) print(l.o(t)) return t end
+--
 -- Convert string to something else.
 function l.coerce(s)
   local function coerce1(s1)
@@ -71,5 +55,27 @@ function l.csv(fname,fun)
       for s1 in s:gmatch("([^,]+)") do t[1+#t] = l.coerce(s1) end
       fun(t) end end end 
 
----- ---- ----
+---- ---- ---- ---- Settings
+-- Parse help string looking for slot names and default values
+function l.settings(s)
+  local t={}
+  s:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)",
+         function(k,x) t[k]=l.coerce(x)end)
+  t._help = s
+  return t end
+
+-- Update `t` from values after command-line flags. Booleans need no values
+-- (we just flip the defeaults).
+function l.cli(t)
+  for slot,v in pairs(t) do
+    v = tostring(v)
+    for n,x in ipairs(arg) do
+      if x=="-"..(slot:sub(1,1)) or x=="--"..slot then
+        v = v=="false" and "true" or v=="true" and "false" or arg[n+1] end end
+    t[slot] = l.coerce(v) end
+  if t.help then os.exit(print("\n"..t._help.."\n")) end
+  return t end
+
+-- -------------------------------------------------
+-- That's all folks.
 return l
