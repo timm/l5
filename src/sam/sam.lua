@@ -133,7 +133,7 @@ function unsuper(data)
         if v ~= "?" then
           if i < #data.rows - enough then
             w = data.rows[i+1].cells[col.at]
-            if v~=w and (hi-lo)>epsilon and n>enough then n,lo,hi = 0,v,v end end 
+            if v~=w and (hi-lo)>epsilon and n>enough then n,lo,hi=0,v,v end end 
           n  = n+1
           hi = v
           row.cooked[col.at] = lo end end end end end
