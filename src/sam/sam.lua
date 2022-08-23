@@ -39,8 +39,30 @@ function Row(t) return {cells=t, cooked=l.copy(t)} end
 
 ---- ---- ---- ---- Data Functions
 local add,adds,clone,div,mid,norm,nums,record,read,stats
+---- ---- ---- Create
+-- Processes table of name strings (from row1 of csv file)
+-- If `src` is a string, read rows from file; else read rows from a `src`  table
+-- When reading, use row1 to define the column headers.
+function read(src,  data,     fun,head)
+  data = data or Data()
+  function fun(t) if data.cols then record(data,t) else data.cols=head(t) end end
+  function head(sNames)
+    local cols = Cols()
+    cols.names = namess
+    for c,s in pairs(sNames) do
+      local col = push(cols.all, -- Numerics start with Uppercase. 
+                       (s:find"^[A-Z]*" and Num or Sym)(c,s))
+      if not s:find":$" then -- some columns are skipped
+        push(s:find"[!+-]" and cols.y or cols.x, col) -- some cols are goal cols
+        if s:find"!$"    then cols.klass=col end end end 
+    return cols 
+  end -------------
+  if type(src)=="string" then l.csv(src,fun) 
+                         else for _,t in pairs(src or {}) do fun(t) end end 
+  return data end
+
 ---- ---- ---- Update
--- Add one `col`. For Num, keep at most `nums` items.
+-- Add one thing to `col`. For Num, keep at most `nums` items.
 function add(col,v)
   if v~="?" then
     col.n = col.n + 1
@@ -53,8 +75,15 @@ function add(col,v)
        if pos then col.sorted = false 
                    col._has[pos] = tonumber(v) end end end end
 
--- Add many items
+-- Add many things to col
 function adds(col,t) for _,v in pairs(t) do add(col,v) end; return col end
+
+-- Add a new `row` to `data`. Calls `add()` to  updatie the `cols` with new values.
+function record(data,xs)
+  local row= push(data.rows, xs.cells and xs or Row(xs)) -- ensure xs is a Row
+  for _,todo in pairs{data.cols.x, data.cols.y} do
+    for _,col in pairs(todo) do 
+      add(col, row.cells[col.at]) end end end
 
 ---- ---- ---- Query
 -- Return kept numbers, sorted. 
@@ -85,42 +114,12 @@ function mid(col)
 function stats(data,  showCols,fun,    t)
   showCols, fun = showCols or data.cols.y, fun or mid
   t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
----- ---- ---- Create
--- Processes table of name strings (from row1 of csv file)
-local function _head(sNames)
-  local cols = Cols()
-  cols.names = namess
-  for c,s in pairs(sNames) do
-    local col = push(cols.all, -- Numerics start with Uppercase. 
-                     (s:find"^[A-Z]*" and Num or Sym)(c,s))
-    if not s:find":$" then -- some columns are skipped
-      push(s:find"[!+-]" and cols.y or cols.x, col) -- some cols are goal cols
-      if s:find"!$"    then cols.klass=col end end end 
-  return cols end
-
--- If `src` is a string, read rows from file; else read rows from a `src`  table
--- When reading, use row1 to define the column headers.
-function read(src,  data,     fun)
-  data = data or Data()
-  function fun(t) if data.cols then record(data,t) else data.cols=_head(t) end end
-  if type(src)=="string" then l.csv(src,fun) 
-                         else for _,t in pairs(src or {}) do fun(t) end end 
-  return data end
-
 -- Return a new data with same structure as `data1`. Optionally, oad in `rows`.
 function clone(data1,  rows)
   data2=Data()
   data2.cols = _head(data1.cols.names)
   for _,row in pairs(rows or {}) do record(data2,row) end
   return data2 end
-
----- ---- ---- Update
--- Add a new `row` to `data`, updating the `cols` with the new values.
-function record(data,xs)
-  local row= push(data.rows, xs.cells and xs or Row(xs)) -- ensure xs is a Row
-  for _,todo in pairs{data.cols.x, data.cols.y} do
-    for _,col in pairs(todo) do 
-      add(col, row.cells[col.at]) end end end
 
 ---- ---- ---- ---- Distance functions
 local dist
