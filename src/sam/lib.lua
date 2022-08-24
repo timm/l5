@@ -24,7 +24,6 @@ function l.copy(t)
   local u={}; for k,v in pairs(t) do u[k] = l.copy(v) end
   return setmetatable(u,getmetatable(t))  end
 
-
 -- Round
 function l.rnd(n, nPlaces)
   local mult = 10^(nPlaces or 3)
@@ -49,8 +48,7 @@ function l.o(t)
       v = l.o(v)
       return #t==0 and string.format(":%s %s",k,v) or tostring(v) end end
   local u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
-  if #t==0 then table.sort(u) end
-  return (t._is or "").."{"..table.concat(u," ").."}" end
+  return (t._is or "").."{"..table.concat(#t==0 and sort(u) or u," ").."}" end
 
 -- `oo` prints the string from `o`.   
 function l.oo(t) print(l.o(t)) return t end

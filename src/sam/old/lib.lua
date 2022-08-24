@@ -45,6 +45,17 @@ function l.per(t,p)
 
 function l.push(t,x) t[1+#t]=x; return x end
 
+-- Return items in `t` filtered through `f`. If `f` ever returns nil
+-- then the returned list will be shorter.
+function l.map(t,fun)
+  local t1={}; for _,v in pairs(t) do t1[1+#t1]=fun(v) end; return t1 end
+
+-- Return a function that sorts on slot `x`
+function l.lt(x) return function(a,b) return a[x] < b[x] end end
+
+-- In-place sort, returns sorted list
+function l.sort(t,fun) table.sort(t,fun); return t end
+
 -- Update slots in `t` from command line ---------------------------------------
 function l.cli(t)
   for slot,v in pairs(t) do

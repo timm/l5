@@ -40,14 +40,17 @@ SAM : Semi-supervised And Multi-objective explainations
 USAGE: lua eg.lua [OPTIONS]
 
 OPTIONS:
- -b  --bins   number of bins           = 8
- -c  --cohen  small effect             = .35
- -e  --eg     start-up example         = nothing
- -h  --help   show help                = false
- -m  --min    min size = n^(the.min)   = .5
- -n  --nums   how many numbers to keep = 256
- -p  --p      distance coeffecient     = 2
- -s  --seed   random number seed       = 10019]]</span>)</pre></div></div>
+ -b  --bins    number of bins            = 8
+ -c  --cohen   small effect              = .35
+ -e  --eg      start-up example          = nothing
+ -F  --far     far away                  = .95
+ -f  --file    file with csv data        = ../../docs/auto93.csv
+ -h  --help    show help                 = false
+ -m  --min     min size = n^(the.min)    = .5
+ -n  --nums    how many numbers to keep  = 256
+ -p  --p       distance coeffecient      = 2
+ -s  --seed    random number seed        = 10019
+ -S  --sample  how many rows to search   = 512]]</span>)</pre></div></div>
             
         </li>
         
@@ -62,7 +65,7 @@ OPTIONS:
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> o,oo,per,push = l.o,l.oo,l.per, l.push</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> lt,o,oo,per,push,<span class="hljs-built_in">sort</span> = l.lt,l.o,l.oo,l.per, l.push,l.<span class="hljs-built_in">sort</span></pre></div></div>
             
         </li>
         
@@ -94,8 +97,9 @@ OPTIONS:
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> {cols=<span class="hljs-literal">nil</span>,  <span class="hljs-comment">-- summaries of data</span>
-                        rows={}    <span class="hljs-comment">-- kept data</span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> {_is = <span class="hljs-string">&quot;Data&quot;</span>,
+                        cols= <span class="hljs-literal">nil</span>,  <span class="hljs-comment">-- summaries of data</span>
+                        rows= {}    <span class="hljs-comment">-- kept data</span>
                        } <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -113,6 +117,7 @@ Columns are created once, then may appear in  multiple slots.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Cols</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> {
+  _is  = <span class="hljs-string">&quot;Cols&quot;</span>,
   names={},  <span class="hljs-comment">-- all column names</span>
   all={},    <span class="hljs-comment">-- all the columns (including the skipped ones)</span>
   klass=<span class="hljs-literal">nil</span>, <span class="hljs-comment">-- the single dependent klass column (if it exists)</span>
@@ -134,7 +139,8 @@ Columns are created once, then may appear in  multiple slots.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sym</span><span class="hljs-params">(c,s)</span></span> 
-  <span class="hljs-keyword">return</span> {n=<span class="hljs-number">0</span>,          <span class="hljs-comment">-- items seen</span>
+  <span class="hljs-keyword">return</span> {_is= <span class="hljs-string">&quot;Sym&quot;</span>,
+          n=<span class="hljs-number">0</span>,          <span class="hljs-comment">-- items seen</span>
           at=c <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>,    <span class="hljs-comment">-- column position</span>
           name=s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-comment">-- column name</span>
           _has={}       <span class="hljs-comment">-- kept data</span>
@@ -154,11 +160,12 @@ Columns are created once, then may appear in  multiple slots.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num</span><span class="hljs-params">(c,s)</span></span> 
-  <span class="hljs-keyword">return</span> {n=<span class="hljs-number">0</span>,at=c <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>, name=s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>, _has={}, <span class="hljs-comment">-- as per Sym</span>
+  <span class="hljs-keyword">return</span> {_is=<span class="hljs-string">&quot;Nums&quot;</span>,
+          n=<span class="hljs-number">0</span>,at=c <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>, name=s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>, _has={}, <span class="hljs-comment">-- as per Sym</span>
           isNum=<span class="hljs-literal">true</span>,      <span class="hljs-comment">-- mark that this is a number</span>
           lo= <span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>,   <span class="hljs-comment">-- lowest seen</span>
           hi= -<span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>,  <span class="hljs-comment">-- highest seen</span>
-          sorted=<span class="hljs-literal">true</span>,    <span class="hljs-comment">-- no updates since last sort of data</span>
+          isSorted=<span class="hljs-literal">true</span>,    <span class="hljs-comment">-- no updates since last sort of data</span>
           w=(s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>):<span class="hljs-built_in">find</span><span class="hljs-string">&quot;-$&quot;</span> <span class="hljs-keyword">and</span> <span class="hljs-number">-1</span> <span class="hljs-keyword">or</span> <span class="hljs-number">1</span> <span class="hljs-comment">-- minimizing if w=-1</span>
          } <span class="hljs-keyword">end</span></pre></div></div>
             
@@ -175,7 +182,8 @@ Columns are created once, then may appear in  multiple slots.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row</span><span class="hljs-params">(t)</span></span> <span class="hljs-keyword">return</span> {cells=t,         <span class="hljs-comment">-- one record</span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row</span><span class="hljs-params">(t)</span></span> <span class="hljs-keyword">return</span> {_is=<span class="hljs-string">&quot;Row&quot;</span>,
+                        cells=t,         <span class="hljs-comment">-- one record</span>
                         cooked=i.copy(t) <span class="hljs-comment">-- used if we discretize data</span>
                        } <span class="hljs-keyword">end</span></pre></div></div>
             
@@ -297,7 +305,7 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
        <span class="hljs-keyword">local</span> pos
        <span class="hljs-keyword">if</span>     #col._has &lt; the.nums           <span class="hljs-keyword">then</span> pos = <span class="hljs-number">1</span> + (#col._has) 
        <span class="hljs-keyword">elseif</span> <span class="hljs-built_in">math</span>.<span class="hljs-built_in">random</span>() &lt; the.nums/col.n <span class="hljs-keyword">then</span> pos = <span class="hljs-built_in">math</span>.<span class="hljs-built_in">random</span>(#col._has) <span class="hljs-keyword">end</span>
-       <span class="hljs-keyword">if</span> pos <span class="hljs-keyword">then</span> col.sorted = <span class="hljs-literal">false</span> 
+       <span class="hljs-keyword">if</span> pos <span class="hljs-keyword">then</span> col.isSorted = <span class="hljs-literal">false</span> 
                    col._has[pos] = <span class="hljs-built_in">tonumber</span>(v) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -361,7 +369,7 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">nums</span><span class="hljs-params">(num)</span></span>
-  <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> num.sorted <span class="hljs-keyword">then</span> <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(num._has); num.sorted=<span class="hljs-literal">true</span> <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> num.isSorted <span class="hljs-keyword">then</span> num._has = <span class="hljs-built_in">sort</span>(num._has); num.isSorted=<span class="hljs-literal">true</span> <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">return</span> num._has <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -538,7 +546,7 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
             
             <div class="content"><div class='highlight'><pre>
 
-<span class="hljs-keyword">local</span> dist</pre></div></div>
+<span class="hljs-keyword">local</span> around, dist, far, half, halves</pre></div></div>
             
         </li>
         
@@ -576,9 +584,13 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
               <div class="sswrap ">
                 <a class="ss" href="#section-29">&#x00a7;</a>
               </div>
-              <hr>
+              <p>Sort <code>rows</code> (default=<code>data.rows</code>) by distance to <code>row1</code>.</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">around</span><span class="hljs-params">(data,row1,  rows,     fun)</span></span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fun</span><span class="hljs-params">(row2)</span></span> <span class="hljs-keyword">return</span> {row=row2, dist=dist(data,row1,row2)} <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">sort</span>(map(rows <span class="hljs-keyword">or</span> data.rows,fun),lt<span class="hljs-string">&quot;dist&quot;</span>) <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -589,14 +601,95 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
               <div class="sswrap ">
                 <a class="ss" href="#section-30">&#x00a7;</a>
               </div>
+              <p>Return the row that is <code>the.far</code> to max distance away from <code>row</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">far</span><span class="hljs-params">(data,row,  rows)</span></span> 
+  <span class="hljs-keyword">return</span> per(around(data,row,rows), the.far).row <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-31">&#x00a7;</a>
+              </div>
+              <p>Split <code>rows</code> (default=<code>data.rows</code>) in half by distance to 2 distant points.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">half</span><span class="hljs-params">(data,rows,  rowAbove)</span></span>
+  <span class="hljs-keyword">local</span> some,left,right,c,lefts,rights,fun
+  rows  = rows <span class="hljs-keyword">or</span> data.rows
+  some  = l.many(rows, the.sample)
+  left  = rowAbove <span class="hljs-keyword">or</span> far( l.any(some),some,rows)
+  right = far(left,some,rows)
+  c     = dist(data,left,right)
+  lefts,rights = {},{}
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fun</span><span class="hljs-params">(row)</span></span> <span class="hljs-keyword">local</span> a = dists(data,row,left)
+                    <span class="hljs-keyword">local</span> b = dists(data,row,right)
+                    <span class="hljs-keyword">return</span> {row=rows, d=(a^<span class="hljs-number">2</span> + c^<span class="hljs-number">2</span> - b^<span class="hljs-number">2</span>) / (<span class="hljs-number">2</span>*c)} <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">for</span> i,pair <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(<span class="hljs-built_in">sort</span>(map(rows, fun), lt<span class="hljs-string">&quot;d&quot;</span>)) <span class="hljs-keyword">do</span>
+    push(i &lt; #rows/<span class="hljs-number">2</span> <span class="hljs-keyword">and</span> lefts <span class="hljs-keyword">or</span> rights, pair.row) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> lefts,rights,left,right,c <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-32">&#x00a7;</a>
+              </div>
+              <p>Recursively split <code>rows</code> (default=<code>data.rows</code>) in half.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">halves</span><span class="hljs-params">(data,rows,   rowAbove,stop)</span></span>
+  rows = rows <span class="hljs-keyword">or</span> data.rows
+  stop = stop <span class="hljs-keyword">or</span> (#rows)^the.<span class="hljs-built_in">min</span>
+  <span class="hljs-keyword">local</span> here = {here=rows}
+  <span class="hljs-keyword">if</span> #rows&gt;=stop <span class="hljs-keyword">then</span> 
+    <span class="hljs-keyword">local</span> lefts,rights,left,right = half(data,rows,rowAbove)
+    here.lefts  = halves(data,lefts,left,stop)
+    here.rights = halves(data,rights,right,stop) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> here <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-33">&#x00a7;</a>
+              </div>
+              <hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-34">&#x00a7;</a>
+              </div>
               <p>That’s all folks.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">return</span> {the=the, 
-        Data=Data, Cols=Cols, Sym=Sym, Num=Num, Row=Row, 
-        add=add, adds=adds, clone=clone, dist=dist,  div=div,
-        mid=mid, nums=nums, records=records, record=record, stats=stats}</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">return</span> {
+  the=the, Data=Data, Cols=Cols, Sym=Sym, Num=Num, Row=Row, add=add,
+  adds=adds, around=around, clone=clone, dist=dist, div=div,
+  far=far, half-half, halves=halves, mid=mid, nums=nums, records=records,
+  record=record, stats=stats}</pre></div></div>
             
         </li>
         

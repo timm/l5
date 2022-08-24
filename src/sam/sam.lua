@@ -8,27 +8,32 @@ SAM : Semi-supervised And Multi-objective explainations
 USAGE: lua eg.lua [OPTIONS]
 
 OPTIONS:
- -b  --bins   number of bins           = 8
- -c  --cohen  small effect             = .35
- -e  --eg     start-up example         = nothing
- -h  --help   show help                = false
- -m  --min    min size = n^(the.min)   = .5
- -n  --nums   how many numbers to keep = 256
- -p  --p      distance coeffecient     = 2
- -s  --seed   random number seed       = 10019]])
+ -b  --bins    number of bins            = 8
+ -c  --cohen   small effect              = .35
+ -e  --eg      start-up example          = nothing
+ -F  --far     far away                  = .95
+ -f  --file    file with csv data        = ../../docs/auto93.csv
+ -h  --help    show help                 = false
+ -m  --min     min size = n^(the.min)    = .5
+ -n  --nums    how many numbers to keep  = 256
+ -p  --p       distance coeffecient      = 2
+ -s  --seed    random number seed        = 10019
+ -S  --sample  how many rows to search   = 512]])
 -- Commonly used lib functions.
-local o,oo,per,push = l.o,l.oo,l.per, l.push
+local lt,o,oo,per,push,sort = l.lt,l.o,l.oo,l.per, l.push,l.sort
 
 ---- ---- ---- ---- Classes 
 local Data,Cols,Sym,Num,Row
 -- Holder of `rows` and their sumamries (in `cols`).
-function Data() return {cols=nil,  -- summaries of data
-                        rows={}    -- kept data
+function Data() return {_is = "Data",
+                        cols= nil,  -- summaries of data
+                        rows= {}    -- kept data
                        } end
 
 -- Holds of summaries of columns. 
 -- Columns are created once, then may appear in  multiple slots.
 function Cols() return {
+  _is  = "Cols",
   names={},  -- all column names
   all={},    -- all the columns (including the skipped ones)
   klass=nil, -- the single dependent klass column (if it exists)
@@ -38,7 +43,8 @@ function Cols() return {
 
 -- Summarizers a stream of symbols.
 function Sym(c,s) 
-  return {n=0,          -- items seen
+  return {_is= "Sym",
+          n=0,          -- items seen
           at=c or 0,    -- column position
           name=s or "", -- column name
           _has={}       -- kept data
@@ -46,17 +52,20 @@ function Sym(c,s)
 
 -- Summarizes a stream of numbers.
 function Num(c,s) 
-  return {n=0,at=c or 0, name=s or "", _has={}, -- as per Sym
+  return {_is="Nums",
+          n=0,at=c or 0, name=s or "", _has={}, -- as per Sym
           isNum=true,      -- mark that this is a number
           lo= math.huge,   -- lowest seen
           hi= -math.huge,  -- highest seen
-          sorted=true,    -- no updates since last sort of data
+          isSorted=true,    -- no updates since last sort of data
           w=(s or ""):find"-$" and -1 or 1 -- minimizing if w=-1
          } end
 
 -- Holds one record
-function Row(t) return {cells=t,         -- one record
-                        cooked=i.copy(t) -- used if we discretize data
+function Row(t) return {_is="Row",
+                        cells=t,          -- one record
+                        cooked=i.copy(t), -- used if we discretize data
+                        isEvaled=false    -- true if y-values evaluated.
                        } end
 
 ---- ---- ---- ---- Data Functions
@@ -102,7 +111,7 @@ function add(col,v)
        local pos
        if     #col._has < the.nums           then pos = 1 + (#col._has) 
        elseif math.random() < the.nums/col.n then pos = math.random(#col._has) end
-       if pos then col.sorted = false 
+       if pos then col.isSorted = false 
                    col._has[pos] = tonumber(v) end end end end
 
 -- Add many things to col
@@ -118,7 +127,7 @@ function record(data,xs)
 ---- ---- ---- Query
 -- Return kept numbers, sorted. 
 function nums(num)
-  if not num.sorted then table.sort(num._has); num.sorted=true end
+  if not num.isSorted then num._has = sort(num._has); num.isSorted=true end
   return num._has end
 
 -- Normalized numbers 0..1. Everything else normalizes to itself.
@@ -185,7 +194,7 @@ function divs(data,rows)
   return n end
 
 ---- ---- ---- ---- Distance functions
-local dist
+local around, dist, far, half, halves
 -- Distance between rows (returns 0..1). For unknown values, assume max distance.
 function dist(data,t1,t2)
   local function fun(col,  v1,v2)
@@ -201,9 +210,46 @@ function dist(data,t1,t2)
     d = d + fun(col, t1.cells[col.at], t2.cells[col.at])^the.p end
   return (d/#data.cols.x)^(1/the.p) end
 
+-- Sort `rows` (default=`data.rows`) by distance to `row1`.
+function around(data,row1,  rows,     fun)
+  function fun(row2) return {row=row2, dist=dist(data,row1,row2)} end
+  return sort(map(rows or data.rows,fun),lt"dist") end
+
+-- Return the row that is `the.far` to max distance away from `row`.
+function far(data,row,  rows) 
+  return per(around(data,row,rows), the.far).row end
+
+-- Split `rows` (default=`data.rows`) in half by distance to 2 distant points.
+function half(data,rows,  rowAbove)
+  local some,left,right,c,lefts,rights,fun
+  rows  = rows or data.rows
+  some  = l.many(rows, the.sample)
+  left  = rowAbove or far( l.any(some),some,rows)
+  right = far(left,some,rows)
+  c     = dist(data,left,right)
+  lefts,rights = {},{}
+  function fun(row) local a = dists(data,row,left)
+                    local b = dists(data,row,right)
+                    return {row=rows, d=(a^2 + c^2 - b^2) / (2*c)} end
+  for i,rowd in pairs(sort(map(rows, fun), lt"d")) do
+    push(i <= #rows/2 and lefts or rights, rowd.row) end
+  return left,right,lefts,rights,c end
+
+-- Recursively split `rows` (default=`data.rows`) in half.
+function halves(data,rows,   rowAbove,stop)
+  rows = rows or data.rows
+  stop = stop or (#rows)^the.min
+  local here = {here=rows}
+  if #rows >= stop then 
+    local left,right,lefts,rights = half(data,rows,rowAbove)
+    here.lefts  = halves(data, lefts,  left,  stop)
+    here.rights = halves(data, rights, right, stop) end
+  return here end
+  
 -- ----------------------------------------------------------------------------
 -- That's all folks.
-return {the=the, 
-        Data=Data, Cols=Cols, Sym=Sym, Num=Num, Row=Row, 
-        add=add, adds=adds, clone=clone, dist=dist,  div=div,
-        mid=mid, nums=nums, records=records, record=record, stats=stats}
+return {
+  the=the, Data=Data, Cols=Cols, Sym=Sym, Num=Num, Row=Row, add=add,
+  adds=adds, around=around, clone=clone, dist=dist, div=div,
+  far=far, half=half, halves=halves, mid=mid, nums=nums, records=records,
+  record=record, stats=stats}
