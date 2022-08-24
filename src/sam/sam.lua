@@ -8,8 +8,9 @@ SAM : Semi-supervised And Multi-objective explainations
 USAGE: lua eg.lua [OPTIONS]
 
 OPTIONS:
- -e  --eg     start-up example         = nothing
+ -b  --bins   number of bins           = 8
  -c  --cohen  small effect             = .35
+ -e  --eg     start-up example         = nothing
  -h  --help   show help                = false
  -m  --min    min size = n^(the.min)   = .5
  -n  --nums   how many numbers to keep = 256
@@ -114,32 +115,6 @@ function record(data,xs)
     for _,col in pairs(todo) do 
       add(col, row.cells[col.at]) end end end
 
--- Unsupervised discretization.
--- ??? have i go the unlnwons handles rite?
-function unsuper(data)
-  local function cell(row,col) return row.cells[col.at] end
-  local function sorter(col) return
-    function (row1,row2)
-      local x,y = row1.cells[col.at], row2.cells[cols.at]
-      return (x=="?" and math.huge or x) < (y=="?" and math.huge or y) end end
-  for _,col in pairs(data.cols.x) do
-    if col.isNum then
-      local enough  = (#data.rows)^the.min
-      local epsilon = div(col)    *the.cohen
-      table.sort(data.rows, sorter(col))
-      for i,row in pairs(data.rows) do 
-        v = row.cells[col.at]
-        if v ~= "?" then
-          if not n then 
-            local n,lo,hi =0,cell(row,col), cells(row,col) end
-          if i < #data.rows - enough then
-            w = cell(data.rows[i+1],col)
-            if v ~= w and (hi - lo) > epsilon and n > enough then 
-              n,lo,hi = 0,v,v end end end 
-        n  = n+1
-        hi = v end
-        row.cooked[col.at] = lo end end end 
-
 ---- ---- ---- Query
 -- Return kept numbers, sorted. 
 function nums(num)
@@ -169,6 +144,45 @@ function mid(col)
 function stats(data,  showCols,fun,    t)
   showCols, fun = showCols or data.cols.y, fun or mid
   t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
+
+---- ---- ---- ---- Discretization
+-- Find ranges within a num (unsupervised).
+function bins(num)
+  local a, epsilon = nums(num), the.cohen*div(num)
+  local enough = #a^the.min
+  local one = {lo=a[1], hi=a[1], n=0}
+  local t = {one}
+  for i,x in pairs(a) do
+    if i < #a-enough and x ~= a[i+1] and n > enough and hi-lo > epsilon then
+      one = push(t, {lo=one.hi, hi=a[i], n=0})  end
+    one.hi = a[i]
+    one.n  = 1 + one.n end
+  t[1].lo  = -math.huge
+  t[#t].ho =  math.huge
+  return t end
+
+-- Fill in discretized values (in `cooked`).
+function cook(data)
+  for _,num in pairs(data.cols.x) do
+    if num.isNum then local t = bins(num)
+                      for _,row in pairs(data.rows) do
+                        local v = row.cells[num.at]
+                        if v ~= "?" then 
+                          for _,bin in pairs(t) do
+                            if v > bin.lo and v <= bin.hi then 
+                              row.cooked[col.at] = bin.lo 
+                              break end end end end end end end 
+
+-- Sum the entropy of the coooked independent columns.
+function divs(data,rows)
+  local n = 0
+  for _,col in pairs(data.cols.x) do
+    local sym= Sym()
+    for _,row in pairs(rows or data.rows) do
+      v = row.cooked[col.at]
+      if v ~= "?" then add(s, v) end end
+    n = n + div(sym) end
+  return n end
 
 ---- ---- ---- ---- Distance functions
 local dist
