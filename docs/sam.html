@@ -40,8 +40,9 @@ SAM : Semi-supervised And Multi-objective explainations
 USAGE: lua eg.lua [OPTIONS]
 
 OPTIONS:
- -e  --eg     start-up example         = nothing
+ -b  --bins   number of bins           = 8
  -c  --cohen  small effect             = .35
+ -e  --eg     start-up example         = nothing
  -h  --help   show help                = false
  -m  --min    min size = n^(the.min)   = .5
  -n  --nums   how many numbers to keep = 256
@@ -342,34 +343,9 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
               <div class="sswrap ">
                 <a class="ss" href="#section-17">&#x00a7;</a>
               </div>
-              <p>Unsupervised discretization.
-??? have i go the unlnwons handles rite?</p>
+              <h3 id="query">Query</h3>
 
             </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">unsuper</span><span class="hljs-params">(data)</span></span>
-  <span class="hljs-keyword">local</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">cell</span><span class="hljs-params">(row,col)</span></span> <span class="hljs-keyword">return</span> row.cells[col.at] <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">local</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sorter</span><span class="hljs-params">(col)</span></span> <span class="hljs-keyword">return</span>
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(row1,row2)</span></span>
-      <span class="hljs-keyword">local</span> x,y = row1.cells[col.at], row2.cells[cols.at]
-      <span class="hljs-keyword">return</span> (x==<span class="hljs-string">&quot;?&quot;</span> <span class="hljs-keyword">and</span> <span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span> <span class="hljs-keyword">or</span> x) &lt; (y==<span class="hljs-string">&quot;?&quot;</span> <span class="hljs-keyword">and</span> <span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span> <span class="hljs-keyword">or</span> y) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">for</span> _,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(data.cols.x) <span class="hljs-keyword">do</span>
-    <span class="hljs-keyword">if</span> col.isNum <span class="hljs-keyword">then</span>
-      <span class="hljs-keyword">local</span> enough  = (#data.rows)^the.<span class="hljs-built_in">min</span>
-      <span class="hljs-keyword">local</span> epsilon = div(col)    *the.cohen
-      <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(data.rows, sorter(col))
-      <span class="hljs-keyword">for</span> i,row <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(data.rows) <span class="hljs-keyword">do</span> 
-        v = row.cells[col.at]
-        <span class="hljs-keyword">if</span> v ~= <span class="hljs-string">&quot;?&quot;</span> <span class="hljs-keyword">then</span>
-          <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> n <span class="hljs-keyword">then</span> 
-            <span class="hljs-keyword">local</span> n,lo,hi =<span class="hljs-number">0</span>,cell(row,col), cells(row,col) <span class="hljs-keyword">end</span>
-          <span class="hljs-keyword">if</span> i &lt; #data.rows - enough <span class="hljs-keyword">then</span>
-            w = cell(data.rows[i+<span class="hljs-number">1</span>],col)
-            <span class="hljs-keyword">if</span> v ~= w <span class="hljs-keyword">and</span> (hi - lo) &gt; epsilon <span class="hljs-keyword">and</span> n &gt; enough <span class="hljs-keyword">then</span> 
-              n,lo,hi = <span class="hljs-number">0</span>,v,v <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
-        n  = n+<span class="hljs-number">1</span>
-        hi = v <span class="hljs-keyword">end</span>
-        row.cooked[col.at] = lo <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -379,19 +355,6 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
               
               <div class="sswrap ">
                 <a class="ss" href="#section-18">&#x00a7;</a>
-              </div>
-              <h3 id="query">Query</h3>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-19">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-19">&#x00a7;</a>
               </div>
               <p>Return kept numbers, sorted. </p>
 
@@ -404,11 +367,11 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
         </li>
         
         
-        <li id="section-20">
+        <li id="section-19">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-20">&#x00a7;</a>
+                <a class="ss" href="#section-19">&#x00a7;</a>
               </div>
               <p>Normalized numbers 0..1. Everything else normalizes to itself.</p>
 
@@ -420,11 +383,11 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
         </li>
         
         
-        <li id="section-21">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-21">&#x00a7;</a>
+                <a class="ss" href="#section-20">&#x00a7;</a>
               </div>
               <p>Diversity (standard deviation for Nums, entropy for Syms)</p>
 
@@ -440,11 +403,11 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
         </li>
         
         
-        <li id="section-22">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-22">&#x00a7;</a>
+                <a class="ss" href="#section-21">&#x00a7;</a>
               </div>
               <p>Central tendancy (median for Nums, mode for Syms)</p>
 
@@ -459,11 +422,11 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
         </li>
         
         
-        <li id="section-23">
+        <li id="section-22">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-23">&#x00a7;</a>
+                <a class="ss" href="#section-22">&#x00a7;</a>
               </div>
               <p>For <code>showCols</code> (default=<code>data.cols.x</code>) in <code>data</code>, report <code>fun</code> (default=<code>mid</code>).</p>
 
@@ -476,11 +439,98 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
         </li>
         
         
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-23">&#x00a7;</a>
+              </div>
+              <h2 id="discretization">Discretization</h2>
+
+            </div>
+            
+        </li>
+        
+        
         <li id="section-24">
             <div class="annotation">
               
               <div class="sswrap ">
                 <a class="ss" href="#section-24">&#x00a7;</a>
+              </div>
+              <p>Find ranges within a num (unsupervised).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">bins</span><span class="hljs-params">(num)</span></span>
+  <span class="hljs-keyword">local</span> a, epsilon = nums(num), the.cohen*div(num)
+  <span class="hljs-keyword">local</span> enough = #a^the.<span class="hljs-built_in">min</span>
+  <span class="hljs-keyword">local</span> one = {lo=a[<span class="hljs-number">1</span>], hi=a[<span class="hljs-number">1</span>], n=<span class="hljs-number">0</span>}
+  <span class="hljs-keyword">local</span> t = {one}
+  <span class="hljs-keyword">for</span> i,x <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(a) <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">if</span> i &lt; #a-enough <span class="hljs-keyword">and</span> x ~= a[i+<span class="hljs-number">1</span>] <span class="hljs-keyword">and</span> n &gt; enough <span class="hljs-keyword">and</span> hi-lo &gt; epsilon <span class="hljs-keyword">then</span>
+      one = push(t, {lo=one.hi, hi=a[i], n=<span class="hljs-number">0</span>})  <span class="hljs-keyword">end</span>
+    one.hi = a[i]
+    one.n  = <span class="hljs-number">1</span> + one.n <span class="hljs-keyword">end</span>
+  t[<span class="hljs-number">1</span>].lo  = -<span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>
+  t[#t].ho =  <span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>
+  <span class="hljs-keyword">return</span> t <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-25">&#x00a7;</a>
+              </div>
+              <p>Fill in discretized values (in <code>cooked</code>).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">cook</span><span class="hljs-params">(data)</span></span>
+  <span class="hljs-keyword">for</span> _,num <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(data.cols.x) <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">if</span> num.isNum <span class="hljs-keyword">then</span> <span class="hljs-keyword">local</span> t = bins(num)
+                      <span class="hljs-keyword">for</span> _,row <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(data.rows) <span class="hljs-keyword">do</span>
+                        <span class="hljs-keyword">local</span> v = row.cells[num.at]
+                        <span class="hljs-keyword">if</span> v ~= <span class="hljs-string">&quot;?&quot;</span> <span class="hljs-keyword">then</span> 
+                          <span class="hljs-keyword">for</span> _,bin <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(t) <span class="hljs-keyword">do</span>
+                            <span class="hljs-keyword">if</span> v &gt; bin.lo <span class="hljs-keyword">and</span> v &lt;= bin.hi <span class="hljs-keyword">then</span> 
+                              row.cooked[col.at] = bin.lo 
+                              <span class="hljs-keyword">break</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-26">&#x00a7;</a>
+              </div>
+              <p>Sum the entropy of the coooked independent columns.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">divs</span><span class="hljs-params">(data,rows)</span></span>
+  <span class="hljs-keyword">local</span> n = <span class="hljs-number">0</span>
+  <span class="hljs-keyword">for</span> _,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(data.cols.x) <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">local</span> sym= Sym()
+    <span class="hljs-keyword">for</span> _,row <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(rows <span class="hljs-keyword">or</span> data.rows) <span class="hljs-keyword">do</span>
+      v = row.cooked[col.at]
+      <span class="hljs-keyword">if</span> v ~= <span class="hljs-string">&quot;?&quot;</span> <span class="hljs-keyword">then</span> add(s, v) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
+    n = n + div(sym) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> n <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-27">&#x00a7;</a>
               </div>
               <h2 id="distance-functions">Distance functions</h2>
 
@@ -493,11 +543,11 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
         </li>
         
         
-        <li id="section-25">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-25">&#x00a7;</a>
+                <a class="ss" href="#section-28">&#x00a7;</a>
               </div>
               <p>Distance between rows (returns 0..1). For unknown values, assume max distance.</p>
 
@@ -520,11 +570,11 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
         </li>
         
         
-        <li id="section-26">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-26">&#x00a7;</a>
+                <a class="ss" href="#section-29">&#x00a7;</a>
               </div>
               <hr>
 
@@ -533,11 +583,11 @@ else read rows from a <code>src</code>  table. When reading, use row1 to define 
         </li>
         
         
-        <li id="section-27">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-27">&#x00a7;</a>
+                <a class="ss" href="#section-30">&#x00a7;</a>
               </div>
               <p>That’s all folks.</p>
 
