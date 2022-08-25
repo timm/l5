@@ -227,7 +227,11 @@ function half(data,rows,  rowAbove)
   rows  = rows or data.rows
   some  = l.many(rows, the.sample)
   left  = rowAbove or far(data, l.any(some),some)
+<<<<<<< HEAD
   right = far(data, left,some)
+=======
+  right = far(data,left,some)
+>>>>>>> 834010fc3734302767830997e000cbfd08ae4ec9
   c     = dist(data,left,right)
   lefts,rights = {},{}
   function fun(row) local a = dist(data,row,left)
@@ -238,16 +242,17 @@ function half(data,rows,  rowAbove)
   return left,right,lefts,rights,c end
 
 -- Recursively split `rows` (default=`data.rows`) in half.
-function halves(data,rows,   rowAbove,stop)
-  rows = rows or data.rows
-  stop = stop or (#rows)^the.min
-  local here = {here=rows}
-  if #rows >= stop then 
-    local left,right,lefts,rights = half(data,rows,rowAbove)
-    here.lefts  = halves(data, lefts,  left,  stop)
-    here.rights = halves(data, rights, right, stop) end
-  return here end
-  
+function halves(data,    stop,fun)
+  stop = #(data.rows)^the.min
+  function fun(rows,  rowAbove,    here,left,right,lefts,rights)
+    here = {here=rows}
+    if #rows >= stop then 
+      left,right,lefts,rights = half(data,rows,rowAbove)
+      here.lefts  = fun(lefts,left)
+      here.rights = fun(rights,right) end 
+    return here 
+  end --------
+  return fun(data.rows) end
 -- ----------------------------------------------------------------------------
 -- That's all folks.
 return {
