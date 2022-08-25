@@ -214,24 +214,28 @@ function dist(data,t1,t2)
 
 -- Sort `rows` (default=`data.rows`) by distance to `row1`.
 function around(data,row1,  rows,     fun)
-  function fun(row2) return {row=row2, dist=dist(data,row1,row2)} end
+  function fun(row2) --print("r2",#row2); 
+      return {row=row2, dist=dist(data,row1,row2)} end
+  print("a")
   return sort(map(rows or data.rows,fun),lt"dist") end
 
 -- Return the row that is `the.far` to max distance away from `row`.
 function far(data,row,  rows) 
-  oo{row=row}
+  print("f",data._is,#rows,o(row))
   return per(around(data,row,rows), the.far).row end
 
 -- Split `rows` (default=`data.rows`) in half by distance to 2 distant points.
 function half(data,rows,  rowAbove)
-  local some,left,right,c,lefts,rights,fun
-  rows  = rows or data.rows
-  some  = l.many(rows, the.sample)
-  left  = rowAbove or far(data, l.any(some),some)
-  right = far(data, left,some)
-  c     = dist(data,left,right)
-  lefts,rights = {},{}
-  function fun(row) local a = dist(data,row,left)
+  local rows  = rows or data.rows
+  local some  = l.many(rows, the.sample)
+  local left  = rowAbove or far(data, l.any(some),some)
+  print(4,data._is,o(left),#some)
+  local right = far(data, left,some)
+  print(5)
+  local c     = dist(data,left,right)
+  local lefts,rights = {},{}
+  local function fun(row) 
+                    local a = dist(data,row,left)
                     local b = dist(data,row,right)
                     return {row=rows, d=(a^2 + c^2 - b^2) / (2*c)} end
   for i,rowd in pairs(sort(map(rows, fun), lt"d")) do
@@ -240,11 +244,12 @@ function half(data,rows,  rowAbove)
 
 -- Recursively split `rows` (default=`data.rows`) in half.
 function halves(data,    stop,fun)
-  function fun(rows,lvl,  lvl,rowAbove,    here,left,right,lefts,rights)
+  function fun(rows,lvl,  rowAbove,    here,left,right,lefts,rights)
     here = {node=rows}
-    print(lvl,#rows, stop)
     if #rows >= stop then 
+      print(lvl,#rows, stop)
       left,right,lefts,rights = half(data, rows,rowAbove)
+      print(1)
       here.kids = {fun(lefts,lvl+1,left), fun(rights,lvl+1,right)} end 
     return here 
   end --------

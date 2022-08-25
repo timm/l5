@@ -1,5 +1,8 @@
+#!/bin/sh
+_=[[ exec lua "$0" "$@" ]]
 -- lib.lua: misc LUA functions   
--- (c)2022 Tim Menzies <timm@ieee.org> BSD-2 licence
+-- (c)2022 Tim Menzies,timm@ieee.org, BSD-2 licence
+print(100) 
 local l={}
 
 -- ## Meta
