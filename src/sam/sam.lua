@@ -20,7 +20,8 @@ OPTIONS:
  -s  --seed    random number seed        = 10019
  -S  --sample  how many rows to search   = 512]])
 -- Commonly used lib functions.
-local lt,o,oo,per,push,sort = l.lt,l.o,l.oo,l.per, l.push,l.sort
+local lt,o,oo,map   = l.lt,l.o,l.oo,l.map
+local per,push,sort = l.per, l.push,l.sort
 
 ---- ---- ---- ---- Classes 
 local Data,Cols,Sym,Num,Row
@@ -64,7 +65,7 @@ function Num(c,s)
 -- Holds one record
 function Row(t) return {_is="Row",
                         cells=t,          -- one record
-                        cooked=i.copy(t), -- used if we discretize data
+                        cooked=l.copy(t), -- used if we discretize data
                         isEvaled=false    -- true if y-values evaluated.
                        } end
 
@@ -155,6 +156,7 @@ function stats(data,  showCols,fun,    t)
   t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
 
 ---- ---- ---- ---- Discretization
+local bins,cook,divs
 -- Find ranges within a num (unsupervised).
 function bins(num)
   local a, epsilon = nums(num), the.cohen*div(num)
@@ -180,7 +182,7 @@ function cook(data)
                           for _,bin in pairs(t) do
                             if v > bin.lo and v <= bin.hi then 
                               row.cooked[col.at] = bin.lo 
-                              break end end end end end end end 
+                              break end end end end end end end  
 
 -- Sum the entropy of the coooked independent columns.
 function divs(data,rows)
@@ -224,12 +226,12 @@ function half(data,rows,  rowAbove)
   local some,left,right,c,lefts,rights,fun
   rows  = rows or data.rows
   some  = l.many(rows, the.sample)
-  left  = rowAbove or far( l.any(some),some,rows)
-  right = far(left,some,rows)
+  left  = rowAbove or far(data, l.any(some),some)
+  right = far(data, left,some)
   c     = dist(data,left,right)
   lefts,rights = {},{}
-  function fun(row) local a = dists(data,row,left)
-                    local b = dists(data,row,right)
+  function fun(row) local a = dist(data,row,left)
+                    local b = dist(data,row,right)
                     return {row=rows, d=(a^2 + c^2 - b^2) / (2*c)} end
   for i,rowd in pairs(sort(map(rows, fun), lt"d")) do
     push(i <= #rows/2 and lefts or rights, rowd.row) end
@@ -250,6 +252,6 @@ function halves(data,rows,   rowAbove,stop)
 -- That's all folks.
 return {
   the=the, Data=Data, Cols=Cols, Sym=Sym, Num=Num, Row=Row, add=add,
-  adds=adds, around=around, clone=clone, dist=dist, div=div,
-  far=far, half=half, halves=halves, mid=mid, nums=nums, records=records,
+  adds=adds, around=around, bin=bins,clone=clone,cook=cook,dist=dist, div=div,
+  divs=divs, far=far, half=half, halves=halves, mid=mid, nums=nums, records=records,
   record=record, stats=stats}

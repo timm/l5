@@ -85,6 +85,21 @@ function eg.dist(  data,t)
   table.sort(t)
   oo(t)
   return true end
+
+function eg.far(  data)
+  data = records("../../data/auto93.csv")
+  oo(data.rows[1].cells)
+  for i,t in pairs(_.around(data,data.rows[1])) do 
+    if i>390 or i< 10 then print(o(t.row.cells),t.dist) end end 
+  oo(_.far(data, data.rows[1]).cells) 
+  return true end
+
+function eg.half(   data)
+  data = records("../../data/auto93.csv")
+  oo(data.cols.x)
+  _.half(data) 
+  return true end
+
 -- -------------------------------------------------------------------------
 the = l.cli(the)
 os.exit( l.runs(the.eg, eg, the))
