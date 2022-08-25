@@ -96,8 +96,9 @@ function eg.far(  data)
 
 function eg.half(   data)
   data = records("../../data/auto93.csv")
+  a,b,c,d,e= _.half(data)
+  print("a",o(a), o(b))
   _.halves(data)
-  --tree(_.halves(data),function(t) tostring(10) end)
   return true end
 
 -- -------------------------------------------------------------------------

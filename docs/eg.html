@@ -191,7 +191,19 @@ and the triangle inequality.</p>
      <span class="hljs-keyword">for</span> _,x <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>{a} <span class="hljs-keyword">do</span> push(t,rnd(x,<span class="hljs-number">2</span>)) <span class="hljs-keyword">end</span>  <span class="hljs-keyword">end</span>
   <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(t)
   oo(t)
-  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.far</span><span class="hljs-params">(  data)</span></span>
+  data = records(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>)
+  oo(data.rows[<span class="hljs-number">1</span>].cells)
+  <span class="hljs-keyword">for</span> i,t <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(_.around(data,data.rows[<span class="hljs-number">1</span>])) <span class="hljs-keyword">do</span> 
+    <span class="hljs-keyword">if</span> i&gt;<span class="hljs-number">390</span> <span class="hljs-keyword">or</span> i&lt; <span class="hljs-number">10</span> <span class="hljs-keyword">then</span> <span class="hljs-built_in">print</span>(o(t.row.cells),t.dist) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
+  oo(_.far(data, data.rows[<span class="hljs-number">1</span>]).cells) 
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.half</span><span class="hljs-params">(   data)</span></span>
+  data = records(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>)
+  _.halves(data)</pre></div></div>
             
         </li>
         
@@ -202,9 +214,11 @@ and the triangle inequality.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-8">&#x00a7;</a>
               </div>
-              <hr>
+              <p>tree(_.halves(data),function(t) tostring(10) end)</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -214,6 +228,19 @@ and the triangle inequality.</p>
               
               <div class="sswrap ">
                 <a class="ss" href="#section-9">&#x00a7;</a>
+              </div>
+              <hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-10">&#x00a7;</a>
               </div>
               
             </div>

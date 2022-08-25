@@ -43,6 +43,16 @@ function l.copy(t)
 function l.per(t,p)
   p=math.floor(((p or .5)*#t)+.5); return t[math.max(1,math.min(#t,p))] end
 
+-- Return the list `t` sorted using `fun`.
+function l.sort(t,fun)  table.sort(t,fun); return t end
+
+-- Return a function that sorts on `s` , in ascending order.
+function l.lt(s) return function(t1,t2) return t1[s] < t2[s] end end
+
+-- Map `fun` over `t1`, returning all not-nil results.
+function l.map(t1,fun)
+  local t2={}; for _,v in pairs(t1) do t2[1+#t2] = fun(v) end; return t2 end
+
 -- ## Strings
 
 
@@ -54,7 +64,7 @@ function l.o(t)
       v = l.o(v)
       return #t==0 and string.format(":%s %s",k,v) or tostring(v) end end
   local u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
-  return (t._is or "").."{"..table.concat(#t==0 and sort(u) or u," ").."}" end
+  return (t._is or "").."{"..table.concat(#t==0 and l.sort(u) or u," ").."}" end
 
 -- `oo` prints the string from `o`.   
 function l.oo(t) print(l.o(t)) return t end
@@ -123,7 +133,7 @@ function l.runs(k,funs,settings)
     for _,k in pairs(_egs()) do print(string.format("  %-7s",k)) end 
   elseif k=="all" then -- run all
     for _,k in pairs(_egs()) do 
-      fails=fails + (l.run(k,funs,settings) and 0 or 1) end
+      fails=fails + (l.runs(k,funs,settings) and 0 or 1) end
   elseif funs[k] then -- run one
     math.randomseed(settings.seed) -- reset seed
     local b4={}; for k,v in pairs(settings) do b4[k]=v end

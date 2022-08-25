@@ -214,7 +214,7 @@ function dist(data,t1,t2)
 
 -- Sort `rows` (default=`data.rows`) by distance to `row1`.
 function around(data,row1,  rows,     fun)
-  function fun(row2) print("row2",#row2);return {row=row2, dist=dist(data,row1,row2)} end
+  function fun(row2) return {row=row2, dist=dist(data,row1,row2)} end
   return sort(map(rows or data.rows,fun),lt"dist") end
 
 -- Return the row that is `the.far` to max distance away from `row`.
@@ -240,16 +240,16 @@ function half(data,rows,  rowAbove)
 
 -- Recursively split `rows` (default=`data.rows`) in half.
 function halves(data,    stop,fun)
-  function fun(rows,  rowAbove,    here,left,right,lefts,rights)
+  function fun(rows,lvl,  lvl,rowAbove,    here,left,right,lefts,rights)
     here = {node=rows}
-    print(#rows, stop)
+    print(lvl,#rows, stop)
     if #rows >= stop then 
       left,right,lefts,rights = half(data, rows,rowAbove)
-      here.kids = {fun(lefts,left), fun(rights,right)} end 
+      here.kids = {fun(lefts,lvl+1,left), fun(rights,lvl+1,right)} end 
     return here 
   end --------
   stop = (#data.rows)^the.min
-  return fun(data.rows) end
+  return fun(data.rows,0) end
 
 function tree(x,  nodeFun,     pre)
   nodeFun = nodeFun or io.write
