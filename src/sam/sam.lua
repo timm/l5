@@ -239,16 +239,28 @@ function half(data,rows,  rowAbove)
 
 -- Recursively split `rows` (default=`data.rows`) in half.
 function halves(data,    stop,fun)
-  stop = #(data.rows)^the.min
+  oo((#data.rows)^the.min)
   function fun(rows,  rowAbove,    here,left,right,lefts,rights)
-    here = {here=rows}
+    print(2)
+    here = {node=rows}
+    print(#rows, stop)
     if #rows >= stop then 
       left,right,lefts,rights = half(data,rows,rowAbove)
-      here.lefts  = fun(lefts,left)
-      here.rights = fun(rights,right) end 
+      here.kids = {fun(lefts,left), fun(rights,right)} end 
     return here 
   end --------
+  print(1,the.min)
+  stop = (#data.rows)^the.min
+  print(2)
   return fun(data.rows) end
+
+function tree(x,  nodeFun,     pre)
+  nodeFun = nodeFun or io.write
+  pre = pre or "|.. "
+  print(pre,nodeFun(x.node))
+  for _,kid in pairs(x.kids or {}) do tree(kid, nodeFun, pre.."|.. ") end end
+
+
 -- ----------------------------------------------------------------------------
 -- That's all folks.
 return {
