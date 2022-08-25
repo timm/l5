@@ -45,9 +45,9 @@ function l.sort(t,fun)  table.sort(t,fun); return t end
 -- Return a function that sorts on `s` , in ascending order.
 function l.lt(s) return function(t1,t2) return t1[s] < t2[s] end end
 
--- Map `fun` over `t`, returning all not-nil results.
-function l.map(t,fun,     t1)
-  t1={}; for _,v in pairs(t) do t1[1+#t1] = fun(v) end; return t1 end
+-- Map `fun` over `t1`, returning all not-nil results.
+function l.map(t1,fun)
+  local t2={}; for _,v in pairs(t1) do t2[1+#t2] = fun(v) end; return t2 end
 
 ---- ---- ---- ---- Strings
 -- `o` generates a string from a nested table.
