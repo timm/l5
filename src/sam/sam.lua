@@ -227,11 +227,7 @@ function half(data,rows,  rowAbove)
   rows  = rows or data.rows
   some  = l.many(rows, the.sample)
   left  = rowAbove or far(data, l.any(some),some)
-<<<<<<< HEAD
   right = far(data, left,some)
-=======
-  right = far(data,left,some)
->>>>>>> 834010fc3734302767830997e000cbfd08ae4ec9
   c     = dist(data,left,right)
   lefts,rights = {},{}
   function fun(row) local a = dist(data,row,left)
