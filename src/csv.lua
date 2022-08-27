@@ -262,8 +262,7 @@ function eg.ALL()
     if k ~= "ALL" then
       print"\n-----------------------------------"
       if not runs(k) then fails=fails+ 1 end end end 
-  return true end
-
+  return true end
 -- Settings come from big string top of "sam.lua" 
 -- (maybe updated from comamnd line)
 function eg.the() oo(the); return true end
