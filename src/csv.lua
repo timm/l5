@@ -86,17 +86,15 @@ local function csv(fname,fun)
       fun(t) end end end
 -- ---------------------------------------
 -- ## Objects
-local Data,Cols,Sym,Num,Row
-
 -- `Data` is a holder of `rows` and their sumamries (in `cols`).
-function Data() return {_is = "Data",
-                        cols= nil,  -- summaries of data
-                        rows= {}    -- kept data
-                       } end
-
+local function Data() return {_is = "Data",
+                              cols= nil,  -- summaries of data
+                              rows= {}    -- kept data
+                             } end
+       
 -- `Columns` Holds of summaries of columns. 
 -- Columns are created once, then may appear in  multiple slots.
-function Cols() return {
+local function Cols() return {
   _is  = "Cols",
   names={},  -- all column names
   all={},    -- all the columns (including the skipped ones)
@@ -106,7 +104,7 @@ function Cols() return {
   } end
 
 -- `Sym`s summarize a stream of symbols.
-function Sym(c,s) 
+local function Sym(c,s) 
   return {_is= "Sym",
           n=0,          -- items seen
           at=c or 0,    -- column position
@@ -115,7 +113,7 @@ function Sym(c,s)
          } end
 
 -- `Num` ummarizes a stream of numbers.
-function Num(c,s) 
+local function Num(c,s) 
   return {_is="Nums",
           n=0,at=c or 0, name=s or "", _has={}, -- as per Sym
           isNum=true,      -- mark that this is a number
@@ -126,7 +124,7 @@ function Num(c,s)
          } end
 
 -- `Row` holds one record
-function Row(t) return {_is="Row",
+local function Row(t) return {_is="Row",
                         cells=t,          -- one record
                         cooked=copy(t), -- used if we discretize data
                         isEvaled=false    -- true if y-values evaluated.
