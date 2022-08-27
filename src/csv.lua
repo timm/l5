@@ -55,13 +55,13 @@ local function o(t)
       return #t==0 and string.format(":%s %s",k,v) or tostring(v) end end
   local u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
   if #t==0 then table.sort(u) end
-  return (t._is or "").."{"..table.concat(u," ").."}" end
+  return "{"..table.concat(u," ").."}" end
 
 -- `oo` prints the string from `o`.   
 local function oo(t) print(o(t)) return t end
 
--- ### Lists
--- Deepcopy
+-- ### lists
+-- deepcopy
 local function copy(t)
   if type(t) ~= "table" then return t end
   local u={}; for k,v in pairs(t) do u[k] = copy(v) end
@@ -84,6 +84,17 @@ local function csv(fname,fun)
       local t={}
       for s1 in s:gmatch(sep) do t[1+#t] = coerce(s1) end
       fun(t) end end end
+
+-- ### OO
+-- obj("Thing") enables a constructor Thing:new() ... and a pretty-printer
+-- for Things.
+local ako=setmetatable
+local function obj(name)
+  local t={}
+  t.__index,t.__tostring = t, function(x) return name .. o(x) end
+  return ako(t,{__call=function(k,...)
+                        x=ako({},k); return ako(x.new(t,...) or t,x) end}) end
+
 -- ---------------------------------------
 -- ## Objects
 -- `Data` is a holder of `rows` and their sumamries (in `cols`).
