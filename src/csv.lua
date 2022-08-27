@@ -233,8 +233,8 @@ local function runs(k,     old,status,out,msg)
 
 -- ---------------------------------
 -- ## Tests
--- What happes when something crashes?
-function eg.BAD() print(eg.ab.sent) end
+-- Test that the test  happes when something crashes?
+function eg.BAD() print(eg.dont.have.this.field) end
 
 -- Sort all test names.
 function eg.LIST(   t)
