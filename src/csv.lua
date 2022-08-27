@@ -29,7 +29,7 @@ function coerce(s,    fun)
     if s1=="true"  then return true end 
     if s1=="false" then return false end
     return s1 end 
-  return math.tointeger(s) or tonumber(s) or coerce1(s:match"^%s*(.-)%s*$") end
+  return math.tointeger(s) or tonumber(s) or fun(s:match"^%s*(.-)%s*$") end
 
 -- Create a `the` variables
 the={}
@@ -109,21 +109,7 @@ function obj(name,    t)
                         x=ako({},k); return ako(x.new(t,...) or t,x) end}) end
 -- ---------------------------------------
 -- ## Objects
-Cols,Data,Num,Rows,Sym=obj"Cols", obj"Data", obj"Num", obj"Rows", obj"Sym"
--- `Data` is a holder of `rows` and their sumamries (in `cols`).
-function Data:new() return { cols= nil,  -- summaries of data
-                             rows= {}    -- kept data
-                           } end
-       
--- `Columns` Holds of summaries of columns. 
--- Columns are created once, then may appear in  multiple slots.
-function Cols:new() return {
-  names={},  -- all column names
-  all={},    -- all the columns (including the skipped ones)
-  klass=nil, -- the single dependent klass column (if it exists)
-  x={},      -- independent columns (that are not skipped)
-  y={}       -- depedent columns (that are not skipped)
-  } end
+local Cols,Data,Num,Rows,Sym=obj"Cols",obj"Data",obj"Num",obj"Rows",obj"Sym"
 
 -- `Sym`s summarize a stream of symbols.
 function Sym:new(c,s) 
@@ -138,43 +124,18 @@ function Num(c,s)
   return {n=0,at=c or 0, name=s or "", _has={}, -- as per Sym
           lo= math.huge,   -- lowest seen
           hi= -math.huge,  -- highest seen
-          isSorted=true,    -- no updates since last sort of data
-          w = ((s or ""):find"-$" and -1 or 1) 
+          isSorted=true,   -- no updates since last sort of data
+          w = ((s or ""):find"-$" and -1 or 1)  
          } end
 
--- `Row` holds one record
-function Row(t) return {cells=t,          -- one record
-                        cooked=copy(t), -- used if we discretize data
-                        isEvaled=false    -- true if y-values evaluated.
-                       } end
--- ----------------------------------------
--- ## Columns
--- Add one thing to `col`. For Num, keep at most `nums` items.
-function Sym:add(v)
-  if v~="?" then 
-   self.n=self.n+1; self._has[v] = 1 + (self._has[v] or 0) end end
-
--- Reservoir sampler. Keep at most `the.nums` numbers 
--- (and if we run out of room, delete something old, at random).,  
-function Num:add(col,v,    pos)
-  if v~="?" then 
-    self.n=self.n+1
-    self.lo = math.min(v, self.lo)
-    self.hi = math.max(v, self.hi)
-    if     #self._has < the.nums           then pos = 1 + (#self._has) 
-    elseif math.random() < the.nums/col.n then pos = math.random(#self._has) end
-    if pos then self.isSorted = false 
-                self._has[pos] = tonumber(v) end end end 
-
---- Add a `row` to `data`. Calls `add()` to  updatie the `cols` with new values.
-function Data:add(xs)
-  local row= push(data.rows, xs.cells and xs or Row(xs)) -- ensure xs is a Row
-  for _,todo in pairs{data.cols.x, data.cols.y} do
-    for _,col in pairs(todo) do 
-      col:add(row.cells[col.at]) end end end
-
-function Cols:new(names,     col)
-  self.names = namess
+-- `Columns` Holds of summaries of columns. 
+-- Columns are created once, then may appear in  multiple slots.
+function Cols:new(names) 
+  self.names=names -- all column names
+  self.all={}      -- all the columns (including the skipped ones)
+  self.klass=nil   -- the single dependent klass column (if it exists)
+  self.x={}        -- independent columns (that are not skipped)
+  self.y={}        -- depedent columns (that are not skipped)
   for c,s in pairs(names) do
     local col = push(self.all, -- Numerics start with Uppercase. 
                     (s:find"^[A-Z]*" and Num or Sym)(c,s))
@@ -182,50 +143,74 @@ function Cols:new(names,     col)
        push(s:find"[!+-]" and self.y or self.x, col) -- some cols are goal cols
        if s:find"!$" then self.klass=col end end end end
 
--- else read rows from a `src`  table. When reading, use row1 to define columns.
--- Generate rows from some `src`.  If `src` is a string, read rows from file; 
-function records(src,      data,head,body)
- 
-  function body(t) -- treat first row differently (defines the columns)
-    if data.cols then record(data,t) else data.cols=head(t) end 
-  end ----------
-  data =  Data()
-  if type(src)=="string" then csv(src, body) else 
-    for _,t in pairs(src or {}) do body(t) end end 
-  return data end
+-- `Row` holds one record
+function Row(t) return {cells=t,          -- one record
+                        cooked=copy(t), -- used if we discretize data
+                        isEvaled=false    -- true if y-values evaluated.
+                       } end
 
--- ### Query
+-- `Data` is a holder of `rows` and their sumamries (in `cols`).
+function Data:new(src) 
+  self.cols = nil -- summaries of data
+  self.rows = {}  -- kept data
+  if   type(src) == "string" 
+  then csv(src, function(row) self:add(row) end) 
+  else for _,row in pairs(src or {}) do self:add(row) end end end
+
+-- ----------------------------------------
+-- ## Sym
+-- Add one thing to `col`. For Num, keep at most `nums` items.
+function Sym:add(v)
+  if v~="?" then self.n=self.n+1; self._has[v] = 1 + (self._has[v] or 0) end end
+
+function Sym:mid(col,    most,mode) 
+  most = -1; for k,v in pairs(col._has) do if v>most then mode,most=k,v end end
+  return mode end 
+
+-- function Sym:div(    e,fun)
+--   function fun(p) return p*math.log(p,2) end
+--   e=0; for _,n in pairs(col._has) do if n>0 then e=e - fun(n/col.n) end end
+--   return e end 
+--
+-- ----------------------------------------
+-- ## Num
 -- Return kept numbers, sorted. 
-local function nums(num)
-  if not num.isSorted then table.sort(num._has); num.isSorted=true end
-  return num._has end
+function Num:nums()
+  if not self.isSorted then table.sort(self._has); self.isSorted=true end
+  return self._has end
 
+-- Reservoir sampler. Keep at most `the.nums` numbers 
+-- (and if we run out of room, delete something old, at random).,  
+function Num:add(v,    pos)
+  if v~="?" then 
+    self.n  = self.n + 1
+    self.lo = math.min(v, self.lo)
+    self.hi = math.max(v, self.hi)
+    if     #self._has < the.nums          then pos = 1 + (#self._has) 
+    elseif math.random() < the.nums/col.n then pos = math.random(#self._has) end
+    if pos then self.isSorted = false 
+                self._has[pos] = tonumber(v) end end end 
+--
 -- Diversity (standard deviation for Nums, entropy for Syms)
-local function div(col)
-  if  col.isNum then local a=nums(col); return (per(a,.9)-per(a,.1))/2.58 else
-    local function fun(p) return p*math.log(p,2) end
-    local e=0
-    for _,n in pairs(col._has) do if n>0 then e=e-fun(n/col.n) end end
-    return e end end
+function Num:div(    a)  a=nums(col); return (per(a,.9)-per(a,.1))/2.58 end
 
 -- Central tendancy (median for Nums, mode for Syms)
-local function mid(col)
-  if col.isNum then return per(nums(col),.5) else 
-    local most,mode = -1
-    for k,v in pairs(col._has) do if v>most then mode,most=k,v end end
-    return mode end end
+function Num:mid(col) return per(nums(col),.5) end 
 
--- Diversity (standard deviation for Nums, entropy for Syms)
-local function div(col)
-  if  col.isNum then local a=nums(col); return (per(a,.9)-per(a,.1))/2.58 else
-    local function fun(p) return p*math.log(p,2) end
-    local e=0
-    for _,n in pairs(col._has) do if n>0 then e=e-fun(n/col.n) end end
-    return e end end
+-- ----------------------------------------
+-- ## Data
+-- Add a `row` to `data`. Calls `add()` to  updatie the `cols` with new values.
+function Data:add(xs,    row)
+ if   not self.cols 
+ then self.cols = Cols(x) 
+ else row= push(data.rows, xs.cells and xs or Row(xs)) -- ensure xs is a Row
+  for _,todo in pairs{self.cols.x, data.cols.y} do
+      for _,col in pairs(todo) do 
+        col:add(row.cells[col.at]) end end end end
 
 -- For `showCols` (default=`data.cols.x`) in `data`, report `fun` (default=`mid`).
-local function stats(data,  showCols,fun,    t)
-  showCols, fun = showCols or data.cols.y, fun or mid
+ function Data:stats(  showCols,fun,    t)
+  showCols, fun = showCols or self.cols.y, fun or mid
   t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
 
 -- ---------------------------------
@@ -281,8 +266,9 @@ function eg.the() oo(the); return true end
 -- and "entropy" (and the latter is zero when all the symbols 
 -- are the same).
 function eg.sym(  sym,entropy,mode)
-  sym= adds(Sym(), {"a","a","a","a","b","b","c"})
-  mode, entropy = mid(sym), div(sym)
+  sym= Sym()
+  for _,x in pairs{"a","a","a","a","b","b","c"} do sym:add(x) end
+  mode, entropy = sym:mid(), sym:div()
   entropy = (1000*entropy)//1/1000
   oo({mid=mode, div=entropy})
   return mode=="a" and 1.37 <= entropy and entropy <=1.38 end
@@ -292,7 +278,7 @@ function eg.sym(  sym,entropy,mode)
 -- are the same).
 function eg.num(  num)
   num=Num()
-  for i=1,100 do add(num,i) end
+  for i=1,100 do num:add(i) end
   local med,ent = mid(num), div(num)
   print(mid(num) ,div(num))
   return 50<= med and med<= 52 and 30.5 <ent and ent <32 end 
@@ -302,7 +288,7 @@ function eg.num(  num)
 function eg.bignum(  num)
   num=Num()
   the.nums = 32
-  for i=1,1000 do add(num,i) end
+  for i=1,1000 do nun:add(i) end
   oo(nums(num))
   return 32==#num._has; end
 
@@ -314,7 +300,7 @@ function eg.csv()
 
 -- Print some stats on columns.
 function eg.stats()
-  oo(stats(records("../data/auto93.csv"))); return true end
+  oo(stats(Data("../data/auto93.csv"))); return true end
   
 -- ---------------------------------
 the = cli(the)  
