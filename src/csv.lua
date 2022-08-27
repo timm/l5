@@ -1,3 +1,4 @@
+local b4={}; for k,v in pairs(_ENV) do b4[k]=v end 
 local help=[[   
 SEEN : summarized csv file
 (c) 2022 Tim Menzies <timm@ieee.org> BSD-2 license
@@ -11,16 +12,9 @@ OPTIONS:
  -h  --help      show help                             = false
  -n  --nums      number of nums to keep                = 512
  -s  --seed      random number seed                    = 10019
- -S  --seperator feild seperator                       = ,
-]]
+ -S  --seperator feild seperator                       = ,]]
 
 -- ## Misc routines
--- ### Linting code
--- Find rogue locals.
-local b4={}; for k,v in pairs(_ENV) do b4[k]=v end 
-local function rogues()
-  for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end end
-
 -- ### Handle Settings
 -- Parse `the` config settings from `help`.
 local the={}
@@ -32,7 +26,7 @@ local function coerce(s)
   return math.tointeger(s) or tonumber(s) or coerce1(s:match"^%s*(.-)%s*$") end
 
 help:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)",
-       function(k,x) the[k]=coerce(x) end)
+          function(k,x) the[k]=coerce(x) end)
 
 -- Update settings from values on command-line flags. Booleans need no values
 -- (we just flip the defeaults).
@@ -45,6 +39,11 @@ local function cli(t)
     t[slot] = coerce(v) end
   if t.help then os.exit(print("\n"..help.."\n")) end
   return t end
+
+-- ### Linting code
+-- Find rogue locals.
+local function rogues()
+  for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end end
 
 -- ### Strings
 -- `o` generates a string from a nested table.
@@ -211,33 +210,45 @@ local function div(col)
 local function stats(data,  showCols,fun,    t)
   showCols, fun = showCols or data.cols.y, fun or mid
   t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
+
 -- ---------------------------------
+-- ## Test Engine
 local eg, fails = {},0
 
+-- [1] reset random number seed before running something.
+-- [2] Cache the detaults settings, and [3] restore them after the test
+-- [4] Print error messages or stack dumps as required.
+-- Return true if this all went well.
 local function runs(k,     old,status,out,msg)
   if not eg[k] then return end
-  math.randomseed(the.seed) -- reset seed
-  old={}; for k,v in pairs(the) do old[k]=v end
+  math.randomseed(the.seed) -- reset seed [1]
+  old={}; for k,v in pairs(the) do old[k]=v end --  [2]
   if the.dump then
     status,out = true, eg[k]()
   else
-    status,out = pcall(eg[k])  -- pcall sets status=false if crash
+    status,out = pcall(eg[k])  -- pcall means we do not crash and dump on errror
   end
-  for k,v in pairs(old) do the[k]=v end -- restore old settings
-  msg = status and ((out==true and "PASS") or "FAIL") or "CRASH"
+  for k,v in pairs(old) do the[k]=v end -- restore old settings [3]
+  msg = status and ((out==true and "PASS") or "FAIL") or "CRASH" -- [4]
   print("!!!!!!", msg, k, status)
   return out or err end
 
+-- ---------------------------------
+-- ## Tests
+-- What happes when something crashes?
 function eg.BAD() print(eg.ab.sent) end
 
+-- Sort all test names.
 function eg.LIST(   t)
   t={}; for k,_ in pairs(eg) do t[1+#t]=k end; table.sort(t); return t end
 
+  -- List test names.
 function eg.LS()
   print("\nExamples lua csv -e ...")
   for _,k in pairs(eg.LIST()) do print(string.format("\t%s",k)) end 
   return true end
 
+-- Run all tests
 function eg.ALL()
   for _,k in pairs(eg.LIST()) do 
     if k ~= "ALL" then
@@ -280,7 +291,9 @@ function eg.bignum(  num)
 
 -- Show we can read csv files.
 function eg.csv() 
-  csv("../data/auto93.csv",oo); return true end
+  local n=0
+  csv("../data/auto93.csv",function(row)
+    n=n+1; if n> 10 then return else oo(row) end end); return true end
 
 -- Print some stats on columns.
 function eg.stats()
