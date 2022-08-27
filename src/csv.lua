@@ -1,6 +1,6 @@
-local b4={}; for k,v in pairs(_ENV) do b4[k]=v end 
+local b4={}; for k,v in pairs(_ENV) do b4[k]=v end -- LUA trivia. Ignore.
 local help=[[   
-SEEN : summarized csv file
+CSV : summarized csv file
 (c) 2022 Tim Menzies <timm@ieee.org> BSD-2 license
 
 USAGE: lua seen.lua [OPTIONS]
