@@ -5,11 +5,14 @@ SEEN : summarized csv file
 USAGE: lua seen.lua [OPTIONS]
 
 OPTIONS:
- -e  --eg    start-up example       = nothing
- -f  --file  file with csv data     = ../data/auto93.csv
- -h  --help  show help              = false
- -n  --nums  number of nums to keep = 512
- -s  --seed  random number seed     = 10019]]
+ -e  --eg        start-up example                      = nothing
+ -d  --dump      on test failure, exit with stack dump = false
+ -f  --file      file with csv data                    = ../data/auto93.csv
+ -h  --help      show help                             = false
+ -n  --nums      number of nums to keep                = 512
+ -s  --seed      random number seed                    = 10019
+ -S  --seperator feild seperator                       = ,
+]]
 
 -- ## Misc routines
 -- ### Linting code
@@ -72,17 +75,17 @@ local function per(t,p)
 -- Add to `t`, return `x`.
 local function push(t,x) t[1+#t]=x; return x end
 
--- ## Call `fun` on each row.
+-- ## Call `fun` on each row. Row cells are divided in `the.seperator`.
 local function csv(fname,fun)
+  local sep = "([^" .. the.seperator .. "]+)"
   local src = io.input(fname)
   while true do
     local s = io.read()
     if not s then return io.close(src) else 
       local t={}
-      for s1 in s:gmatch("([^,]+)") do t[1+#t] = coerce(s1) end
-      fun(t) end end end 
-
---- ---------------------------------------
+      for s1 in s:gmatch(sep) do t[1+#t] = coerce(s1) end
+      fun(t) end end end
+-- ---------------------------------------
 -- ## Objects
 local Data,Cols,Sym,Num,Row
 
@@ -196,31 +199,36 @@ local function mid(col)
     for k,v in pairs(col._has) do if v>most then mode,most=k,v end end
     return mode end end
 
-    -- Diversity (standard deviation for Nums, entropy for Syms)
-function div(col)
+-- Diversity (standard deviation for Nums, entropy for Syms)
+local function div(col)
   if  col.isNum then local a=nums(col); return (per(a,.9)-per(a,.1))/2.58 else
     local function fun(p) return p*math.log(p,2) end
     local e=0
     for _,n in pairs(col._has) do if n>0 then e=e-fun(n/col.n) end end
     return e end end
 
-
 -- For `showCols` (default=`data.cols.x`) in `data`, report `fun` (default=`mid`).
 local function stats(data,  showCols,fun,    t)
   showCols, fun = showCols or data.cols.y, fun or mid
-  t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
-
+  t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
 -- ---------------------------------
 local eg, fails = {},0
 
-local function runs(k)
+local function runs(k,     old,status,out,msg)
   if not eg[k] then return end
   math.randomseed(the.seed) -- reset seed
-  local old={}; for k,v in pairs(the) do old[k]=v end
-  local out=eg[k]()
+  old={}; for k,v in pairs(the) do old[k]=v end
+  if the.dump then
+    status,out = true, eg[k]()
+  else
+    status,out = pcall(eg[k])  -- pcall sets status=false if crash
+  end
   for k,v in pairs(old) do the[k]=v end -- restore old settings
-  print("!!!!!!", k, out and "PASS" or "FAIL")  end
+  msg = status and ((out==true and "PASS") or "FAIL") or "CRASH"
+  print("!!!!!!", msg, k, status)
+  return out or err end
 
+function eg.BAD() print(eg.ab.sent) end
 
 function eg.LIST(   t)
   t={}; for k,_ in pairs(eg) do t[1+#t]=k end; table.sort(t); return t end
@@ -234,7 +242,7 @@ function eg.ALL()
   for _,k in pairs(eg.LIST()) do 
     if k ~= "ALL" then
       print"\n-----------------------------------"
-      fails = fails + (runs(k) and 0 or 1) end end 
+      if not runs(k) then fails=fails+ 1 end end end 
   return true end
 
 -- Settings come from big string top of "sam.lua" 
@@ -244,11 +252,12 @@ function eg.the() oo(the); return true end
 -- The middle and diversity of a set of symbols is called "mode" 
 -- and "entropy" (and the latter is zero when all the symbols 
 -- are the same).
-function eg.ent(  sym,ent)
+function eg.sym(  sym,entropy,mode)
   sym= adds(Sym(), {"a","a","a","a","b","b","c"})
-  ent= div(sym)
-  print(ent,mid(sym))
-  return 1.37 <= ent and ent <=1.38 end
+  mode, entropy = mid(sym), div(sym)
+  entropy = (1000*entropy)//1/1000
+  oo({mid=mode, div=entropy})
+  return mode=="a" and 1.37 <= entropy and entropy <=1.38 end
 
 -- The middle and diversity of a set of numbers is called "median" 
 -- and "standard deviation" (and the latter is zero when all the nums 
@@ -269,18 +278,16 @@ function eg.bignum(  num)
   oo(nums(num))
   return 32==#num._has; end
 
--- We can read data from disk-based csv files, where row1 lists a
--- set of columns names. These names are used to work out what are Nums, or
--- ro Syms, or goals to minimize/maximize, or (indeed) what columns to ignre.
-function eg.records() 
- oo(records("../data/auto93.csv").cols.y); return true end
+-- Show we can read csv files.
+function eg.csv() 
+  csv("../data/auto93.csv",oo); return true end
 
--- Print some stats.
+-- Print some stats on columns.
 function eg.stats()
   oo(stats(records("../data/auto93.csv"))); return true end
   
 -- ---------------------------------
-the = cli(the)
+the = cli(the)  
 runs(the.eg)
 rogues() 
 os.exit(fails) 
