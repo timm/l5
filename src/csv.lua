@@ -233,6 +233,7 @@ function eg.LS()
 function eg.ALL()
   for _,k in pairs(eg.LIST()) do 
     if k ~= "ALL" then
+      print"\n-----------------------------------"
       fails = fails + (runs(k) and 0 or 1) end end 
   return true end
 
