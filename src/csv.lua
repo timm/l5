@@ -161,10 +161,10 @@ function Data:new(src)
 -- ## Sym
 -- Add one thing to `col`. For Num, keep at most `nums` items.
 function Sym:add(v)
-  if v~="?" then self.n=self.n+1; self._has[v] = 1 + (self._has[v] or 0) end end
+  if v~="?" then self.n=self.n+1; self._has[v]= 1+(self._has[v] or 0) end end
 
 function Sym:mid(col,    most,mode) 
-  most = -1; for k,v in pairs(self._has) do if v>most then mode,most=k,v end end
+  most=-1; for k,v in pairs(self._has) do if v>most then mode,most=k,v end end
   return mode end 
 
 function Sym:div(    e,fun)
@@ -186,8 +186,8 @@ function Num:add(v,    pos)
     self.n  = self.n + 1
     self.lo = math.min(v, self.lo)
     self.hi = math.max(v, self.hi)
-    if     #self._has < the.nums           then pos = 1 + (#self._has) 
-    elseif math.random() < the.nums/self.n then pos = math.random(#self._has) end
+    if     #self._has < the.nums           then pos=1 + (#self._has) 
+    elseif math.random() < the.nums/self.n then pos=math.random(#self._has) end
     if pos then self.isSorted = false 
                 self._has[pos] = tonumber(v) end end end 
 --
@@ -207,7 +207,7 @@ function Data:add(xs,    row)
         for _,col in pairs(todo) do 
           col:add(row.cells[col.at]) end end end end
 
--- For `showCols` (default=`data.cols.x`) in `data`, report `fun` (default=`mid`),
+-- For `showCols` (default=`data.cols.x`) in `data`, show `fun` (default=`mid`),
 -- rounding numbers to `places` (default=2)
 function Data:stats(  places,showCols,fun,    t,v)
   showCols, fun = showCols or self.cols.y, fun or "mid"
@@ -230,9 +230,9 @@ local function runs(k,     old,status,out,msg)
   math.randomseed(the.seed) -- reset seed [1]
   old={}; for k,v in pairs(the) do old[k]=v end --  [2]
   if the.dump then -- [4]
-    status,out = true, eg[k]() 
+    status,out=true, eg[k]() 
   else
-    status,out = pcall(eg[k])  -- pcall means we do not crash and dump on errror
+    status,out=pcall(eg[k]) -- pcall means we do not crash and dump on errror
   end
   for k,v in pairs(old) do the[k]=v end -- restore old settings [3]
   msg = status and ((out==true and "PASS") or "FAIL") or "CRASH" -- [4]
