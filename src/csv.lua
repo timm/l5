@@ -14,23 +14,31 @@ OPTIONS:
  -s  --seed      random number seed                    = 10019
  -S  --seperator feild seperator                       = ,]]
 
+-- Function argument conventions: 
+-- 1. two blanks denote optionas, four blanls denote locals:
+-- 2. prefix n,s,is,fun denotes number,string,bool,function; 
+-- 3. suffix s means list of thing (so names is list of strings)
+-- 4. c is a column index (usually)
+
 -- ## Misc routines
 -- ### Handle Settings
+local the,coerce,cli
 -- Parse `the` config settings from `help`.
-local the={}
-local function coerce(s)
-  local function coerce1(s1)
+function coerce(s,    fun)
+  function fun(s1)
     if s1=="true"  then return true end 
     if s1=="false" then return false end
     return s1 end 
   return math.tointeger(s) or tonumber(s) or coerce1(s:match"^%s*(.-)%s*$") end
 
+-- Create a `the` variables
+the={}
 help:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)",
           function(k,x) the[k]=coerce(x) end)
 
 -- Update settings from values on command-line flags. Booleans need no values
 -- (we just flip the defeaults).
-local function cli(t)
+function cli(t)
   for slot,v in pairs(t) do
     v = tostring(v)
     for n,x in ipairs(arg) do
@@ -41,72 +49,75 @@ local function cli(t)
   return t end
 
 -- ### Linting code
+local rogues
 -- Find rogue locals.
-local function rogues()
+function rogues()
   for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end end
 
--- ### Strings
--- `o` generates a string from a nested table.
-local function o(t)
-  if type(t) ~=  "table" then return tostring(t) end
-  local function show(k,v)
-    if not tostring(k):find"^_"  then
-      v = o(v)
-      return #t==0 and string.format(":%s %s",k,v) or tostring(v) end end
-  local u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
-  if #t==0 then table.sort(u) end
-  return "{"..table.concat(u," ").."}" end
-
--- `oo` prints the string from `o`.   
-local function oo(t) print(o(t)) return t end
-
 -- ### lists
+local copy,per,push,csv
 -- deepcopy
-local function copy(t)
+function copy(t,    u)
   if type(t) ~= "table" then return t end
-  local u={}; for k,v in pairs(t) do u[k] = copy(v) end
+  u={}; for k,v in pairs(t) do u[k] = copy(v) end
   return setmetatable(u,getmetatable(t))  end
 
 -- Return the `p`-th thing from the sorted list `t`.
-local function per(t,p)
+function per(t,p)
   p=math.floor(((p or .5)*#t)+.5); return t[math.max(1,math.min(#t,p))] end
 
 -- Add to `t`, return `x`.
-local function push(t,x) t[1+#t]=x; return x end
+function push(t,x) t[1+#t]=x; return x end
 
 -- ## Call `fun` on each row. Row cells are divided in `the.seperator`.
-local function csv(fname,fun)
-  local sep = "([^" .. the.seperator .. "]+)"
-  local src = io.input(fname)
+function csv(fname,fun,      sep,src,s,t)
+  sep = "([^" .. the.seperator .. "]+)"
+  src = io.input(fname)
   while true do
-    local s = io.read()
+    s = io.read()
     if not s then return io.close(src) else 
-      local t={}
+      t={}
       for s1 in s:gmatch(sep) do t[1+#t] = coerce(s1) end
-      fun(t) end end end
+      fun(t) end end end
+
+-- ### Strings
+local o,oo
+-- `o` is a telescopt and `oo` are some binoculars we use to exam stucts.
+-- `o`:  generates a string from a nested table.
+function o(t,   show,u)
+  if type(t) ~=  "table" then return tostring(t) end
+  function show(k,v)
+    if not tostring(k):find"^_"  then
+      v = o(v)
+      return #t==0 and string.format(":%s %s",k,v) or tostring(v) end end
+  u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
+  if #t==0 then table.sort(u) end
+  return "{"..table.concat(u," ").."}" end
+
+-- `oo`: prints the string from `o`.   
+function oo(t) print(o(t)) return t end
 
 -- ### OO
+local ako,obj
 -- obj("Thing") enables a constructor Thing:new() ... and a pretty-printer
 -- for Things.
-local ako=setmetatable
-local function obj(name)
-  local t={}
+ako=setmetatable
+function obj(name,    t)
+  t={}
   t.__index,t.__tostring = t, function(x) return name .. o(x) end
   return ako(t,{__call=function(k,...)
-                        x=ako({},k); return ako(x.new(t,...) or t,x) end}) end
-
+                        x=ako({},k); return ako(x.new(t,...) or t,x) end}) end
 -- ---------------------------------------
 -- ## Objects
+Cols,Data,Num,Rows,Sym=obj"Cols", obj"Data", obj"Num", obj"Rows", obj"Sym"
 -- `Data` is a holder of `rows` and their sumamries (in `cols`).
-local function Data() return {_is = "Data",
-                              cols= nil,  -- summaries of data
-                              rows= {}    -- kept data
-                             } end
+function Data:new() return { cols= nil,  -- summaries of data
+                             rows= {}    -- kept data
+                           } end
        
 -- `Columns` Holds of summaries of columns. 
 -- Columns are created once, then may appear in  multiple slots.
-local function Cols() return {
-  _is  = "Cols",
+function Cols:new() return {
   names={},  -- all column names
   all={},    -- all the columns (including the skipped ones)
   klass=nil, -- the single dependent klass column (if it exists)
@@ -115,19 +126,16 @@ local function Cols() return {
   } end
 
 -- `Sym`s summarize a stream of symbols.
-local function Sym(c,s) 
-  return {_is= "Sym",
-          n=0,          -- items seen
+function Sym:new(c,s) 
+  return {n=0,          -- items seen
           at=c or 0,    -- column position
           name=s or "", -- column name
           _has={}       -- kept data
          } end
 
 -- `Num` ummarizes a stream of numbers.
-local function Num(c,s) 
-  return {_is="Nums",
-          n=0,at=c or 0, name=s or "", _has={}, -- as per Sym
-          isNum=true,      -- mark that this is a number
+function Num(c,s) 
+  return {n=0,at=c or 0, name=s or "", _has={}, -- as per Sym
           lo= math.huge,   -- lowest seen
           hi= -math.huge,  -- highest seen
           isSorted=true,    -- no updates since last sort of data
@@ -135,49 +143,49 @@ local function Num(c,s)
          } end
 
 -- `Row` holds one record
-local function Row(t) return {_is="Row",
-                        cells=t,          -- one record
+function Row(t) return {cells=t,          -- one record
                         cooked=copy(t), -- used if we discretize data
                         isEvaled=false    -- true if y-values evaluated.
                        } end
-
--- ## Data
+-- ----------------------------------------
+-- ## Columns
 -- Add one thing to `col`. For Num, keep at most `nums` items.
-local function add(col,v)
-  if v~="?" then
-    col.n = col.n + 1
-    if not col.isNum then col._has[v] = 1 + (col._has[v] or 0) else 
-       col.lo = math.min(v, col.lo)
-       col.hi = math.max(v, col.hi)
-       local pos
-       if     #col._has < the.nums           then pos = 1 + (#col._has) 
-       elseif math.random() < the.nums/col.n then pos = math.random(#col._has) end
-       if pos then col.isSorted = false 
-                   col._has[pos] = tonumber(v) end end end end
+function Sym:add(v)
+  if v~="?" then 
+   self.n=self.n+1; self._has[v] = 1 + (self._has[v] or 0) end end
 
-local function adds(col,t) for _,x in pairs(t) do add(col,x) end; return col end
+-- Reservoir sampler. Keep at most `the.nums` numbers 
+-- (and if we run out of room, delete something old, at random).,  
+function Num:add(col,v,    pos)
+  if v~="?" then 
+    self.n=self.n+1
+    self.lo = math.min(v, self.lo)
+    self.hi = math.max(v, self.hi)
+    if     #self._has < the.nums           then pos = 1 + (#self._has) 
+    elseif math.random() < the.nums/col.n then pos = math.random(#self._has) end
+    if pos then self.isSorted = false 
+                self._has[pos] = tonumber(v) end end end 
 
 --- Add a `row` to `data`. Calls `add()` to  updatie the `cols` with new values.
-local function record(data,xs)
+function Data:add(xs)
   local row= push(data.rows, xs.cells and xs or Row(xs)) -- ensure xs is a Row
   for _,todo in pairs{data.cols.x, data.cols.y} do
     for _,col in pairs(todo) do 
-      add(col, row.cells[col.at]) end end end
+      col:add(row.cells[col.at]) end end end
 
---- Generate rows from some `src`.  If `src` is a string, read rows from file; 
+function Cols:new(names,     col)
+  self.names = namess
+  for c,s in pairs(names) do
+    local col = push(self.all, -- Numerics start with Uppercase. 
+                    (s:find"^[A-Z]*" and Num or Sym)(c,s))
+    if not s:find":$" then -- some columns are skipped
+       push(s:find"[!+-]" and self.y or self.x, col) -- some cols are goal cols
+       if s:find"!$" then self.klass=col end end end end
+
 -- else read rows from a `src`  table. When reading, use row1 to define columns.
-local  function records(src,      data,head,body)
-  function head(sNames)
-    local cols = Cols()
-    cols.names = namess
-    for c,s in pairs(sNames) do
-      local col = push(cols.all, -- Numerics start with Uppercase. 
-                       (s:find"^[A-Z]*" and Num or Sym)(c,s))
-      if not s:find":$" then -- some columns are skipped
-        push(s:find"[!+-]" and cols.y or cols.x, col) -- some cols are goal cols
-        if s:find"!$"    then cols.klass=col end end end 
-    return cols 
-  end ------------
+-- Generate rows from some `src`.  If `src` is a string, read rows from file; 
+function records(src,      data,head,body)
+ 
   function body(t) -- treat first row differently (defines the columns)
     if data.cols then record(data,t) else data.cols=head(t) end 
   end ----------
