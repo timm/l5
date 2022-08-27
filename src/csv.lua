@@ -198,8 +198,7 @@ function Num:add(v,    pos)
 function Num:div(    a)  a=self:nums(); return (per(a,.9)-per(a,.1))/2.58 end
 
 -- Central tendancy (median for Nums, mode for Syms)
-function Num:mid() return per(self:nums(),.5) end 
-
+function Num:mid() return per(self:nums(),.5) end 
 -- ----------------------------------------
 -- ## Data
 -- Add a `row` to `data`. Calls `add()` to  updatie the `cols` with new values.
