@@ -18,8 +18,7 @@ OPTIONS:
 -- 1. two blanks denote optionas, four blanls denote locals:
 -- 2. prefix n,s,is,fun denotes number,string,bool,function; 
 -- 3. suffix s means list of thing (so names is list of strings)
--- 4. c is a column index (usually)
-
+-- 4. c is a column index (usually)
 -- ## Misc routines
 -- ### Handle Settings
 local the,coerce,cli
@@ -48,7 +47,6 @@ function cli(t)
   if t.help then os.exit(print("\n"..help.."\n")) end
   return t end
 
--- ### Linting code
 -- ### Lists
 local copy,per,push,csv
 -- deepcopy
