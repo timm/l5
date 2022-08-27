@@ -49,12 +49,7 @@ function cli(t)
   return t end
 
 -- ### Linting code
-local rogues
--- Find rogue locals.
-function rogues()
-  for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end end
-
--- ### lists
+-- ### Lists
 local copy,per,push,csv
 -- deepcopy
 function copy(t,    u)
@@ -97,19 +92,27 @@ function o(t,   show,u)
 -- `oo`: prints the string from `o`.   
 function oo(t) print(o(t)) return t end
 
--- ### OO
-local ako,obj
+-- ### Misc
+local rogues, rnd,  obj
+--- Find rogue locals.
+function rogues()
+  for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end end
+
+-- ### Maths
+function rnd(x, places) 
+  local mult = 10^(places or 2)
+  return math.floor(x * mult + 0.5) / mult end
+
 -- obj("Thing") enables a constructor Thing:new() ... and a pretty-printer
 -- for Things.
-ako=setmetatable
-function obj(name,    t)
-  t={}
-  t.__index,t.__tostring = t, function(x) return name .. o(x) end
-  return ako(t,{__call=function(k,...)
-                        x=ako({},k); return ako(x.new(t,...) or t,x) end}) end
+function obj(s,    t,i,new) 
+  function new(k,...) i=setmetatable({},k);
+                      return setmetatable(t.new(i,...) or i,k) end
+  t={__tostring = function(x) return s..o(x) end}
+  t.__index = t;return setmetatable(t,{__call=new}) end
 -- ---------------------------------------
 -- ## Objects
-local Cols,Data,Num,Rows,Sym=obj"Cols",obj"Data",obj"Num",obj"Rows",obj"Sym"
+local Cols,Data,Num,Row,Sym=obj"Cols",obj"Data",obj"Num",obj"Rows",obj"Sym"
 
 -- `Sym`s summarize a stream of symbols.
 function Sym:new(c,s) 
@@ -120,7 +123,7 @@ function Sym:new(c,s)
          } end
 
 -- `Num` ummarizes a stream of numbers.
-function Num(c,s) 
+function Num:new(c,s) 
   return {n=0,at=c or 0, name=s or "", _has={}, -- as per Sym
           lo= math.huge,   -- lowest seen
           hi= -math.huge,  -- highest seen
@@ -144,7 +147,7 @@ function Cols:new(names)
        if s:find"!$" then self.klass=col end end end end
 
 -- `Row` holds one record
-function Row(t) return {cells=t,          -- one record
+function Row:new(t) return {cells=t,          -- one record
                         cooked=copy(t), -- used if we discretize data
                         isEvaled=false    -- true if y-values evaluated.
                        } end
@@ -164,14 +167,14 @@ function Sym:add(v)
   if v~="?" then self.n=self.n+1; self._has[v] = 1 + (self._has[v] or 0) end end
 
 function Sym:mid(col,    most,mode) 
-  most = -1; for k,v in pairs(col._has) do if v>most then mode,most=k,v end end
+  most = -1; for k,v in pairs(self._has) do if v>most then mode,most=k,v end end
   return mode end 
 
--- function Sym:div(    e,fun)
---   function fun(p) return p*math.log(p,2) end
---   e=0; for _,n in pairs(col._has) do if n>0 then e=e - fun(n/col.n) end end
---   return e end 
---
+function Sym:div(    e,fun)
+  function fun(p) return p*math.log(p,2) end
+  e=0; for _,n in pairs(self._has) do if n>0 then e=e - fun(n/self.n) end end
+  return e end 
+
 -- ----------------------------------------
 -- ## Num
 -- Return kept numbers, sorted. 
@@ -186,47 +189,52 @@ function Num:add(v,    pos)
     self.n  = self.n + 1
     self.lo = math.min(v, self.lo)
     self.hi = math.max(v, self.hi)
-    if     #self._has < the.nums          then pos = 1 + (#self._has) 
-    elseif math.random() < the.nums/col.n then pos = math.random(#self._has) end
+    if     #self._has < the.nums           then pos = 1 + (#self._has) 
+    elseif math.random() < the.nums/self.n then pos = math.random(#self._has) end
     if pos then self.isSorted = false 
                 self._has[pos] = tonumber(v) end end end 
 --
 -- Diversity (standard deviation for Nums, entropy for Syms)
-function Num:div(    a)  a=nums(col); return (per(a,.9)-per(a,.1))/2.58 end
+function Num:div(    a)  a=self:nums(); return (per(a,.9)-per(a,.1))/2.58 end
 
 -- Central tendancy (median for Nums, mode for Syms)
-function Num:mid(col) return per(nums(col),.5) end 
+function Num:mid() return per(self:nums(),.5) end 
 
 -- ----------------------------------------
 -- ## Data
 -- Add a `row` to `data`. Calls `add()` to  updatie the `cols` with new values.
 function Data:add(xs,    row)
  if   not self.cols 
- then self.cols = Cols(x) 
- else row= push(data.rows, xs.cells and xs or Row(xs)) -- ensure xs is a Row
-  for _,todo in pairs{self.cols.x, data.cols.y} do
-      for _,col in pairs(todo) do 
-        col:add(row.cells[col.at]) end end end end
+ then self.cols = Cols(xs) 
+ else row= push(self.rows, xs.cells and xs or Row(xs)) -- ensure xs is a Row
+      for _,todo in pairs{self.cols.x, self.cols.y} do
+        for _,col in pairs(todo) do 
+          col:add(row.cells[col.at]) end end end end
 
--- For `showCols` (default=`data.cols.x`) in `data`, report `fun` (default=`mid`).
- function Data:stats(  showCols,fun,    t)
-  showCols, fun = showCols or self.cols.y, fun or mid
-  t={}; for _,col in pairs(showCols) do t[col.name]=fun(col) end; return t end
+-- For `showCols` (default=`data.cols.x`) in `data`, report `fun` (default=`mid`),
+-- rounding numbers to `places` (default=2)
+function Data:stats(  places,showCols,fun,    t,v)
+  showCols, fun = showCols or self.cols.y, fun or "mid"
+  t={}; for _,col in pairs(showCols) do 
+          v=fun(col)
+          v=type(v)=="number" and rnd(v,places) or v
+          t[col.name]=v end; return t end
 
 -- ---------------------------------
 -- ## Test Engine
 local eg, fails = {},0
 
--- [1] reset random number seed before running something.
--- [2] Cache the detaults settings, and [3] restore them after the test
--- [4] Print error messages or stack dumps as required.
--- Return true if this all went well.
+-- 1. reset random number seed before running something.
+-- 2. Cache the detaults settings, and...
+-- 3. ... restore them after the test
+-- 4. Print error messages or stack dumps as required.
+-- 5. Return true if this all went well.
 local function runs(k,     old,status,out,msg)
   if not eg[k] then return end
   math.randomseed(the.seed) -- reset seed [1]
   old={}; for k,v in pairs(the) do old[k]=v end --  [2]
-  if the.dump then
-    status,out = true, eg[k]()
+  if the.dump then -- [4]
+    status,out = true, eg[k]() 
   else
     status,out = pcall(eg[k])  -- pcall means we do not crash and dump on errror
   end
@@ -276,31 +284,46 @@ function eg.sym(  sym,entropy,mode)
 -- The middle and diversity of a set of numbers is called "median" 
 -- and "standard deviation" (and the latter is zero when all the nums 
 -- are the same).
-function eg.num(  num)
+function eg.num(  num,mid,div)
   num=Num()
   for i=1,100 do num:add(i) end
-  local med,ent = mid(num), div(num)
-  print(mid(num) ,div(num))
-  return 50<= med and med<= 52 and 30.5 <ent and ent <32 end 
+  mid,div = num:mid(), num:div()
+  print(mid ,div)
+  return 50<= mid and mid<= 52 and 30.5 <div and div<32 end 
 
 -- Nums store only a sample of the numbers added to it (and that storage 
 -- is done such that the kept numbers span the range of inputs).
 function eg.bignum(  num)
   num=Num()
   the.nums = 32
-  for i=1,1000 do nun:add(i) end
-  oo(nums(num))
+  for i=1,1000 do num:add(i) end
+  oo(num:nums())
   return 32==#num._has; end
 
 -- Show we can read csv files.
-function eg.csv() 
-  local n=0
+function eg.csv(   n) 
+  n=0
   csv("../data/auto93.csv",function(row)
     n=n+1; if n> 10 then return else oo(row) end end); return true end
 
+-- Can I load a csv file into a Data?.
+function eg.data(   d)
+  d = Data("../data/auto93.csv")
+  for _,col in pairs(d.cols.y) do oo(col) end
+  return true
+end
+
 -- Print some stats on columns.
-function eg.stats()
-  oo(stats(Data("../data/auto93.csv"))); return true end
+function eg.stats(   data,mid,div)
+  data = Data("../data/auto93.csv")
+  div=function(col) return col:div() end
+  mid=function(col) return col:mid() end
+  print("xmid", o( data:stats(2,data.cols.x, mid)))
+  print("xdiv", o( data:stats(3,data.cols.x, div)))
+  print("ymid", o( data:stats(2,data.cols.y, mid)))
+  print("ydiv", o( data:stats(3,data.cols.y, div)))
+  return true
+end
   
 -- ---------------------------------
 the = cli(the)  
