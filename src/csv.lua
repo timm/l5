@@ -158,8 +158,7 @@ function Data:new(src)
   self.rows = {}  -- kept data
   if   type(src) == "string" 
   then csv(src, function(row) self:add(row) end) 
-  else for _,row in pairs(src or {}) do self:add(row) end end end
-
+  else for _,row in pairs(src or {}) do self:add(row) end end end
 -- ----------------------------------------
 -- ## Sym
 -- Add one thing to `col`. For Num, keep at most `nums` items.
