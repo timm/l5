@@ -12,13 +12,13 @@ OPTIONS:
  -h  --help      show help                             = false
  -n  --nums      number of nums to keep                = 512
  -s  --seed      random number seed                    = 10019
- -S  --seperator feild seperator                       = ,]]
-
+ -S  --seperator feild seperator                       = , ]]
 -- Function argument conventions: 
 -- 1. two blanks denote optionas, four blanls denote locals:
 -- 2. prefix n,s,is,fun denotes number,string,bool,function; 
 -- 3. suffix s means list of thing (so names is list of strings)
--- 4. c is a column index (usually)
+-- 4. c is a column index (usually)
+-- 
 -- ## Misc routines
 -- ### Handle Settings
 local the,coerce,cli
@@ -62,7 +62,7 @@ function per(t,p)
 -- Add to `t`, return `x`.
 function push(t,x) t[1+#t]=x; return x end
 
--- ## Call `fun` on each row. Row cells are divided in `the.seperator`.
+-- Call `fun` on each row. Row cells are divided in `the.seperator`.
 function csv(fname,fun,      sep,src,s,t)
   sep = "([^" .. the.seperator .. "]+)"
   src = io.input(fname)
@@ -92,7 +92,7 @@ function oo(t) print(o(t)) return t end
 
 -- ### Misc
 local rogues, rnd,  obj
---- Find rogue locals.
+-- Find rogue locals.
 function rogues()
   for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end end
 
@@ -110,8 +110,8 @@ function obj(s,    t,i,new)
   t.__index = t;return setmetatable(t,{__call=new}) end
 -- ---------------------------------------
 -- ## Objects
-local Cols,Data,Num,Row,Sym=obj"Cols",obj"Data",obj"Num",obj"Rows",obj"Sym"
 
+local Cols,Data,Num,Row,Sym=obj"Cols",obj"Data",obj"Num",obj"Rows",obj"Sym"
 -- `Sym`s summarize a stream of symbols.
 function Sym:new(c,s) 
   return {n=0,          -- items seen
@@ -241,6 +241,7 @@ local function runs(k,     old,status,out,msg)
 
 -- ---------------------------------
 -- ## Tests
+
 -- Test that the test  happes when something crashes?
 function eg.BAD() print(eg.dont.have.this.field) end
 
@@ -321,6 +322,7 @@ function eg.stats(   data,mid,div)
 end
   
 -- ---------------------------------
+--  Start up
 the = cli(the)  
 runs(the.eg)
 rogues() 
