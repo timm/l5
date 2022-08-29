@@ -1,15 +1,16 @@
 SHELL=/bin/bash
 R=$(shell git rev-parse --show-toplevel)
 
-../../docs/%.pdf: %.lua  ## .lua ==> .html
+../../docs/%.html: %.lua  ## .lua ==> .html
 	@mkdir -p $R/docs
-	@docco -l classic -o $R/docs $<
+	@docco -o $R/docs $<
+	@open $@
 			
-../docs/%.pdf: %.lua  ## .lua ==> .pdf
+../../docs/%.pdf: %.lua  ## .lua ==> .pdf
 	@mkdir -p $R/docs
 	@echo "pdf-ing $@ ... "
 	@a2ps               \
-		-qBr               \
+		-qBr                \
 	  --chars-per-line=80   \
 	  --file-align=fill      \
 		--line-numbers=1        \
@@ -20,7 +21,5 @@ R=$(shell git rev-parse --show-toplevel)
 		--footer=""                    \
 		-M letter                       \
 		-o $@.ps $<
-	@ps2pdf $@.ps $@; rm $@.ps; git add $@
 	@open $@
-
-
+	@ps2pdf $@.ps $@; rm $@.ps; git add $@
