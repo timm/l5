@@ -16,7 +16,8 @@ function l.push(t,x) t[1+#t]=x; return x end
 function l.any(t) return t[math.random(#t)] end
 
 -- Sample many items
-function l.many(t,n,  u)  u={}; for i=1,n do u[1+#u]=l.any(t) end; return u end
+function l.many(t1,n)
+  local t2={}; for i=1,n do l.push(t2, l.any(t1)) end; return t2 end
 
 -- Deepcopy
 function l.copy(t)

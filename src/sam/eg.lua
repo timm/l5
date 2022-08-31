@@ -96,7 +96,7 @@ function eg.far(  data)
 
 function eg.half(   data)
   data = records("../../data/auto93.csv")
-  a,b,c,d,e= _.half(data)
+  local a,b,c,d,e= _.half(data)
   _.halves(data)
   return true end
 

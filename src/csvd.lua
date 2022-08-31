@@ -364,9 +364,11 @@ function eg.stats(   data,mid,div)
 end
 
 -- distance functions
-function eg.around(  data)
+function eg.around(    data,around)
   data = Data("../data/auto93.csv")
-  oo(data:around(data.rows[1])) end 
+  around = data:around(data.rows[1] )
+  for i=1,380,40 do print(around[i].dist, o(around[i].row.cells)) end
+  return true end
 
 -- ---------------------------------
 --  Start up

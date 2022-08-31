@@ -196,7 +196,7 @@ function divs(data,rows)
   return n end
 
 ---- ---- ---- ---- Distance functions
-local around, dist, far, half, halves
+local around, dist, far, half, halves, tree
 -- Distance between rows (returns 0..1). For unknown values, assume max distance.
 function dist(data,t1,t2)
   local function fun(col,  v1,v2)
@@ -239,22 +239,16 @@ function half(data,rows,  rowAbove)
                     local b = dist(data,row,right)
                     return {row=rows, d=(a^2 + c^2 - b^2) / (2*c)} end
   for i,rowd in pairs(sort(map(rows, fun), lt"d")) do
-    push(i <= #rows/2 and lefts or rights, rowd.row) end
+    push(i <= (#rows)/2 and lefts or rights, rowd.row) end
   return left,right,lefts,rights,c end
 
--- Recursively split `rows` (default=`data.rows`) in half.
-function halves(data,    stop,fun)
-  function fun(rows,lvl,  rowAbove,    here,left,right,lefts,rights)
-    here = {node=rows}
-    if #rows >= stop then 
-      print(lvl,#rows, stop)
-      left,right,lefts,rights = half(data, rows,rowAbove)
-      print(1)
-      here.kids = {fun(lefts,lvl+1,left), fun(rights,lvl+1,right)} end 
-    return here 
-  end --------
-  stop = (#data.rows)^the.min
-  return fun(data.rows,0) end
+function halves(data,rows,  stop,rowAbove)
+  rows = rows or data.rows
+  stop = stop or (#rows)^the.min
+  if #rows <= stop then return {node=rows} end
+  local left,right,lefts,rights,_ = half(data,rows,rowAbove) 
+  return {node=rows, kids={halves(data,lefts,stop,left),
+                           halves(data,rights,stop,right)}} end 
 
 function tree(x,  nodeFun,     pre)
   nodeFun = nodeFun or io.write
