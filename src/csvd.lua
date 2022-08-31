@@ -216,7 +216,13 @@ function Num:dist(v1,v2)
   if v2=="?" then v2 = v1<.5 and 1 or 0 end
   return math.abs(v1-v2) end 
 
-  -- Normalized numbers 0..1. Everything else normalizes to itself.
+-- Return middle
+function Num:mid() return per(self:nums(), .5) end
+
+-- Return diversity
+function Num:div() return (per(self:nums(), .9) - per(self:nums(),.1))/2.58 end
+
+-- Normalized numbers 0..1. Everything else normalizes to itself.
 function Num:norm(n) 
   return x=="?" and x or (n-self.lo)/(self.hi-self.lo + 1E-32) end
 
@@ -245,12 +251,12 @@ function Data:dist(row1,row2)
   local d = 0
   for _,col in pairs(self.cols.x) do 
     d = d + col:dist(row1.cells[col.at], row2.cells[col.at])^the.p end
-  return (d/#data.cols.x)^(1/the.p) end
+  return (d/#self.cols.x)^(1/the.p) end
 
 -- Sort `rows` (default=`data.rows`) by distance to `row1`.
 function Data:around(row1,  rows,     fun)
-  function fun(row2) return {row=row2, dist=dist(data,row1,row2)} end
-  return sort(map(rows or data.rows, fun),lt"dist") end
+  function fun(row2) return {row=row2, dist=self:dist(row1,row2)} end
+  return sort(map(rows or self.rows, fun),lt"dist") end
 
 -- ---------------------------------
 -- ## Test Engine
@@ -348,15 +354,20 @@ end
 -- Print some stats on columns.
 function eg.stats(   data,mid,div)
   data = Data("../data/auto93.csv")
-  div=function(col) return col:div() end
-  mid=function(col) return col:mid() end
-  print("xmid", o( data:stats(2,data.cols.x, mid)))
-  print("xdiv", o( data:stats(3,data.cols.x, div)))
-  print("ymid", o( data:stats(2,data.cols.y, mid)))
-  print("ydiv", o( data:stats(3,data.cols.y, div)))
+  div  = function(col) return col:div() end
+  mid  = function(col) return col:mid() end
+  print("xmid", o( data:stats(2, data.cols.x, mid)))
+  print("xdiv", o( data:stats(3, data.cols.x, div)))
+  print("ymid", o( data:stats(2, data.cols.y, mid)))
+  print("ydiv", o( data:stats(3, data.cols.y, div)))
   return true
 end
-  
+
+-- distance functions
+function eg.around(  data)
+  data = Data("../data/auto93.csv")
+  oo(data:around(data.rows[1])) end 
+
 -- ---------------------------------
 --  Start up
 the = cli(the)  
