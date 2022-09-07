@@ -28,24 +28,34 @@ all: $(want) ## all code => .pdf
 	@rm _all.lua
 	@open   ../../docs/_all.pdf
 		
-../../docs/%.pdf: %.lua  ## .lua ==> .pdf
+# ../../docs/%.pdf: %.lua  ## .lua ==> .pdf
+# 	@mkdir -p $R/docs
+# 	@echo "pdf-ing $@ ... "
+# 	@a2ps -B              \
+# 		-q                   \
+# 	  --chars-per-line=82   \
+# 	  --file-align=fill      \
+# 		--line-numbers=1        \
+# 		--borders=no             \
+# 		--pro=color               \
+# 		--columns 3                \
+# 		--right-footer="%Q"         \
+# 		--left-footer="%W"           \
+# 		--pretty-print=$R/etc/lua.ssh \
+# 		--footer=""                    \
+# 		-M letter                       \
+# 		-o $@.ps $<
+# 	@ps2pdf $@.ps $@; rm $@.ps; git add $@
+# 	@open $@
+#
+
+$R/docs/%.md : %.lua
+		gawk -f $R/etc/lua2md.awk -v name="$<" $< > $@
+
+$R/docs/%.pdf : $R/docs/%.md  ## make pdf
 	@mkdir -p $R/docs
 	@echo "pdf-ing $@ ... "
-	@a2ps -B              \
-		-q                   \
-	  --chars-per-line=82   \
-	  --file-align=fill      \
-		--line-numbers=1        \
-		--borders=no             \
-		--pro=color               \
-		--columns 3                \
-		--right-footer="%Q"         \
-		--left-footer="%W"           \
-		--pretty-print=$R/etc/lua.ssh \
-		--footer=""                    \
-		-M letter                       \
-		-o $@.ps $<
-	@ps2pdf $@.ps $@; rm $@.ps; git add $@
-	@open $@
+	pandoc "$<"  -o "$@" --from markdown --template "$R/etc/eis.tex" --listings
 
+	@open $@
 
