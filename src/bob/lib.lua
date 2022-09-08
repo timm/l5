@@ -31,7 +31,7 @@ function l.cli(t)
       if x=="-"..(slot:sub(1,1)) or x=="--"..slot then
         v = v=="false" and "true" or v=="true" and "false" or arg[n+1] end end
     t[slot] = l.coerce(v) end
-  if t.help then os.exit(print("\n"..help.."\n")) end
+  if t.help then os.exit(print("\n"..t._help.."\n")) end
   return t end
 
 -- ### Lists
