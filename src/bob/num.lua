@@ -1,8 +1,9 @@
--- [about](about.html) | [bob](bob.html) | [cols](cols.html) | [data](data.html) |
+-- [about](about.html)  | [cols](cols.html) | [data](data.html) |
 -- [eg](eg.html) | [lib](lib.html) | [num](num.html) | [row](row.html) | [sym](sym.html)<hr>
 
 local l=require"lib"
-local obj,per = l.obj,l.per
+local the=require"about"
+local obj, per = l.obj, l.per
 
 -- `Num` summarizes a stream of numbers.
 local Num=obj"Num"

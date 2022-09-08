@@ -1,4 +1,4 @@
--- [about](about.html) | [bob](bob.html) | [cols](cols.html) | [data](data.html) |
+-- [about](about.html) | [cols](cols.html) | [data](data.html) |
 -- [eg](eg.html) | [lib](lib.html) | [num](num.html) | [row](row.html) | [sym](sym.html)<hr>
 
 local l = {}
@@ -93,9 +93,9 @@ function l.rnd(x, places)
 
 -- obj("Thing") enables a constructor Thing:new() ... and a pretty-printer
 function l.obj(s,    t,i,new) 
+  t={__tostring = function(x) return s..l.o(x) end}
   function new(k,...) i=setmetatable({},k);
                       return setmetatable(t.new(i,...) or i,k) end
-  t={__tostring = function(x) return s..l.o(x) end}
   t.__index = t;return setmetatable(t,{__call=new}) end
 
 -- That's all folks.

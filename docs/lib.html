@@ -27,7 +27,7 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
-              <p><a href="about.html">about</a> | <a href="bob.html">bob</a> | <a href="cols.html">cols</a> | <a href="data.html">data</a> |
+              <p><a href="about.html">about</a> | <a href="cols.html">cols</a> | <a href="data.html">data</a> |
 <a href="eg.html">eg</a> | <a href="lib.html">lib</a> | <a href="num.html">num</a> | <a href="row.html">row</a> | <a href="sym.html">sym</a><hr></p>
 
             </div>
@@ -305,9 +305,9 @@
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">l.obj</span><span class="hljs-params">(s,    t,i,new)</span></span> 
+  t={<span class="hljs-built_in">__tostring</span> = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(x)</span></span> <span class="hljs-keyword">return</span> s..l.o(x) <span class="hljs-keyword">end</span>}
   <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">new</span><span class="hljs-params">(k,...)</span></span> i=<span class="hljs-built_in">setmetatable</span>({},k);
                       <span class="hljs-keyword">return</span> <span class="hljs-built_in">setmetatable</span>(t.new(i,...) <span class="hljs-keyword">or</span> i,k) <span class="hljs-keyword">end</span>
-  t={<span class="hljs-built_in">__tostring</span> = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(x)</span></span> <span class="hljs-keyword">return</span> s..l.o(x) <span class="hljs-keyword">end</span>}
   t.<span class="hljs-built_in">__index</span> = t;<span class="hljs-keyword">return</span> <span class="hljs-built_in">setmetatable</span>(t,{<span class="hljs-built_in">__call</span>=new}) <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>

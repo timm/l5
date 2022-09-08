@@ -1,10 +1,11 @@
--- [about](about.html) | [bob](bob.html) | [cols](cols.html) | [data](data.html) |
+-- [about](about.html) | [cols](cols.html) | [data](data.html) |
 -- [eg](eg.html) | [lib](lib.html) | [num](num.html) | [row](row.html) | [sym](sym.html)<hr>
 
 local l=require"lib"
-local Bob = require"Bob"
-local o,oo = l.o,l.oo
-local the = Bob.the
+local csv,o,oo = l.csv,l.o,l.oo
+local the = require"about"
+local Num,Sym = require"num", require"sym"
+local Data,Cols,Row = require"data", require"cols", require"row"
 local eg,fails = {},0
 
 -- 1. reset random number seed before running something.
@@ -46,6 +47,7 @@ function eg.ALL()
       print"\n-----------------------------------"
       if not runs(k) then fails=fails+ 1 end end end 
   return true end
+
 -- Settings come from big string top of "sam.lua" 
 -- (maybe updated from comamnd line)
 function eg.the() oo(the); return true end
@@ -54,7 +56,7 @@ function eg.the() oo(the); return true end
 -- and "entropy" (and the latter is zero when all the symbols 
 -- are the same).
 function eg.sym(  sym,entropy,mode)
-  sym= Sym()
+  sym=Sym()
   for _,x in pairs{"a","a","a","a","b","b","c"} do sym:add(x) end
   mode, entropy = sym:mid(), sym:div()
   entropy = (1000*entropy)//1/1000
@@ -76,6 +78,7 @@ function eg.num(  num,mid,div)
 function eg.bignum(  num)
   num=Num()
   the.nums = 32
+  print(1)
   for i=1,1000 do num:add(i) end
   oo(num:nums())
   return 32==#num._has; end
@@ -83,32 +86,30 @@ function eg.bignum(  num)
 -- Show we can read csv files.
 function eg.csv(   n) 
   n=0
-  csv("../data/auto93.csv",function(row)
+  csv("../../data/auto93.csv",function(row)
     n=n+1; if n> 10 then return else oo(row) end end); return true end
 
 -- Can I load a csv file into a Data?.
 function eg.data(   d)
-  d = Data("../data/auto93.csv")
+  d = Data("../../data/auto93.csv")
   for _,col in pairs(d.cols.y) do oo(col) end
-  return true
-end
+  return true end
 
 -- Print some stats on columns.
 function eg.stats(   data,mid,div)
-  data = Data("../data/auto93.csv")
+  data = Data("../../data/auto93.csv")
   div  = function(col) return col:div() end
   mid  = function(col) return col:mid() end
   print("xmid", o( data:stats(2, data.cols.x, mid)))
   print("xdiv", o( data:stats(3, data.cols.x, div)))
   print("ymid", o( data:stats(2, data.cols.y, mid)))
   print("ydiv", o( data:stats(3, data.cols.y, div)))
-  return true
-end
+  return true end
 
 -- distance functions
 function eg.around(    data,around)
-  data = Data("../data/auto93.csv")
-  around = data:around(data.rows[1] )
+  data = Data("../../data/auto93.csv")
+  around = data.rows[1]:around(data.rows )
   for i=1,380,40 do print(around[i].dist, o(around[i].row.cells)) end
   return true end
 

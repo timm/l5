@@ -1,4 +1,4 @@
--- [about](about.html) | [bob](bob.html) | [cols](cols.html) | [data](data.html) |
+-- [about](about.html) | [cols](cols.html) | [data](data.html) |
 -- [eg](eg.html) | [lib](lib.html) | [num](num.html) | [row](row.html) | [sym](sym.html)<hr>
 
 local l=require"lib"
@@ -29,6 +29,7 @@ function Sym:div(    e,fun)
   function fun(p) return p*math.log(p,2) end
   e=0; for _,n in pairs(self._has) do if n>0 then e=e - fun(n/self.n) end end
   return e end 
+
 
 -- That's all folks
 return Sym

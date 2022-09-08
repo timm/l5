@@ -1,11 +1,12 @@
--- [about](about.html) | [bob](bob.html) | [cols](cols.html) | [data](data.html) |
+-- [about](about.html) | [cols](cols.html) | [data](data.html) |
 -- [eg](eg.html) | [lib](lib.html) | [num](num.html) | [row](row.html) | [sym](sym.html)<hr>
 
 local l=require"lib"
 local the  = require"about"
 local Cols = require"Cols"
 local Row  = require"Row"
-local csv,lt,push,rnd = l.csv,l.lt,l.push,l.rnd
+local csv, lt, obj, push, rnd = l.csv, l.lt, l.obj, l.push, l.rnd
+local Data = obj"Data"
 
 -- `Data` is a holder of `rows` and their sumamries (in `cols`).
 function Data:new(src) 
@@ -17,7 +18,7 @@ function Data:new(src)
 
 -- Add a `row` to `data`. Calls `add()` to  updatie the `cols` with new values.
 function Data:add(xs,    row)
- if   not self.cols 
+ if   not self.cols  -- true when handling first line (with the column names)
  then self.cols = Cols(xs) 
  else row= push(self.rows, xs.cells and xs or Row(xs,self)) --ensure xs is a Row
       for _,todo in pairs{self.cols.x, self.cols.y} do

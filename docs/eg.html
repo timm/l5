@@ -27,17 +27,20 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
-              <p><a href="about.html">about</a> | <a href="bob.html">bob</a> | <a href="cols.html">cols</a> | <a href="data.html">data</a> |
+              <p><a href="about.html">about</a> | <a href="cols.html">cols</a> | <a href="data.html">data</a> |
 <a href="eg.html">eg</a> | <a href="lib.html">lib</a> | <a href="num.html">num</a> | <a href="row.html">row</a> | <a href="sym.html">sym</a><hr></p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>
 <span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span>
-<span class="hljs-keyword">local</span> Bob = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;Bob&quot;</span>
 <span class="hljs-keyword">local</span> o,oo = l.o,l.oo
-<span class="hljs-keyword">local</span> the = Bob.the
-<span class="hljs-keyword">local</span> eg,fails = {},<span class="hljs-number">0</span></pre></div></div>
+<span class="hljs-keyword">local</span> the = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;about&quot;</span>
+<span class="hljs-keyword">local</span> Num,Sym = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;num&quot;</span>, <span class="hljs-built_in">require</span><span class="hljs-string">&quot;sym&quot;</span>
+<span class="hljs-keyword">local</span> Data,Cols,Row = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;data&quot;</span>, <span class="hljs-built_in">require</span><span class="hljs-string">&quot;cols&quot;</span>, <span class="hljs-built_in">require</span><span class="hljs-string">&quot;row&quot;</span>
+<span class="hljs-keyword">local</span> eg,fails = {},<span class="hljs-number">0</span>
+
+oo(Num)</pre></div></div>
             
         </li>
         
@@ -174,7 +177,9 @@ are the same).</p>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.sym</span><span class="hljs-params">(  sym,entropy,mode)</span></span>
   sym= Sym()
+  <span class="hljs-built_in">print</span>(<span class="hljs-number">1</span>)
   <span class="hljs-keyword">for</span> _,x <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>{<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;b&quot;</span>,<span class="hljs-string">&quot;b&quot;</span>,<span class="hljs-string">&quot;c&quot;</span>} <span class="hljs-keyword">do</span> sym:add(x) <span class="hljs-keyword">end</span>
+  pritn(sym)
   mode, entropy = sym:mid(), sym:div()
   entropy = (<span class="hljs-number">1000</span>*entropy)//<span class="hljs-number">1</span>/<span class="hljs-number">1000</span>
   oo({mid=mode, div=entropy})
