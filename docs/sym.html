@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>sym.lua</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>sym.lua</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-1">&#x00a7;</a>
+              </div>
+              <p><a href="about.html">about</a> | <a href="bob.html">bob</a> | <a href="cols.html">cols</a> | <a href="data.html">data</a> |
+<a href="eg.html">eg</a> | <a href="lib.html">lib</a> | <a href="num.html">num</a> | <a href="row.html">row</a> | <a href="sym.html">sym</a><hr></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+<span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-2">&#x00a7;</a>
+              </div>
+              <p><code>Sym</code>s summarize a stream of symbols.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> Sym=l.obj<span class="hljs-string">&quot;Sym&quot;</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sym:new</span><span class="hljs-params">(c,s)</span></span> 
+  <span class="hljs-keyword">return</span> {n=<span class="hljs-number">0</span>,          <span class="hljs-comment">-- items seen</span>
+          at=c <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>,    <span class="hljs-comment">-- column position</span>
+          name=s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-comment">-- column name</span>
+          _has={}       <span class="hljs-comment">-- kept data</span>
+         } <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-3">&#x00a7;</a>
+              </div>
+              <p>Add one thing to <code>col</code>. For Num, keep at most <code>nums</code> items.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sym:add</span><span class="hljs-params">(v)</span></span>
+  <span class="hljs-keyword">if</span> v~=<span class="hljs-string">&quot;?&quot;</span> <span class="hljs-keyword">then</span> <span class="hljs-built_in">self</span>.n=<span class="hljs-built_in">self</span>.n+<span class="hljs-number">1</span>; <span class="hljs-built_in">self</span>._has[v]= <span class="hljs-number">1</span>+(<span class="hljs-built_in">self</span>._has[v] <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sym:mid</span><span class="hljs-params">(col,    most,mode)</span></span> 
+  most=<span class="hljs-number">-1</span>; <span class="hljs-keyword">for</span> k,v <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(<span class="hljs-built_in">self</span>._has) <span class="hljs-keyword">do</span> <span class="hljs-keyword">if</span> v&gt;most <span class="hljs-keyword">then</span> mode,most=k,v <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> mode <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-4">&#x00a7;</a>
+              </div>
+              <p>distance between two values.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sym:dist</span><span class="hljs-params">(v1,v2)</span></span>
+  <span class="hljs-keyword">return</span>  v1==<span class="hljs-string">&quot;?&quot;</span> <span class="hljs-keyword">and</span> v2==<span class="hljs-string">&quot;?&quot;</span> <span class="hljs-keyword">and</span> <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> v1==v2 <span class="hljs-keyword">and</span> <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> <span class="hljs-number">1</span> <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-5">&#x00a7;</a>
+              </div>
+              <p>Diversity measure for symbols = entropy.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sym:div</span><span class="hljs-params">(    e,fun)</span></span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fun</span><span class="hljs-params">(p)</span></span> <span class="hljs-keyword">return</span> p*<span class="hljs-built_in">math</span>.<span class="hljs-built_in">log</span>(p,<span class="hljs-number">2</span>) <span class="hljs-keyword">end</span>
+  e=<span class="hljs-number">0</span>; <span class="hljs-keyword">for</span> _,n <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(<span class="hljs-built_in">self</span>._has) <span class="hljs-keyword">do</span> <span class="hljs-keyword">if</span> n&gt;<span class="hljs-number">0</span> <span class="hljs-keyword">then</span> e=e - fun(n/<span class="hljs-built_in">self</span>.n) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> e <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-6">&#x00a7;</a>
+              </div>
+              <p>That’s all folks</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">return</span> Sym</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
