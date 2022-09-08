@@ -1,3 +1,6 @@
+-- [about](about.html) | [bob](bob.html) | [cols](cols.html) | [data](data.html) |
+-- [eg](eg.html) | [lib](lib.html) | [num](num.html) | [row](row.html) | [sym](sym.html)<hr>
+
 local l=require"lib"
 local obj,per = l.obj,l.per
 
@@ -47,4 +50,5 @@ function Num:div() return (per(self:nums(), .9) - per(self:nums(),.1))/2.58 end
 function Num:norm(n) 
   return x=="?" and x or (n-self.lo)/(self.hi-self.lo + 1E-32) end
 
-
+-- That's all folks.
+return Num

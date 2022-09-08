@@ -1,6 +1,9 @@
 SHELL=/bin/bash
 R=$(shell git rev-parse --show-toplevel)
 
+htmls:
+	@$(foreach f,$(shell ls *.lua), $(MAKE) ../../docs/$(basename $f).html;)
+
 ../../docs/%.html: %.lua  ## .lua ==> .html
 	@mkdir -p $R/docs
 	@docco -l classic -o $R/docs $<

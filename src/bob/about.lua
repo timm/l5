@@ -1,3 +1,6 @@
+-- [about](about.html) | [bob](bob.html) | [cols](cols.html) | [data](data.html) |
+-- [eg](eg.html) | [lib](lib.html) | [num](num.html) | [row](row.html) | [sym](sym.html)<hr>
+
 return require("lib").settings[[   
 
 BOB : summarized csv file

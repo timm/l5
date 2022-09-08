@@ -1,4 +1,6 @@
--- ## Misc routines
+-- [about](about.html) | [bob](bob.html) | [cols](cols.html) | [data](data.html) |
+-- [eg](eg.html) | [lib](lib.html) | [num](num.html) | [row](row.html) | [sym](sym.html)<hr>
+
 local l = {}
 
 -- ### Find rogue locals
