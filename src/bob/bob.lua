@@ -1,5 +1,5 @@
 local l=require"lib"
-local csv,map,o,oo = l.csv,l.map,l.o,l.oo
+local csv,map,o,oo,slice = l.csv,l.map,l.o,l.oo,l.slice
 local the = require"about"
 local Num,Sym = require"num", require"sym"
 local Data,Cols,Row = require"data", require"cols", require"row"
@@ -117,8 +117,16 @@ function eg.sort(    data,around)
   print(o(map(data.cols.y, function(col) return col.name end)))
   for i=1,380,40 do print(o(data.rows[i]:cols(data.cols.y)),i) end end
 
-function eg.besRest()end
- -- ---------------------------------
+function eg.bestRest()
+  data = Data("../../data/auto93.csv") 
+  table.sort(data.rows)
+  n = #data.rows
+  m = data:enough()
+  best = slice(data.rows,1,m)
+  rest = slice(data.rows,m+1,n, (n-m)//(the.rest*n))
+  print(#rest, #best) end
+
+-- ---------------------------------
 --  Start up
 the = l.cli(the)  
 runs(the.eg)

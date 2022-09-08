@@ -23,6 +23,10 @@ function Data:add(xs,    row)
         for _,col in pairs(todo) do 
           col:add(row.cells[col.at]) end end end end
 
+-- Return smallest useful number of rows.
+function Data:enough()
+  return (the.min >=1 and the.min or (#self.rows)^the.min) // 1 end 
+
 -- For `showCols` (default=`data.cols.x`) in `data`, show `fun` (default=`mid`),
 -- rounding numbers to `places` (default=2)
 function Data:stats(  places,showCols,fun,    t,v)

@@ -13,6 +13,7 @@ OPTIONS:
  -m  --min       min size. If<1 then t^n else n.       = .5
  -n  --nums      number of nums to keep                = 512
  -p  --p         distance calculation coefficient      = 2
+ -r  --rest      size of "rest" set                    = 3
  -s  --seed      random number seed                    = 10019
  -S  --sample    how many numbers to keep              = 512 ]]
 
