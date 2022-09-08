@@ -35,7 +35,8 @@
             <div class="content"><div class='highlight'><pre>
 <span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span>
 <span class="hljs-keyword">local</span> the=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;about&quot;</span>
-<span class="hljs-keyword">local</span> copy,lt,obj = l.copy,l.lt,l.obj</pre></div></div>
+<span class="hljs-keyword">local</span> o, oo = l.o, l.oo
+<span class="hljs-keyword">local</span> copy,lt,map,obj,<span class="hljs-built_in">sort</span> = l.copy,l.lt,l.map,l.obj,l.<span class="hljs-built_in">sort</span></pre></div></div>
             
         </li>
         
@@ -51,11 +52,11 @@
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> Row = obj<span class="hljs-string">&quot;Row&quot;</span>
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:new</span><span class="hljs-params">(t,from)</span></span> 
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:new</span><span class="hljs-params">(t,data)</span></span> 
   <span class="hljs-keyword">return</span> {cells     = t,          <span class="hljs-comment">-- one record</span>
           cooked    = l.copy(t),  <span class="hljs-comment">-- used if we discretize data</span>
           isEvaled  = <span class="hljs-literal">false</span>,      <span class="hljs-comment">-- true if y-values evaluated.</span>
-          background= from        <span class="hljs-comment">-- background space of all examples</span>
+          background= data        <span class="hljs-comment">-- background space of all examples</span>
          } <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -73,9 +74,9 @@
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:dist</span><span class="hljs-params">(row2,    d)</span></span>
   d = <span class="hljs-number">0</span>
-  <span class="hljs-keyword">for</span> _,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(<span class="hljs-built_in">self</span>.background.cols.x) <span class="hljs-keyword">do</span> 
+  <span class="hljs-keyword">for</span> i,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(<span class="hljs-built_in">self</span>.background.cols.x) <span class="hljs-keyword">do</span> 
     d = d + col:dist(<span class="hljs-built_in">self</span>.cells[col.at], row2.cells[col.at])^the.p <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">return</span> (d/#<span class="hljs-built_in">self</span>.cols.x)^(<span class="hljs-number">1</span>/the.p) <span class="hljs-keyword">end</span></pre></div></div>
+  <span class="hljs-keyword">return</span> (d/#<span class="hljs-built_in">self</span>.background.cols.x)^(<span class="hljs-number">1</span>/the.p) <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         

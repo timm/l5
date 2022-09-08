@@ -249,12 +249,15 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">l.o</span><span class="hljs-params">(t,   show,u)</span></span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">l.o</span><span class="hljs-params">(t,   seen,show,u)</span></span>
   <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span>(t) ~=  <span class="hljs-string">&quot;table&quot;</span> <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> <span class="hljs-built_in">tostring</span>(t) <span class="hljs-keyword">end</span>
+  seen=seen <span class="hljs-keyword">or</span> {}
+  <span class="hljs-keyword">if</span> seen[t] <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;...&quot;</span> <span class="hljs-keyword">end</span>
+  seen[t] = t
   <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">show</span><span class="hljs-params">(k,v)</span></span>
     <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> <span class="hljs-built_in">tostring</span>(k):<span class="hljs-built_in">find</span><span class="hljs-string">&quot;^_&quot;</span>  <span class="hljs-keyword">then</span>
-      v = l.o(v)
-      <span class="hljs-keyword">return</span> #t==<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> <span class="hljs-built_in">string</span>.<span class="hljs-built_in">format</span>(<span class="hljs-string">&quot;:%s %s&quot;</span>,k,v) <span class="hljs-keyword">or</span> <span class="hljs-built_in">tostring</span>(v) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
+      v = l.o(v,seen)
+      <span class="hljs-keyword">return</span> #t==<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> <span class="hljs-built_in">string</span>.<span class="hljs-built_in">format</span>(<span class="hljs-string">&quot;:%s %s&quot;</span>,k,v) <span class="hljs-keyword">or</span> l.o(v,seen) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
   u={}; <span class="hljs-keyword">for</span> k,v <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(t) <span class="hljs-keyword">do</span> u[<span class="hljs-number">1</span>+#u] = show(k,v) <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">if</span> #t==<span class="hljs-number">0</span> <span class="hljs-keyword">then</span> <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(u) <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;{&quot;</span>..<span class="hljs-built_in">table</span>.<span class="hljs-built_in">concat</span>(u,<span class="hljs-string">&quot; &quot;</span>)..<span class="hljs-string">&quot;}&quot;</span> <span class="hljs-keyword">end</span></pre></div></div>

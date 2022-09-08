@@ -1,6 +1,3 @@
--- [about](about.html) | [cols](cols.html) | [data](data.html) |
--- [eg](eg.html) | [lib](lib.html) | [num](num.html) | [row](row.html) | [sym](sym.html)<hr>
-
 return require("lib").settings[[   
 
 BOB : summarized csv file
@@ -15,5 +12,6 @@ OPTIONS:
  -h  --help      show help                             = false
  -n  --nums      number of nums to keep                = 512
  -p  --p         distance calculation coefficient      = 2
- -s  --seed      random number seed                    = 10019]]
+ -s  --seed      random number seed                    = 10019
+ -S  --sample    how many numbers to keep              = 512 ]]
 

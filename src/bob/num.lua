@@ -1,17 +1,15 @@
--- [about](about.html)  | [cols](cols.html) | [data](data.html) |
--- [eg](eg.html) | [lib](lib.html) | [num](num.html) | [row](row.html) | [sym](sym.html)<hr>
-
 local l=require"lib"
 local the=require"about"
+local Sample=require"sample"
 local obj, per = l.obj, l.per
 
 -- `Num` summarizes a stream of numbers.
 local Num=obj"Num"
 function Num:new(c,s) 
   return {n=0,at=c or 0, name=s or "", _has={}, -- as per Sym
+          _has = Sample()  -- where we keep, at most, `the.sample` nums
           lo= math.huge,   -- lowest seen
           hi= -math.huge,  -- highest seen
-          isSorted=true,   -- no updates since last sort of data
           w = ((s or ""):find"-$" and -1 or 1)  
          } end
 
@@ -28,10 +26,7 @@ function Num:add(v,    pos)
     self.n  = self.n + 1
     self.lo = math.min(v, self.lo)
     self.hi = math.max(v, self.hi)
-    if     #self._has < the.nums           then pos=1 + (#self._has) 
-    elseif math.random() < the.nums/self.n then pos=math.random(#self._has) end
-    if pos then self.isSorted = false 
-                self._has[pos] = tonumber(v) end end end 
+    self.sample:add(v) end end
 
 -- distance between two values.
 function Num:dist(v1,v2)
@@ -42,10 +37,10 @@ function Num:dist(v1,v2)
   return math.abs(v1-v2) end 
 
 -- Return middle
-function Num:mid() return per(self:nums(), .5) end
+function Num:mid() return self.sample:mid() end
 
 -- Return diversity
-function Num:div() return (per(self:nums(), .9) - per(self:nums(),.1))/2.58 end
+function Num:div() return self.sample:div() end
 
 -- Normalized numbers 0..1. Everything else normalizes to itself.
 function Num:norm(n) 

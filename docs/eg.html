@@ -34,13 +34,11 @@
             
             <div class="content"><div class='highlight'><pre>
 <span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span>
-<span class="hljs-keyword">local</span> o,oo = l.o,l.oo
+<span class="hljs-keyword">local</span> csv,o,oo = l.csv,l.o,l.oo
 <span class="hljs-keyword">local</span> the = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;about&quot;</span>
 <span class="hljs-keyword">local</span> Num,Sym = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;num&quot;</span>, <span class="hljs-built_in">require</span><span class="hljs-string">&quot;sym&quot;</span>
 <span class="hljs-keyword">local</span> Data,Cols,Row = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;data&quot;</span>, <span class="hljs-built_in">require</span><span class="hljs-string">&quot;cols&quot;</span>, <span class="hljs-built_in">require</span><span class="hljs-string">&quot;row&quot;</span>
-<span class="hljs-keyword">local</span> eg,fails = {},<span class="hljs-number">0</span>
-
-oo(Num)</pre></div></div>
+<span class="hljs-keyword">local</span> eg,fails = {},<span class="hljs-number">0</span></pre></div></div>
             
         </li>
         
@@ -176,10 +174,8 @@ are the same).</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.sym</span><span class="hljs-params">(  sym,entropy,mode)</span></span>
-  sym= Sym()
-  <span class="hljs-built_in">print</span>(<span class="hljs-number">1</span>)
+  sym=Sym()
   <span class="hljs-keyword">for</span> _,x <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>{<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-string">&quot;b&quot;</span>,<span class="hljs-string">&quot;b&quot;</span>,<span class="hljs-string">&quot;c&quot;</span>} <span class="hljs-keyword">do</span> sym:add(x) <span class="hljs-keyword">end</span>
-  pritn(sym)
   mode, entropy = sym:mid(), sym:div()
   entropy = (<span class="hljs-number">1000</span>*entropy)//<span class="hljs-number">1</span>/<span class="hljs-number">1000</span>
   oo({mid=mode, div=entropy})
@@ -243,7 +239,7 @@ is done such that the kept numbers span the range of inputs).</p>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.csv</span><span class="hljs-params">(   n)</span></span> 
   n=<span class="hljs-number">0</span>
-  csv(<span class="hljs-string">&quot;../data/auto93.csv&quot;</span>,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(row)</span></span>
+  csv(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(row)</span></span>
     n=n+<span class="hljs-number">1</span>; <span class="hljs-keyword">if</span> n&gt; <span class="hljs-number">10</span> <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> <span class="hljs-keyword">else</span> oo(row) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>); <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -260,10 +256,9 @@ is done such that the kept numbers span the range of inputs).</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.data</span><span class="hljs-params">(   d)</span></span>
-  d = Data(<span class="hljs-string">&quot;../data/auto93.csv&quot;</span>)
+  d = Data(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>)
   <span class="hljs-keyword">for</span> _,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(d.cols.y) <span class="hljs-keyword">do</span> oo(col) <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
-<span class="hljs-keyword">end</span></pre></div></div>
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -279,15 +274,14 @@ is done such that the kept numbers span the range of inputs).</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.stats</span><span class="hljs-params">(   data,mid,div)</span></span>
-  data = Data(<span class="hljs-string">&quot;../data/auto93.csv&quot;</span>)
+  data = Data(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>)
   div  = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(col)</span></span> <span class="hljs-keyword">return</span> col:div() <span class="hljs-keyword">end</span>
   mid  = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(col)</span></span> <span class="hljs-keyword">return</span> col:mid() <span class="hljs-keyword">end</span>
   <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;xmid&quot;</span>, o( data:stats(<span class="hljs-number">2</span>, data.cols.x, mid)))
   <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;xdiv&quot;</span>, o( data:stats(<span class="hljs-number">3</span>, data.cols.x, div)))
   <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;ymid&quot;</span>, o( data:stats(<span class="hljs-number">2</span>, data.cols.y, mid)))
   <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;ydiv&quot;</span>, o( data:stats(<span class="hljs-number">3</span>, data.cols.y, div)))
-  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
-<span class="hljs-keyword">end</span></pre></div></div>
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -303,9 +297,10 @@ is done such that the kept numbers span the range of inputs).</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.around</span><span class="hljs-params">(    data,around)</span></span>
-  data = Data(<span class="hljs-string">&quot;../data/auto93.csv&quot;</span>)
-  around = data:around(data.rows[<span class="hljs-number">1</span>] )
-  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">380</span>,<span class="hljs-number">40</span> <span class="hljs-keyword">do</span> <span class="hljs-built_in">print</span>(around[i].dist, o(around[i].row.cells)) <span class="hljs-keyword">end</span>
+  data = Data(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>) 
+  <span class="hljs-built_in">print</span>(data.rows[<span class="hljs-number">1</span>]:dist(data.rows[<span class="hljs-number">2</span>]))
+  around = data.rows[<span class="hljs-number">1</span>]:around(data.rows)
+  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">380</span>,<span class="hljs-number">40</span> <span class="hljs-keyword">do</span> <span class="hljs-built_in">print</span>(i, around[i].dist, o(around[i].row.cells)) <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>

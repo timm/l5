@@ -1,6 +1,3 @@
--- [about](about.html) | [cols](cols.html) | [data](data.html) |
--- [eg](eg.html) | [lib](lib.html) | [num](num.html) | [row](row.html) | [sym](sym.html)<hr>
-
 local l=require"lib"
 local csv,o,oo = l.csv,l.o,l.oo
 local the = require"about"

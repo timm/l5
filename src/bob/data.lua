@@ -1,6 +1,3 @@
--- [about](about.html) | [cols](cols.html) | [data](data.html) |
--- [eg](eg.html) | [lib](lib.html) | [num](num.html) | [row](row.html) | [sym](sym.html)<hr>
-
 local l=require"lib"
 local the  = require"about"
 local Cols = require"Cols"
