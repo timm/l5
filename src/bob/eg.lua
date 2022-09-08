@@ -1,12 +1,48 @@
-local l=require"lua"
-local the=require"about"
-local Sym,Num,Data = obj"Sym", obj"Num",obj"data"
+local l=require"lib"
+local Bob = require"Bob"
+local o,oo = l.o,l.oo
+local the = Bob.the
+local eg,fails = {},0
 
-local eg = {}
+-- 1. reset random number seed before running something.
+-- 2. Cache the detaults settings, and...
+-- 3. ... restore them after the test
+-- 4. Print error messages or stack dumps as required.
+-- 5. Return true if this all went well.
+local function runs(k,     old,status,out,msg)
+  if not eg[k] then return end
+  math.randomseed(the.seed) -- reset seed [1]
+  old={}; for k,v in pairs(the) do old[k]=v end --  [2]
+  if the.dump then -- [4]
+    status,out=true, eg[k]() 
+  else
+    status,out=pcall(eg[k]) -- pcall means we do not crash and dump on errror
+  end
+  for k,v in pairs(old) do the[k]=v end -- restore old settings [3]
+  msg = status and ((out==true and "PASS") or "FAIL") or "CRASH" -- [4]
+  print("!!!!!!", msg, k, status)
+  return out or err end
 
--- Test that the test  happes when something crashes?
+-- Test that the test  happens when something crashes?
 function eg.BAD() print(eg.dont.have.this.field) end
 
+-- Sort all test names.
+function eg.LIST(   t)
+  t={}; for k,_ in pairs(eg) do t[1+#t]=k end; table.sort(t); return t end
+
+-- List test names.
+function eg.LS()
+  print("\nExamples lua csv -e ...")
+  for _,k in pairs(eg.LIST()) do print(string.format("\t%s",k)) end 
+  return true end
+
+-- Run all tests
+function eg.ALL()
+  for _,k in pairs(eg.LIST()) do 
+    if k ~= "ALL" then
+      print"\n-----------------------------------"
+      if not runs(k) then fails=fails+ 1 end end end 
+  return true end
 -- Settings come from big string top of "sam.lua" 
 -- (maybe updated from comamnd line)
 function eg.the() oo(the); return true end
@@ -57,14 +93,25 @@ end
 -- Print some stats on columns.
 function eg.stats(   data,mid,div)
   data = Data("../data/auto93.csv")
-  div=function(col) return col:div() end
-  mid=function(col) return col:mid() end
-  print("xmid", o( data:stats(2,data.cols.x, mid)))
-  print("xdiv", o( data:stats(3,data.cols.x, div)))
-  print("ymid", o( data:stats(2,data.cols.y, mid)))
-  print("ydiv", o( data:stats(3,data.cols.y, div)))
+  div  = function(col) return col:div() end
+  mid  = function(col) return col:mid() end
+  print("xmid", o( data:stats(2, data.cols.x, mid)))
+  print("xdiv", o( data:stats(3, data.cols.x, div)))
+  print("ymid", o( data:stats(2, data.cols.y, mid)))
+  print("ydiv", o( data:stats(3, data.cols.y, div)))
   return true
 end
-  
+
+-- distance functions
+function eg.around(    data,around)
+  data = Data("../data/auto93.csv")
+  around = data:around(data.rows[1] )
+  for i=1,380,40 do print(around[i].dist, o(around[i].row.cells)) end
+  return true end
+
 -- ---------------------------------
-l.runs(the.eg, the, eg)
+--  Start up
+the = l.cli(the)  
+runs(the.eg)
+l.rogues() 
+os.exit(fails) 

@@ -216,12 +216,10 @@ function dist(data,t1,t2)
 function around(data,row1,  rows,     fun)
   function fun(row2) --print("r2",#row2); 
       return {row=row2, dist=dist(data,row1,row2)} end
-  print("a")
-  return sort(map(rows or data.rows,fun),lt"dist") end
+  return sort(map(rows or data.rows, fun),lt"dist") end
 
 -- Return the row that is `the.far` to max distance away from `row`.
 function far(data,row,  rows) 
-  print("f",data._is,#rows,o(row))
   return per(around(data,row,rows), the.far).row end
 
 -- Split `rows` (default=`data.rows`) in half by distance to 2 distant points.
@@ -229,17 +227,15 @@ function half(data,rows,  rowAbove)
   local rows  = rows or data.rows
   local some  = l.many(rows, the.sample)
   local left  = rowAbove or far(data, l.any(some),some)
-  print(4,data._is,o(left),#some)
   local right = far(data, left,some)
-  print(5)
   local c     = dist(data,left,right)
   local lefts,rights = {},{}
   local function fun(row) 
-                    local a = dist(data,row,left)
-                    local b = dist(data,row,right)
-                    return {row=rows, d=(a^2 + c^2 - b^2) / (2*c)} end
+                    local a = dist(data, row, left)
+                    local b = dist(data, row, right)
+                    return {row=row, d=(a^2 + c^2 - b^2) / (2*c)} end
   for i,rowd in pairs(sort(map(rows, fun), lt"d")) do
-    push(i <= (#rows)/2 and lefts or rights, rowd.row) end
+    push((i <= (#rows)/2) and lefts or rights, rowd.row) end
   return left,right,lefts,rights,c end
 
 function halves(data,rows,  stop,rowAbove)
@@ -247,15 +243,14 @@ function halves(data,rows,  stop,rowAbove)
   stop = stop or (#rows)^the.min
   if #rows <= stop then return {node=rows} end
   local left,right,lefts,rights,_ = half(data,rows,rowAbove) 
-  return {node=rows, kids={halves(data,lefts,stop,left),
-                           halves(data,rights,stop,right)}} end 
+  return {node=rows, kids={ halves(data,lefts,stop,left),
+                            halves(data,rights,stop,right) }} end 
 
 function tree(x,  nodeFun,     pre)
   nodeFun = nodeFun or io.write
   pre = pre or "|.. "
   print(pre,nodeFun(x.node))
   for _,kid in pairs(x.kids or {}) do tree(kid, nodeFun, pre.."|.. ") end end
-
 
 -- ----------------------------------------------------------------------------
 -- That's all folks.
