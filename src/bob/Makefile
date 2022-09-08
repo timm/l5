@@ -1,3 +1,4 @@
+MAKEFLAGS += --silent
 SHELL=/bin/bash
 R=$(shell git rev-parse --show-toplevel)
 
@@ -5,18 +6,16 @@ ONE=cat README.md | awk 'BEGIN {FS="\n";RS=""} {print $$0 "\n"; exit}' | awk '{p
 TWOPLUS=cat $@ | awk 'BEGIN {FS="\n";RS=""} NR==1 { print("\n\n"); next} {print $$0 "\n\n"}'
 
 pub: ## save all to Github
-	$(MAKE) all
 	git add *;git commit -am save;git push;git status
 
-htmls:
-	@$(foreach f,$(shell ls *.lua), $(MAKE) $R/docs/$(basename $f).html;)
-
-$R/docs/?.html: ?lua $R/etc/header Makefile 
+../../docs/%.html: %.lua
 	@mkdir -p $R/docs
-	echo "$@ ... "
-	@(cat $R/etc/header;  $(TWOPLUS)) > /tmp/$<
-	@docco -l classic -o $R/docs $<
+	@cat $R/etc/header $< > /tmp/$<
+	@cd /tmp; docco -l classic -o $R/docs $<
 	@cp $R/etc/docco.css $R/docs
+
+htmls:
+	@$(foreach f,$(shell ls *.lua), $(MAKE)  -s ../../docs/$(basename $f).html;)
 
 g=about.lua  num.lua sym.lua row.lua cols.lua data.lua eg.lua
 pdfs:

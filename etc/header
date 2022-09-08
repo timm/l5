@@ -1,5 +1,12 @@
 -- <span id="forkongithub"><a href="https://github.com/timm/lua">Fork me on GitHub</a></span>
--- [about](about.html)  | [cols](cols.html) | [data](data.html) |
--- [eg](eg.html) | [lib](lib.html) | [num](num.html) | [row](row.html) |
--- [sample](sample.html) | [sym](sym.html)<hr>
+--    
+-- [about](about.html)  | [bob](bob.html) | [cols](cols.html) | 
+-- [data](data.html) | [lib](lib.html) | [num](num.html) | [row](row.html) |
+-- [sample](sample.html) | [sym](sym.html) | &copy;2022,&nbsp;timm<hr>
+--  
+-- <p><img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=120>
+-- <b>Tony Hoare:</b>
+-- "Inside every large program is a small program struggling to get out."</p><p>
+-- <b>Dieter Rams:</b>
+-- "Less, but better."</p><br clear=all><hr>
 --  

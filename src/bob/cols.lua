@@ -2,9 +2,10 @@ local l=require"lib"
 local obj,push = l.obj,l.push
 local Num  = require"num"
 local Sym  = require"sym"
-local Cols = obj"Cols"
 
 -- `Columns` Holds of summaries of columns. 
+local Cols = obj"Cols"
+
 -- Columns are created once, then may appear in  multiple slots.
 function Cols:new(names) 
   self.names=names -- all column names

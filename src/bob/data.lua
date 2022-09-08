@@ -2,10 +2,11 @@ local l=require"lib"
 local the  = require"about"
 local Cols = require"Cols"
 local Row  = require"Row"
-local csv, lt, obj, push, rnd = l.csv, l.lt, l.obj, l.push, l.rnd
-local Data = obj"Data"
+local csv,lt,obj,push,rnd = l.csv,l.lt,l.obj,l.push,l.rnd
 
 -- `Data` is a holder of `rows` and their sumamries (in `cols`).
+local Data = obj"Data"
+
 function Data:new(src) 
   self.cols = nil -- summaries of data
   self.rows = {}  -- kept data

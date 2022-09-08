@@ -1,5 +1,5 @@
 local l=require"lib"
-local csv,o,oo = l.csv,l.o,l.oo
+local csv,map,o,oo = l.csv,l.map,l.o,l.oo
 local the = require"about"
 local Num,Sym = require"num", require"sym"
 local Data,Cols,Row = require"data", require"cols", require"row"
@@ -74,10 +74,10 @@ function eg.num(  num,mid,div)
 -- is done such that the kept numbers span the range of inputs).
 function eg.bignum(  num)
   num=Num()
-  the.nums = 32
-  for i=1,1000 do num:add(i) end
-  oo(num:nums())
-  return 32==#num._has; end
+  the.sample = 32
+  for i=1,10000 do num:add(i) end
+  oo(num._has:nums())
+  return 32==#num._has._has; end
 
 -- Show we can read csv files.
 function eg.csv(   n) 
@@ -110,7 +110,15 @@ function eg.around(    data,around)
   for i=1,380,40 do print(i, around[i].dist, o(around[i].row.cells)) end
   return true end
 
--- ---------------------------------
+-- sorting functions
+function eg.sort(    data,around)
+  data = Data("../../data/auto93.csv") 
+  table.sort(data.rows)
+  print(o(map(data.cols.y, function(col) return col.name end)))
+  for i=1,380,40 do print(o(data.rows[i]:cols(data.cols.y)),i) end end
+
+function eg.besRest()end
+ -- ---------------------------------
 --  Start up
 the = l.cli(the)  
 runs(the.eg)

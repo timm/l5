@@ -27,13 +27,20 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
-              <p><a href="about.html">about</a> | <a href="cols.html">cols</a> | <a href="data.html">data</a> |
-<a href="eg.html">eg</a> | <a href="lib.html">lib</a> | <a href="num.html">num</a> | <a href="row.html">row</a> | <a href="sym.html">sym</a><hr></p>
+              <p><span id="forkongithub"><a href="https://github.com/timm/lua">Fork me on GitHub</a></span></p>
+<p><a href="about.html">about</a>  | <a href="cols.html">cols</a> | <a href="data.html">data</a> |
+<a href="eg.html">eg</a> | <a href="lib.html">lib</a> | <a href="num.html">num</a> | <a href="row.html">row</a> |
+<a href="sample.html">sample</a> | <a href="sym.html">sym</a> | &copy;2022,&nbsp;timm<hr></p>
+<p><img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=120>
+<b>Tony Hoare:</b>
+"Inside every large program is a small program struggling to get out."</p><p>
+<b>Dieter Rams:</b>
+"Less, but better."</p><br clear=all><hr>
+ 
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>
-<span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span>
 <span class="hljs-keyword">local</span> the=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;about&quot;</span>
 <span class="hljs-keyword">local</span> o, oo = l.o, l.oo
 <span class="hljs-keyword">local</span> copy,lt,map,obj,<span class="hljs-built_in">sort</span> = l.copy,l.lt,l.map,l.obj,l.<span class="hljs-built_in">sort</span></pre></div></div>
@@ -52,6 +59,7 @@
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> Row = obj<span class="hljs-string">&quot;Row&quot;</span>
+
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:new</span><span class="hljs-params">(t,data)</span></span> 
   <span class="hljs-keyword">return</span> {cells     = t,          <span class="hljs-comment">-- one record</span>
           cooked    = l.copy(t),  <span class="hljs-comment">-- used if we discretize data</span>
@@ -68,15 +76,13 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-3">&#x00a7;</a>
               </div>
-              <p>Distance between rows (returns 0..1). For unknown values, assume max distance.</p>
+              <p>Sort <code>rows</code> (default=<code>data.rows</code>) by distance to <code>self</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:dist</span><span class="hljs-params">(row2,    d)</span></span>
-  d = <span class="hljs-number">0</span>
-  <span class="hljs-keyword">for</span> i,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(<span class="hljs-built_in">self</span>.background.cols.x) <span class="hljs-keyword">do</span> 
-    d = d + col:dist(<span class="hljs-built_in">self</span>.cells[col.at], row2.cells[col.at])^the.p <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">return</span> (d/#<span class="hljs-built_in">self</span>.background.cols.x)^(<span class="hljs-number">1</span>/the.p) <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:around</span><span class="hljs-params">(rows,     fun)</span></span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fun</span><span class="hljs-params">(row2)</span></span> <span class="hljs-keyword">return</span> {row=row2, dist=<span class="hljs-built_in">self</span>:dist(row2)} <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">sort</span>(map(rows, fun),lt<span class="hljs-string">&quot;dist&quot;</span>) <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -87,13 +93,15 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-4">&#x00a7;</a>
               </div>
-              <p>Sort <code>rows</code> (default=<code>data.rows</code>) by distance to <code>self</code>.</p>
+              <p>Distance between rows (returns 0..1). For unknown values, assume max distance.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:around</span><span class="hljs-params">(rows,     fun)</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fun</span><span class="hljs-params">(row2)</span></span> <span class="hljs-keyword">return</span> {row=row2, dist=<span class="hljs-built_in">self</span>:dist(row2)} <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-built_in">sort</span>(map(rows, fun),lt<span class="hljs-string">&quot;dist&quot;</span>) <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:dist</span><span class="hljs-params">(row2,    d)</span></span>
+  d = <span class="hljs-number">0</span>
+  <span class="hljs-keyword">for</span> i,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(<span class="hljs-built_in">self</span>.background.cols.x) <span class="hljs-keyword">do</span> 
+    d = d + col:dist(<span class="hljs-built_in">self</span>.cells[col.at], row2.cells[col.at])^the.p <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> (d/#<span class="hljs-built_in">self</span>.background.cols.x)^(<span class="hljs-number">1</span>/the.p) <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         

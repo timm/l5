@@ -57,6 +57,12 @@ function l.lt(x) return function(t1,t2) return t1[x] < t2[x] end end
 function l.map(t1,fun,    t2) 
   t2={}; for _,v in pairs(t1) do t2[1+#t2] = fun(v) end; return t2 end
 
+-- Return `t` from `nGo` to `nStop` by `nStep` (defaults=1,#t,1)     
+function l.slice(t,  nGo,nStop,nStep,    u)
+  u={}
+  for j=(nGo or 1)//1,(nStop or #t)//1,(nSteo or 1)//1 do u[1+#u]=t[j] end
+  return u end
+
 -- Call `fun` on each row. Row cells are divided on `,`.
 function l.csv(sFilename, fun,      src,s,t)
   src = io.input(sFilename)
