@@ -78,7 +78,6 @@ function eg.num(  num,mid,div)
 function eg.bignum(  num)
   num=Num()
   the.nums = 32
-  print(1)
   for i=1,1000 do num:add(i) end
   oo(num:nums())
   return 32==#num._has; end
@@ -108,9 +107,10 @@ function eg.stats(   data,mid,div)
 
 -- distance functions
 function eg.around(    data,around)
-  data = Data("../../data/auto93.csv")
-  around = data.rows[1]:around(data.rows )
-  for i=1,380,40 do print(around[i].dist, o(around[i].row.cells)) end
+  data = Data("../../data/auto93.csv") 
+  print(data.rows[1]:dist(data.rows[2]))
+  around = data.rows[1]:around(data.rows)
+  for i=1,380,40 do print(i, around[i].dist, o(around[i].row.cells)) end
   return true end
 
 -- ---------------------------------

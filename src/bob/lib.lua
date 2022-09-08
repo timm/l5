@@ -73,12 +73,15 @@ function l.csv(sFilename, fun,      src,s,t)
 -- ### Strings
 -- `o` is a telescope and `oo` are some binoculars we use to exam stucts.
 -- `o`:  generates a string from a nested table.
-function l.o(t,   show,u)
+function l.o(t,   seen,show,u)
   if type(t) ~=  "table" then return tostring(t) end
+  seen=seen or {}
+  if seen[t] then return "..." end
+  seen[t] = t
   function show(k,v)
     if not tostring(k):find"^_"  then
-      v = l.o(v)
-      return #t==0 and string.format(":%s %s",k,v) or tostring(v) end end
+      v = l.o(v,seen)
+      return #t==0 and string.format(":%s %s",k,v) or l.o(v,seen) end end
   u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
   if #t==0 then table.sort(u) end
   return "{"..table.concat(u," ").."}" end
