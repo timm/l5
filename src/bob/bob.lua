@@ -1,6 +1,7 @@
 local l=require"lib"
-local csv,map,o,oo,slice = l.csv,l.map,l.o,l.oo,l.slice
+local csv,gt,map,o,oo,slice,sort = l.csv,l.gt,l.map,l.o,l.oo,l.slice,l.sort
 local the = require"about"
+local XY = require"xy"
 local Num,Sym = require"num", require"sym"
 local Data,Cols,Row = require"data", require"cols", require"row"
 local eg,fails = {},0
@@ -117,16 +118,24 @@ function eg.sort(    data,around)
   print(o(map(data.cols.y, function(col) return col.name end)))
   for i=1,380,40 do print(o(data.rows[i]:cols(data.cols.y)),i) end end
 
-function eg.bestRest(   data,m,n,best,rest,mid)
+function eg.bestRest(   data,best,rest,mid)
   data = Data("../../data/auto93.csv") 
-  table.sort(data.rows)
-  n = #data.rows
-  m = data:enough()
-  best = data:clone( slice(data.rows,1,m) )
-  rest = data:clone( slice(data.rows,m+1,n, (n-m)//(the.rest*m)) )
+  best,rest = data:bestRest()
+  best,rest = data:clone(best), data:clone(rest)
   mid  = function(col) return col:mid() end
   print("besty", o( best:stats(2, best.cols.y, mid)))
   print("resty", o( rest:stats(2, rest.cols.y, mid)))
+  return true end
+
+function eg.contrasts(   data,bests,rests,fun,rows,best)
+  data = Data("../../data/auto93.csv") 
+  bests,rests = data:bestOrRest()
+  fun = function(xy) return {xy=xy,z=xy.y:bestOrRest("bests", #bests, #rests)} end
+  best = sort(map(data:contrasts({rests=rests,bests=bests}),fun),
+              gt"z")[1].xy
+  rows=map(data.rows, 
+           function(row) if best:selects(row) then return row end end)
+  print(#rows)
   return true end
 
 -- ---------------------------------

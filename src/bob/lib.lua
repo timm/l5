@@ -49,10 +49,11 @@ function l.push(t,x) t[1+#t]=x; return x end
 
 -- Function, return a sorted list.
 function l.sort(t,f) 
-  t=#t>0 and t or map(t,function(x) return x end); table.sort(t,f); return t end
+  t=#t>0 and t or l.map(t,function(x) return x end); table.sort(t,f); return t end
 
--- Sorting function
+-- Sorting functions
 function l.lt(x) return function(t1,t2) return t1[x] < t2[x] end end
+function l.gt(x) return function(t1,t2) return t1[x] > t2[x] end end
 
 -- Map a function over a list
 function l.map(t1,fun,    t2) 

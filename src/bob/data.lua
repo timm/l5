@@ -2,7 +2,8 @@ local l=require"lib"
 local the  = require"about"
 local Cols = require"Cols"
 local Row  = require"Row"
-local csv,lt,obj,push,rnd = l.csv,l.lt,l.obj,l.push,l.rnd
+local XY   = require"xy"
+local csv,lt,o,obj,push,rnd,slice = l.csv,l.lt,l.o,l.obj,l.push,l.rnd,l.slice
 
 -- `Data` is a holder of `rows` and their sumamries (in `cols`).
 local Data = obj"Data"
@@ -27,6 +28,21 @@ function Data:add(xs,    row)
 function Data:clone(  src,    out)
   out = Data({self.cols.names})
   for _,row in pairs(src or {}) do out:add(row) end
+  return out end
+
+-- Return two datas, one for the best and a sample of the rest.
+function Data:bestOrRest(    m,n)
+  table.sort(self.rows)
+  n = #self.rows
+  m = self:enough(n)
+  return slice(self.rows,1,m), slice(self.rows,m+1,n,(n-m)//(the.rest*m)) end 
+
+-- Return the XY bins that separate the `listOfRows`
+function Data:contrasts(listOfRows,    out)
+  out = {}
+  for _,col in pairs(self.cols.x) do
+    for _,xy in pairs(XY.contrasts(col,listOfRows)) do
+      push(out, xy) end end
   return out end
 
 -- Return smallest useful number of rows.

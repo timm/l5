@@ -14,8 +14,16 @@ function Sym:new(c,s)
 function Sym:add(v,  inc)
   if v=="?" then return v end
   inc = inc or 1
-  self.n=self.n+inc
-  self._has[v]= inc + (self._has[v] or 0) end 
+  self.n = self.n + inc
+  self._has[v] = inc + (self._has[v] or 0) end 
+
+-- Score b^2/(b+r) where `b` is for any counts for `goals`.
+function Sym:bestOrRest(goal,B,R,    b,r,e)
+  b,r,e = 0,0,1E-30
+  for x,n in pairs(self._has) do
+    if x == goal then b=b+n else r=r+n end end
+  b,r = b/(B+e), r/(R+e)
+  return b^2/(b+r+e) end
 
 -- Discretize a symbol (which means just return the symbol).
 function Sym:discretize(x) return x end
@@ -31,12 +39,12 @@ function Sym:div(    e,fun)
   return e end 
 
 -- Merge two ranges, if they are tooSmall or tooComplex
-function Sym:merged(xy2,nMin,    new,tooSMall,t)   
-  local new = Sym(i.at, i.txt)
-  for x,n in pairs(new._has) do new:add(x,n) end
-  for x,n in pairs(new._has) do new:add(x,n) end
-  local tooSmall   = self.n < nMin or xy2.n < nMin 
-  local tooComplex = new:div() <= (self.n*self:div() + xy2.n*xy2:div())/new.n 
+function Sym:merged(sym2,nMin,    new,tooSMall,t)   
+  local new = Sym(self.at, self.name)
+  for x,n in pairs(self._has) do new:add(x,n) end
+  for x,n in pairs(sym2._has) do new:add(x,n) end
+  local tooSmall  = self.n < nMin or sym2.n < nMin 
+  local tooComplex= new:div() <= (self.n*self:div() + sym2.n*sym2:div())/new.n 
   if tooSmall or tooComplex then return new end end
 
 -- Merge many XY ranges. For symbolic columns, just return the lists.

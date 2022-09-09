@@ -28,9 +28,9 @@
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
               <p><span id="forkongithub"><a href="https://github.com/timm/lua">Fork me on GitHub</a></span></p>
-<p><a href="about.html">about</a>  | <a href="cols.html">cols</a> | <a href="data.html">data</a> |
-<a href="eg.html">eg</a> | <a href="lib.html">lib</a> | <a href="num.html">num</a> | <a href="row.html">row</a> |
-<a href="sample.html">sample</a> | <a href="sym.html">sym</a> | &copy;2022,&nbsp;timm<hr></p>
+<p><a href="about.html">about</a>  | <a href="bob.html">bob</a> | <a href="cols.html">cols</a> | 
+<a href="data.html">data</a> | <a href="lib.html">lib</a> | <a href="num.html">num</a> | <a href="row.html">row</a> |
+<a href="sample.html">sample</a> | <a href="sym.html">sym</a> | <a href="xy.html">xy</a> | &copy;2022,&nbsp;timm<hr></p>
 <p><img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=120>
 <b>Tony Hoare:</b>
 "Inside every large program is a small program struggling to get out."</p><p>
@@ -186,7 +186,8 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">l.sort</span><span class="hljs-params">(t,f)</span></span> <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(t,f); <span class="hljs-keyword">return</span> t <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">l.sort</span><span class="hljs-params">(t,f)</span></span> 
+  t=#t&gt;<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> t <span class="hljs-keyword">or</span> l.map(t,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(x)</span></span> <span class="hljs-keyword">return</span> x <span class="hljs-keyword">end</span>); <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(t,f); <span class="hljs-keyword">return</span> t <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -197,11 +198,12 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-10">&#x00a7;</a>
               </div>
-              <p>Sorting function</p>
+              <p>Sorting functions</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">l.lt</span><span class="hljs-params">(x)</span></span> <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(t1,t2)</span></span> <span class="hljs-keyword">return</span> t1[x] &lt; t2[x] <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">l.lt</span><span class="hljs-params">(x)</span></span> <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(t1,t2)</span></span> <span class="hljs-keyword">return</span> t1[x] &lt; t2[x] <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">l.gt</span><span class="hljs-params">(x)</span></span> <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(t1,t2)</span></span> <span class="hljs-keyword">return</span> t1[x] &gt; t2[x] <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -228,6 +230,24 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-12">&#x00a7;</a>
               </div>
+              <p>Return <code>t</code> from <code>nGo</code> to <code>nStop</code> by <code>nStep</code> (defaults=1,#t,1)     </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">l.slice</span><span class="hljs-params">(t,  nGo,nStop,nStep,    u)</span></span>
+  u={}
+  <span class="hljs-keyword">for</span> j=(nGo <span class="hljs-keyword">or</span> <span class="hljs-number">1</span>)//<span class="hljs-number">1</span>,(nStop <span class="hljs-keyword">or</span> #t)//<span class="hljs-number">1</span>,(nStep <span class="hljs-keyword">or</span> <span class="hljs-number">1</span>)//<span class="hljs-number">1</span> <span class="hljs-keyword">do</span> u[<span class="hljs-number">1</span>+#u]=t[j] <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> u <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-13">&#x00a7;</a>
+              </div>
               <p>Call <code>fun</code> on each row. Row cells are divided on <code>,</code>.</p>
 
             </div>
@@ -244,11 +264,11 @@
         </li>
         
         
-        <li id="section-13">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-13">&#x00a7;</a>
+                <a class="ss" href="#section-14">&#x00a7;</a>
               </div>
               <h3 id="strings">Strings</h3>
 <p><code>o</code> is a telescope and <code>oo</code> are some binoculars we use to exam stucts.
@@ -272,11 +292,11 @@
         </li>
         
         
-        <li id="section-14">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-14">&#x00a7;</a>
+                <a class="ss" href="#section-15">&#x00a7;</a>
               </div>
               <p><code>oo</code>: prints the string from <code>o</code>.   </p>
 
@@ -287,11 +307,11 @@
         </li>
         
         
-        <li id="section-15">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-15">&#x00a7;</a>
+                <a class="ss" href="#section-16">&#x00a7;</a>
               </div>
               <h3 id="maths">Maths</h3>
 
@@ -304,11 +324,11 @@
         </li>
         
         
-        <li id="section-16">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-16">&#x00a7;</a>
+                <a class="ss" href="#section-17">&#x00a7;</a>
               </div>
               <p>obj(“Thing”) enables a constructor Thing:new() … and a pretty-printer</p>
 
@@ -323,11 +343,11 @@
         </li>
         
         
-        <li id="section-17">
+        <li id="section-18">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-17">&#x00a7;</a>
+                <a class="ss" href="#section-18">&#x00a7;</a>
               </div>
               <p>That’s all folks.</p>
 
