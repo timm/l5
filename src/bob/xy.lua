@@ -42,7 +42,12 @@ function XY:merged(xy2,nMin,    new)
   if new then
     return XY(self.at,self.name,self.xlo,xy2.xhi,new) end end
 
--- Class method. Create lots of XYs
+-- Class method. Discretization
+function XY.discretize(col,listOfRows,   xys,n)
+  xys,n = XY.unsuper(col,listOfRows)
+  return XY.super(col,xys,n) end
+
+-- Class method. Unsupervised discretization
 function XY.unsuper(col,listOfRows)
   local n,xys = 0,{} 
   for label, rows in pairs(listOfRows) do
@@ -51,9 +56,11 @@ function XY.unsuper(col,listOfRows)
       if x ~= "?" then
         n = n+ 1
         local bin = col:discretize(x)
-        xys[bin]  = (xys[bin] or XY(col.at,col.name,x)):add(x,label) end end end
+        xys[bin]  = xys[bin] or XY(col.at,col.name,x)
+        xys[bin]:add(x,label) end end end
   return sort(xys,lt"xlo"), n end
 
+-- Class method. Supervised discretization
 function XY.super(col,xys,n)
   n = the.min >= 1 and the.min or n^the.min
   return col:merges(sort(xys,lt"xlo"), n) end

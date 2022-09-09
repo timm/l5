@@ -128,26 +128,36 @@ function eg.bestOrRest(   data,bestRows,restRows,best,rest)
   print("resty", o(rest:stats()))
   return true end
 
--- find a symbolic description of difference between best and rest.
+-- Simple unsupervised discretization. Break numbers on (max-min)/the.bins.
 function eg.unsuper(   data,bests,rests,fun,rows,best)
   data = Data("../../data/auto93.csv") 
   bests,rests = data:bestOrRest()
   for _,col in pairs(data.cols.x) do
-    print("\n\n" .. col.name)
+    print("\n" .. col.name)
     for _,xy in pairs(XY.unsuper(col,{bests=bests,rests=rests})) do 
        print(xy.y.n, 
              string.format("%-20s",o(xy.y._has)), 
              xy) end end 
   return true end
 
--- find a symbolic description of difference between best and rest.
-function eg.contrasts(   data,bests,rests,fun,rows,best)
-  data = data("../../data/auto93.csv") 
-  bests,rests = data:bestorrest()
+-- Supervised discretization. When we reflect on the unsupervised ranges,
+-- some are too small and some needlessly complicate the data and some 
+-- are very weak at selecting for the "best" rows. So lets combine the
+-- small and complex ones and rank the remaining by how well they select for best.
+function eg.super(   data,bests,rests,fun,rows,best,old,z)
+  data = Data("../../data/auto93.csv") 
+  bests,rests = data:bestOrRest()
   fun = function(xy) return {xy=xy,z=xy.y:bestOrRest("bests", #bests, #rests)} end
-  for _,xy in pairs(sort(map(data:contrasts({rests=rests,bests=bests}),fun),
-                    gt"z")) do
-    print(o(xy.xy.y._has),xy.xy) end
+  old=""
+  for _,xy in pairs(map(data:contrasts({rests=rests,bests=bests}),fun)) do
+    z=xy.z
+    xy=xy.xy
+    if xy.name ~= old then print("\n"..xy.name) end
+    old = xy.name
+    print(xy.y.n, 
+          string.format("%-20s",o(xy.y._has)), 
+          string.format("%-20s",xy),
+          l.rnd(z,3)) end 
   -- rows=map(data.rows, 
   --          function(row) if best:selects(row) then return row end end)
   -- print(#rows)

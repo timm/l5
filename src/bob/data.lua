@@ -43,7 +43,7 @@ function Data:clone(  src,    out)
 function Data:contrasts(listOfRows,    out)
   out = {}
   for _,col in pairs(self.cols.x) do
-    for _,xy in pairs(XY.contrasts(col,listOfRows)) do
+    for _,xy in pairs(XY.discretize(col,listOfRows)) do
       push(out, xy) end end
   return out end
 
