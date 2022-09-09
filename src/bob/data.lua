@@ -1,7 +1,7 @@
 local l=require"lib"
 local the  = require"about"
-local Cols = require"Cols"
-local Row  = require"Row"
+local Cols = require"cols"
+local Row  = require"row"
 local XY   = require"xy"
 local csv,lt,o,obj,push,rnd,slice = l.csv,l.lt,l.o,l.obj,l.push,l.rnd,l.slice
 
