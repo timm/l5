@@ -23,9 +23,15 @@ function Data:add(xs,    row)
         for _,col in pairs(todo) do 
           col:add(row.cells[col.at]) end end end end
 
+-- Duplicate `self`'s structure, add in `src` if is supplied.
+function Data:clone(  src,    out)
+  out = Data({self.cols.names})
+  for _,row in pairs(src or {}) do out:add(row) end
+  return out end
+
 -- Return smallest useful number of rows.
-function Data:enough()
-  return (the.min >=1 and the.min or (#self.rows)^the.min) // 1 end 
+function Data:enough(n)
+  return (the.min >=1 and the.min or (n or #self.rows)^the.min) // 1 end 
 
 -- For `showCols` (default=`data.cols.x`) in `data`, show `fun` (default=`mid`),
 -- rounding numbers to `places` (default=2)

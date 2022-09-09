@@ -117,14 +117,17 @@ function eg.sort(    data,around)
   print(o(map(data.cols.y, function(col) return col.name end)))
   for i=1,380,40 do print(o(data.rows[i]:cols(data.cols.y)),i) end end
 
-function eg.bestRest()
+function eg.bestRest(   data,m,n,best,rest,mid)
   data = Data("../../data/auto93.csv") 
   table.sort(data.rows)
   n = #data.rows
   m = data:enough()
-  best = slice(data.rows,1,m)
-  rest = slice(data.rows,m+1,n, (n-m)//(the.rest*n))
-  print(#rest, #best) end
+  best = data:clone( slice(data.rows,1,m) )
+  rest = data:clone( slice(data.rows,m+1,n, (n-m)//(the.rest*m)) )
+  mid  = function(col) return col:mid() end
+  print("besty", o( best:stats(2, best.cols.y, mid)))
+  print("resty", o( rest:stats(2, rest.cols.y, mid)))
+  return true end
 
 -- ---------------------------------
 --  Start up

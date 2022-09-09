@@ -6,14 +6,15 @@ BOB : summarized csv file
 USAGE: lua bob.lua [OPTIONS]
 
 OPTIONS:
- -e  --eg        start-up example                      = nothing
- -d  --dump      on test failure, exit with stack dump = false
- -f  --file      file with csv data                    = ../data/auto93.csv
- -h  --help      show help                             = false
- -m  --min       min size. If<1 then t^n else n.       = .5
- -n  --nums      number of nums to keep                = 512
- -p  --p         distance calculation coefficient      = 2
- -r  --rest      size of "rest" set                    = 3
- -s  --seed      random number seed                    = 10019
- -S  --sample    how many numbers to keep              = 512 ]]
+ -e  --eg       start-up example                      = nothing
+ -b  --bins     max number of bins                    = 16
+ -d  --dump     on test failure, exit with stack dump = false
+ -f  --file     file with csv data                    = ../data/auto93.csv
+ -h  --help     show help                             = false
+ -m  --min      min size. If<1 then t^n else n.       = .5
+ -n  --nums     number of nums to keep                = 512
+ -p  --p        distance calculation coefficient      = 2
+ -r  --rest     size of "rest" set                    = 3
+ -s  --seed     random number seed                    = 10019
+ -S  --sample   how many numbers to keep              = 512 ]]
 
