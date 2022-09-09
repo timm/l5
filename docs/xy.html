@@ -27,16 +27,18 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
-              <p><span id="forkongithub"><a href="https://github.com/timm/lua">Fork me on GitHub</a></span></p>
+              <p><span id="forkongithub"><a href="https://github.com/timm/lua">Fork me on GitHub</a></span>
+<img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=150></p>
+<p><img src="https://img.shields.io/badge/language-lua-blue" alt="">
+<img src="https://img.shields.io/badge/purpose-xai-orange" alt="">
+<a href="https://github.com/timm/lua/blob/main/LICENSE.md#top"><img src="https://img.shields.io/badge/license-BSD2-green" alt=""></a></p>
+<p><b>Tony Hoare:</b>
+“Inside every large program is a small program struggling to get out.”</p><p>
+<b>Dieter Rams:</b>
+“Less, but better.”</p></p>
 <p><a href="about.html">about</a>  | <a href="bob.html">bob</a> | <a href="cols.html">cols</a> | 
 <a href="data.html">data</a> | <a href="lib.html">lib</a> | <a href="num.html">num</a> | <a href="row.html">row</a> |
 <a href="sample.html">sample</a> | <a href="sym.html">sym</a> | <a href="xy.html">xy</a> | &copy;2022,&nbsp;timm<hr></p>
-<p><img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=120>
-<b>Tony Hoare:</b>
-"Inside every large program is a small program struggling to get out."</p><p>
-<b>Dieter Rams:</b>
-"Less, but better."</p><br clear=all><hr>
- 
 
             </div>
             
@@ -88,10 +90,10 @@
     <span class="hljs-keyword">if</span> x &gt; <span class="hljs-built_in">self</span>.xhi <span class="hljs-keyword">then</span> <span class="hljs-built_in">self</span>.xhi=x <span class="hljs-keyword">end</span>
     <span class="hljs-built_in">self</span>.y:add(y) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">XY:selects</span><span class="hljs-params">(row)</span></span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">XY:selects</span><span class="hljs-params">(row,     v)</span></span>
   v = row.cells[<span class="hljs-built_in">self</span>.at]
   <span class="hljs-keyword">if</span> v ==<span class="hljs-string">&quot;?&quot;</span>                            <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">if</span> <span class="hljs-built_in">self</span>.xlo==<span class="hljs-built_in">self</span>.ylo <span class="hljs-keyword">and</span> v==<span class="hljs-built_in">self</span>.xlo <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">if</span> <span class="hljs-built_in">self</span>.xlo==<span class="hljs-built_in">self</span>.xhi <span class="hljs-keyword">and</span> v==<span class="hljs-built_in">self</span>.xlo <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">if</span> <span class="hljs-built_in">self</span>.xlo &lt; v <span class="hljs-keyword">and</span> v &lt;= <span class="hljs-built_in">self</span>.xhi     <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>

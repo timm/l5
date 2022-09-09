@@ -6,27 +6,28 @@ local Num,Sym = require"num", require"sym"
 local Data,Cols,Row = require"data", require"cols", require"row"
 local eg,fails = {},0
 
+-- To run a test:
 -- 1. reset random number seed before running something.
 -- 2. Cache the detaults settings, and...
 -- 3. ... restore them after the test
 -- 4. Print error messages or stack dumps as required.
 -- 5. Return true if this all went well.
-local function runs(k,     old,status,out,msg)
-  if not eg[k] then return end
+local function run(todo,     old,status,out,msg)
+  if not eg[todo] then return end
   math.randomseed(the.seed) -- reset seed [1]
   old={}; for k,v in pairs(the) do old[k]=v end --  [2]
   if the.dump then -- [4]
-    status,out=true, eg[k]() 
+    status,out=true, eg[todo]() -- crash on errors, printing stack dump
   else
-    status,out=pcall(eg[k]) -- pcall means we do not crash and dump on errror
+    status,out=pcall(eg[todo]) -- on error, set status to false, then keep going.
   end
-  for k,v in pairs(old) do the[k]=v end -- restore old settings [3]
+  for k,v in pairs(old) do the[todo]=v end -- restore old settings [3]
   msg = status and ((out==true and "PASS") or "FAIL") or "CRASH" -- [4]
-  print("!!!!!!", msg, k, status)
+  print("!!!!!!", msg, todo, status)
   return out or err end
 
--- Test that the test  happens when something crashes?
-function eg.BAD() print(eg.dont.have.this.field) end
+-- Uncomment this test to check what happens when something goes wrong.
+-- function eg.BAD() print(eg.dont.have.this.field) end
 
 -- Sort all test names.
 function eg.LIST(   t)
@@ -46,8 +47,8 @@ function eg.ALL()
       if not runs(k) then fails=fails+ 1 end end end 
   return true end
 
--- Settings come from big string top of "sam.lua" 
--- (maybe updated from comamnd line)
+-- Settings come from big string on top of `about.lua`
+-- (maybe updated from command line)
 function eg.the() oo(the); return true end
 
 -- The middle and diversity of a set of symbols is called "mode" 
@@ -71,7 +72,7 @@ function eg.num(  num,mid,div)
   print(mid ,div)
   return 50<= mid and mid<= 52 and 30.5 <div and div<32 end 
 
--- Nums store only a sample of the numbers added to it (and that storage 
+-- `Num`s store only a sample of the numbers added to it (and that storage 
 -- is done such that the kept numbers span the range of inputs).
 function eg.bignum(  num)
   num=Num()
@@ -95,52 +96,70 @@ function eg.data(   d)
 -- Print some stats on columns.
 function eg.stats(   data,mid,div)
   data = Data("../../data/auto93.csv")
-  div  = function(col) return col:div() end
-  mid  = function(col) return col:mid() end
-  print("xmid", o( data:stats(2, data.cols.x, mid)))
-  print("xdiv", o( data:stats(3, data.cols.x, div)))
-  print("ymid", o( data:stats(2, data.cols.y, mid)))
-  print("ydiv", o( data:stats(3, data.cols.y, div)))
+  print("xmid", o( data:stats(2, data.cols.x, "mid")))
+  print("xdiv", o( data:stats(3, data.cols.x, "div")))
+  print("ymid", o( data:stats(2, data.cols.y, "mid")))
+  print("ydiv", o( data:stats(3, data.cols.y, "div")))
   return true end
 
--- distance functions
+-- Distance functions.
 function eg.around(    data,around)
   data = Data("../../data/auto93.csv") 
   print(data.rows[1]:dist(data.rows[2]))
   around = data.rows[1]:around(data.rows)
-  for i=1,380,40 do print(i, around[i].dist, o(around[i].row.cells)) end
+  for i=1,#data.rows,32 do print(i, o(around[i].row.cells),around[i].dist) end
   return true end
 
--- sorting functions
+-- Multi-objective sorting can rank "good" rows before the others.
 function eg.sort(    data,around)
   data = Data("../../data/auto93.csv") 
   table.sort(data.rows)
   print(o(map(data.cols.y, function(col) return col.name end)))
-  for i=1,380,40 do print(o(data.rows[i]:cols(data.cols.y)),i) end end
-
-function eg.bestRest(   data,best,rest,mid)
-  data = Data("../../data/auto93.csv") 
-  best,rest = data:bestRest()
-  best,rest = data:clone(best), data:clone(rest)
-  mid  = function(col) return col:mid() end
-  print("besty", o( best:stats(2, best.cols.y, mid)))
-  print("resty", o( rest:stats(2, rest.cols.y, mid)))
+  for i=1,#data.rows,32 do 
+      print(o(data.rows[i]:cols(data.cols.y)),i) end 
   return true end
 
-function eg.contrasts(   data,bests,rests,fun,rows,best)
+-- Sort on goals, report median goals seen in best or rest.
+function eg.bestOrRest(   data,bestRows,restRows,best,rest)
+  data = Data("../../data/auto93.csv") 
+  bestRows,restRows = data:bestOrRest()
+  best,rest = data:clone(bestRows), data:clone(restRows)
+  print("besty", o(best:stats()))
+  print("resty", o(rest:stats()))
+  return true end
+
+-- find a symbolic description of difference between best and rest.
+function eg.unsuper(   data,bests,rests,fun,rows,best)
   data = Data("../../data/auto93.csv") 
   bests,rests = data:bestOrRest()
+  for _,col in pairs(data.cols.x) do
+    print("\n\n" .. col.name)
+    for _,xy in pairs(XY.unsuper(col,{bests=bests,rests=rests})) do 
+       print(xy.y.n, 
+             string.format("%-20s",o(xy.y._has)), 
+             xy) end end 
+  return true end
+
+-- find a symbolic description of difference between best and rest.
+function eg.contrasts(   data,bests,rests,fun,rows,best)
+  data = data("../../data/auto93.csv") 
+  bests,rests = data:bestorrest()
   fun = function(xy) return {xy=xy,z=xy.y:bestOrRest("bests", #bests, #rests)} end
-  best = sort(map(data:contrasts({rests=rests,bests=bests}),fun),
-              gt"z")[1].xy
-  rows=map(data.rows, 
-           function(row) if best:selects(row) then return row end end)
-  print(#rows)
+  for _,xy in pairs(sort(map(data:contrasts({rests=rests,bests=bests}),fun),
+                    gt"z")) do
+    print(o(xy.xy.y._has),xy.xy) end
+  -- rows=map(data.rows, 
+  --          function(row) if best:selects(row) then return row end end)
+  -- print(#rows)
   return true end
 
 -- ---------------------------------
---  Start up
+-- Start up
+-- - Update settings from command-line.
+-- - Run an example.
+-- - Run some lint code (in this case, to find any rogue globals).
+-- - Report back to the operating system the number of errors found.
 the = l.cli(the)  
-runs(the.eg)
+run(the.eg)
 l.rogues() 
 os.exit(fails) 

@@ -27,16 +27,18 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
-              <p><span id="forkongithub"><a href="https://github.com/timm/lua">Fork me on GitHub</a></span></p>
+              <p><span id="forkongithub"><a href="https://github.com/timm/lua">Fork me on GitHub</a></span>
+<img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=150></p>
+<p><img src="https://img.shields.io/badge/language-lua-blue" alt="">
+<img src="https://img.shields.io/badge/purpose-xai-orange" alt="">
+<a href="https://github.com/timm/lua/blob/main/LICENSE.md#top"><img src="https://img.shields.io/badge/license-BSD2-green" alt=""></a></p>
+<p><b>Tony Hoare:</b>
+“Inside every large program is a small program struggling to get out.”</p><p>
+<b>Dieter Rams:</b>
+“Less, but better.”</p></p>
 <p><a href="about.html">about</a>  | <a href="bob.html">bob</a> | <a href="cols.html">cols</a> | 
 <a href="data.html">data</a> | <a href="lib.html">lib</a> | <a href="num.html">num</a> | <a href="row.html">row</a> |
 <a href="sample.html">sample</a> | <a href="sym.html">sym</a> | <a href="xy.html">xy</a> | &copy;2022,&nbsp;timm<hr></p>
-<p><img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=120>
-<b>Tony Hoare:</b>
-"Inside every large program is a small program struggling to get out."</p><p>
-<b>Dieter Rams:</b>
-"Less, but better."</p><br clear=all><hr>
- 
 
             </div>
             
@@ -57,7 +59,8 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-2">&#x00a7;</a>
               </div>
-              <ol>
+              <p>To run a test:</p>
+<ol>
 <li>reset random number seed before running something.</li>
 <li>Cache the detaults settings, and…</li>
 <li>… restore them after the test</li>
@@ -67,18 +70,18 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">runs</span><span class="hljs-params">(k,     old,status,out,msg)</span></span>
-  <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> eg[k] <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> <span class="hljs-keyword">end</span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">run</span><span class="hljs-params">(todo,     old,status,out,msg)</span></span>
+  <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> eg[todo] <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> <span class="hljs-keyword">end</span>
   <span class="hljs-built_in">math</span>.<span class="hljs-built_in">randomseed</span>(the.seed) <span class="hljs-comment">-- reset seed [1]</span>
   old={}; <span class="hljs-keyword">for</span> k,v <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(the) <span class="hljs-keyword">do</span> old[k]=v <span class="hljs-keyword">end</span> <span class="hljs-comment">--  [2]</span>
   <span class="hljs-keyword">if</span> the.<span class="hljs-built_in">dump</span> <span class="hljs-keyword">then</span> <span class="hljs-comment">-- [4]</span>
-    <span class="hljs-built_in">status</span>,out=<span class="hljs-literal">true</span>, eg[k]() 
+    <span class="hljs-built_in">status</span>,out=<span class="hljs-literal">true</span>, eg[todo]() <span class="hljs-comment">-- crash on errors, printing stack dump</span>
   <span class="hljs-keyword">else</span>
-    <span class="hljs-built_in">status</span>,out=<span class="hljs-built_in">pcall</span>(eg[k]) <span class="hljs-comment">-- pcall means we do not crash and dump on errror</span>
+    <span class="hljs-built_in">status</span>,out=<span class="hljs-built_in">pcall</span>(eg[todo]) <span class="hljs-comment">-- on error, set status to false, then keep going.</span>
   <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">for</span> k,v <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(old) <span class="hljs-keyword">do</span> the[k]=v <span class="hljs-keyword">end</span> <span class="hljs-comment">-- restore old settings [3]</span>
+  <span class="hljs-keyword">for</span> k,v <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(old) <span class="hljs-keyword">do</span> the[todo]=v <span class="hljs-keyword">end</span> <span class="hljs-comment">-- restore old settings [3]</span>
   msg = <span class="hljs-built_in">status</span> <span class="hljs-keyword">and</span> ((out==<span class="hljs-literal">true</span> <span class="hljs-keyword">and</span> <span class="hljs-string">&quot;PASS&quot;</span>) <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;FAIL&quot;</span>) <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;CRASH&quot;</span> <span class="hljs-comment">-- [4]</span>
-  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;!!!!!!&quot;</span>, msg, k, <span class="hljs-built_in">status</span>)
+  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;!!!!!!&quot;</span>, msg, todo, <span class="hljs-built_in">status</span>)
   <span class="hljs-keyword">return</span> out <span class="hljs-keyword">or</span> err <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -90,11 +93,10 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-3">&#x00a7;</a>
               </div>
-              <p>Test that the test  happens when something crashes?</p>
+              <p>Uncomment this test to check what happens when something goes wrong.
+function eg.BAD() print(eg.dont.have.this.field) end</p>
 
             </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.BAD</span><span class="hljs-params">()</span></span> <span class="hljs-built_in">print</span>(eg.dont.have.this.field) <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -159,8 +161,8 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-7">&#x00a7;</a>
               </div>
-              <p>Settings come from big string top of “sam.lua” 
-(maybe updated from comamnd line)</p>
+              <p>Settings come from big string on top of <code>about.lua</code>
+(maybe updated from command line)</p>
 
             </div>
             
@@ -220,7 +222,7 @@ are the same).</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-10">&#x00a7;</a>
               </div>
-              <p>Nums store only a sample of the numbers added to it (and that storage 
+              <p><code>Num</code>s store only a sample of the numbers added to it (and that storage 
 is done such that the kept numbers span the range of inputs).</p>
 
             </div>
@@ -283,12 +285,10 @@ is done such that the kept numbers span the range of inputs).</p>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.stats</span><span class="hljs-params">(   data,mid,div)</span></span>
   data = Data(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>)
-  div  = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(col)</span></span> <span class="hljs-keyword">return</span> col:div() <span class="hljs-keyword">end</span>
-  mid  = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(col)</span></span> <span class="hljs-keyword">return</span> col:mid() <span class="hljs-keyword">end</span>
-  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;xmid&quot;</span>, o( data:stats(<span class="hljs-number">2</span>, data.cols.x, mid)))
-  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;xdiv&quot;</span>, o( data:stats(<span class="hljs-number">3</span>, data.cols.x, div)))
-  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;ymid&quot;</span>, o( data:stats(<span class="hljs-number">2</span>, data.cols.y, mid)))
-  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;ydiv&quot;</span>, o( data:stats(<span class="hljs-number">3</span>, data.cols.y, div)))
+  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;xmid&quot;</span>, o( data:stats(<span class="hljs-number">2</span>, data.cols.x, <span class="hljs-string">&quot;mid&quot;</span>)))
+  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;xdiv&quot;</span>, o( data:stats(<span class="hljs-number">3</span>, data.cols.x, <span class="hljs-string">&quot;div&quot;</span>)))
+  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;ymid&quot;</span>, o( data:stats(<span class="hljs-number">2</span>, data.cols.y, <span class="hljs-string">&quot;mid&quot;</span>)))
+  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;ydiv&quot;</span>, o( data:stats(<span class="hljs-number">3</span>, data.cols.y, <span class="hljs-string">&quot;div&quot;</span>)))
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -300,7 +300,7 @@ is done such that the kept numbers span the range of inputs).</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-14">&#x00a7;</a>
               </div>
-              <p>distance functions</p>
+              <p>Distance functions.</p>
 
             </div>
             
@@ -308,7 +308,7 @@ is done such that the kept numbers span the range of inputs).</p>
   data = Data(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>) 
   <span class="hljs-built_in">print</span>(data.rows[<span class="hljs-number">1</span>]:dist(data.rows[<span class="hljs-number">2</span>]))
   around = data.rows[<span class="hljs-number">1</span>]:around(data.rows)
-  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">380</span>,<span class="hljs-number">40</span> <span class="hljs-keyword">do</span> <span class="hljs-built_in">print</span>(i, around[i].dist, o(around[i].row.cells)) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,#data.rows,<span class="hljs-number">32</span> <span class="hljs-keyword">do</span> <span class="hljs-built_in">print</span>(i, o(around[i].row.cells),around[i].dist) <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -320,7 +320,7 @@ is done such that the kept numbers span the range of inputs).</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-15">&#x00a7;</a>
               </div>
-              <p>sorting functions</p>
+              <p>Sorting functions.</p>
 
             </div>
             
@@ -328,25 +328,7 @@ is done such that the kept numbers span the range of inputs).</p>
   data = Data(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>) 
   <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(data.rows)
   <span class="hljs-built_in">print</span>(o(map(data.cols.y, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(col)</span></span> <span class="hljs-keyword">return</span> col.name <span class="hljs-keyword">end</span>)))
-  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">380</span>,<span class="hljs-number">40</span> <span class="hljs-keyword">do</span> <span class="hljs-built_in">print</span>(o(data.rows[i]:cols(data.cols.y)),i) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.bestRest</span><span class="hljs-params">(   data,best,rest,mid)</span></span>
-  data = Data(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>) 
-  best,rest = data:bestRest()
-  best,rest = data:clone(best), data:clone(rest)
-  mid  = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(col)</span></span> <span class="hljs-keyword">return</span> col:mid() <span class="hljs-keyword">end</span>
-  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;besty&quot;</span>, o( best:stats(<span class="hljs-number">2</span>, best.cols.y, mid)))
-  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;resty&quot;</span>, o( rest:stats(<span class="hljs-number">2</span>, rest.cols.y, mid)))
-  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span>
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.contrasts</span><span class="hljs-params">(   data,bests,rests,fun)</span></span>
-  data = Data(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>) 
-  bests,rests = data:bestRest()
-  fun = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(xy)</span></span> <span class="hljs-keyword">return</span> {xy=xy,z=xy.y:bestOrRest(<span class="hljs-string">&quot;bests&quot;</span>, #bests, #rests)} <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">for</span> i,x <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(<span class="hljs-built_in">sort</span>(map(data:contrasts({rests=rests,bests=bests}),fun),
-                        gt<span class="hljs-string">&quot;z&quot;</span>)) <span class="hljs-keyword">do</span>
-    <span class="hljs-built_in">print</span>(i, x.xy.name,o(x.xy.y._has),x.z) <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
+  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,#data.rows,<span class="hljs-number">32</span> <span class="hljs-keyword">do</span> <span class="hljs-built_in">print</span>(o(data.rows[i]:cols(data.cols.y)),i) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -357,9 +339,17 @@ is done such that the kept numbers span the range of inputs).</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-16">&#x00a7;</a>
               </div>
-              <hr>
+              <p>Sort on goals, report median goals seen in best or rest.</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.bestOrRest</span><span class="hljs-params">(   data,bestRows,restRows,best,rest)</span></span>
+  data = Data(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>) 
+  bestRows,restRows = data:bestOrRest()
+  best,rest = data:clone(bestRows), data:clone(restRows)
+  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;besty&quot;</span>, o(best:stats()))
+  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;resty&quot;</span>, o(rest:stats()))
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -370,12 +360,55 @@ is done such that the kept numbers span the range of inputs).</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-17">&#x00a7;</a>
               </div>
-              <p> Start up</p>
+              <p>Find a symbolic description of difference between best and rest.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.contrasts</span><span class="hljs-params">(   data,bests,rests,fun,rows,best)</span></span>
+  data = Data(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>) 
+  bests,rests = data:bestOrRest()
+  fun = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(xy)</span></span> <span class="hljs-keyword">return</span> {xy=xy,z=xy.y:bestOrRest(<span class="hljs-string">&quot;bests&quot;</span>, #bests, #rests)} <span class="hljs-keyword">end</span>
+  best = <span class="hljs-built_in">sort</span>(map(data:contrasts({rests=rests,bests=bests}),fun),
+              gt<span class="hljs-string">&quot;z&quot;</span>)[<span class="hljs-number">1</span>].xy
+  rows=map(data.rows, 
+           <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(row)</span></span> <span class="hljs-keyword">if</span> best:selects(row) <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> row <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>)
+  <span class="hljs-built_in">print</span>(#rows)
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-18">&#x00a7;</a>
+              </div>
+              <hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-19">&#x00a7;</a>
+              </div>
+              <p>Start up</p>
+<ul>
+<li>Update settings from command-line.</li>
+<li>Run an example.</li>
+<li>Run some lint code (in this case, to find any rogue globals).</li>
+<li>Report back to the operating system the number of errors found.</li>
+</ul>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>the = l.cli(the)  
-runs(the.eg)
+run(the.eg)
 l.rogues() 
 <span class="hljs-built_in">os</span>.<span class="hljs-built_in">exit</span>(fails)</pre></div></div>
             

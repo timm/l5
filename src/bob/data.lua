@@ -24,18 +24,20 @@ function Data:add(xs,    row)
         for _,col in pairs(todo) do 
           col:add(row.cells[col.at]) end end end end
 
+-- Return two sets of rows, one for the best and the other that samples the rest.
+function Data:bestOrRest(    m,n)
+  table.sort(self.rows)
+  n = #self.rows
+  m = self:enough(n)
+  return slice(self.rows,1,   m, 1),                  -- all the first `m` items
+         slice(self.rows,m+1, n, (n-m)//(the.rest*m)) -- some of the rest
+  end 
+
 -- Duplicate `self`'s structure, add in `src` if is supplied.
 function Data:clone(  src,    out)
   out = Data({self.cols.names})
   for _,row in pairs(src or {}) do out:add(row) end
   return out end
-
--- Return two datas, one for the best and a sample of the rest.
-function Data:bestOrRest(    m,n)
-  table.sort(self.rows)
-  n = #self.rows
-  m = self:enough(n)
-  return slice(self.rows,1,m), slice(self.rows,m+1,n,(n-m)//(the.rest*m)) end 
 
 -- Return the XY bins that separate the `listOfRows`
 function Data:contrasts(listOfRows,    out)
@@ -51,10 +53,10 @@ function Data:enough(n)
 
 -- For `showCols` (default=`data.cols.x`) in `data`, show `fun` (default=`mid`),
 -- rounding numbers to `places` (default=2)
-function Data:stats(  places,showCols,fun,    t,v)
-  showCols, fun = showCols or self.cols.y, fun or "mid"
+function Data:stats(  places,showCols,todo,    t,v)
+  showCols, todo = showCols or self.cols.y, todo or "mid"
   t={}; for _,col in pairs(showCols) do 
-          v=fun(col)
+          v=getmetatable(col)[todo](col)
           v=type(v)=="number" and rnd(v,places) or v
           t[col.name]=v end; return t end
 

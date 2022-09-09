@@ -15,12 +15,20 @@ function XY:new(c,s,nlo,nhi,nom)
           y   = nom or Sym(c,s) -- y symbols see so far
           } end
 
+function XY:__tostring()
+  local x,lo,hi,big = self.name, self.xlo, self.xhi, math.huge
+  if     lo ==  hi  then return string.format("%s == %s", x, lo)
+  elseif hi ==  big then return string.format("%s >  %s", x, lo)
+  elseif lo == -big then return string.format("%s <= %s", x, hi)
+  else                   return string.format("%s <  %s <= %s", lo,x,hi) end end
+
 -- Extend `xlo` `xhi` to cover `x`. Also, add `y` to `self.y`.
 function XY:add(x,y)
   if x~="?" then
     if x < self.xlo then self.xlo=x end
     if x > self.xhi then self.xhi=x end
-    self.y:add(y) end end
+    self.y:add(y) end 
+  return self end
 
 function XY:selects(row,     v)
   v = row.cells[self.at]
@@ -35,7 +43,7 @@ function XY:merged(xy2,nMin,    new)
     return XY(self.at,self.name,self.xlo,xy2.xhi,new) end end
 
 -- Class method. Create lots of XYs
-function XY.contrasts(col,listOfRows)
+function XY.unsuper(col,listOfRows)
   local n,xys = 0,{} 
   for label, rows in pairs(listOfRows) do
     for _,row in pairs(rows) do
@@ -43,9 +51,10 @@ function XY.contrasts(col,listOfRows)
       if x ~= "?" then
         n = n+ 1
         local bin = col:discretize(x)
-        local xy  = xys[bin] or XY(col.at,col.name, x)
-        xy:add(x, label)
-        xys[bin] = xy end end end
+        xys[bin]  = (xys[bin] or XY(col.at,col.name,x)):add(x,label) end end end
+  return sort(xys,lt"xlo"), n end
+
+function XY.super(col,xys,n)
   n = the.min >= 1 and the.min or n^the.min
   return col:merges(sort(xys,lt"xlo"), n) end
 

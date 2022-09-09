@@ -39,20 +39,21 @@ function Num:dist(v1,v2)
 -- Return diversity
 function Num:div() return self._has:div() end
 
--- Merge two bins if they are too small or too complex.
-function Num:merges(xys0,nMin,   n,xys1) 
+-- If too (small or complex), adjacent bins. Repeat till no more merges found.
+function Num:merges(xys0,nMin,   n,xys1,fillInAnyGaps) 
+  function fillInAnyGaps(xys) -- extend across whole number line
+     for n = 2,#xys do xys[n].xlo = xys[n-1].xhi end 
+     xys[  1  ].xlo = -math.huge
+     xys1[#xys].xhi =  math.huge
+     return xys 
+  end --------- 
   n,xys1 = 1,{}
   while n <= #xys0 do
-    local xymerged  = n<#xys0 and xys0[n]:merged(xys0[n+1],nMin) 
-    xys1[1 + #xys1] = xymerged or xys0[n]
+    local xymerged  = n<#xys0 and xys0[n]:merged(xys0[n+1],nMin) --skip last bin 
+    xys1[1 + #xys1] = xymerged or xys0[n]       -- push something to xys1      
     n               = n + (xymerged and 2 or 1) -- if merged, skip next bin
   end
-  if   #xys1 < #xys0 
-  then return self:merges(xys1,nMin) 
-  else xys1[1].xlo = -math.huge
-       for n = 2,#xys1 do xys1[n].xlo = xys1[n-1].xhi end 
-       xys1[#xys1].xhi = math.huge
-       return xys1 end end
+  return #xys1 == #xys0 and fillInAnyGaps(xys0) or self:merges(xys1,nMin) end
 
 -- Return middle
 function Num:mid() return self._has:mid() end

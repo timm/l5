@@ -27,16 +27,18 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
-              <p><span id="forkongithub"><a href="https://github.com/timm/lua">Fork me on GitHub</a></span></p>
+              <p><span id="forkongithub"><a href="https://github.com/timm/lua">Fork me on GitHub</a></span>
+<img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=150></p>
+<p><img src="https://img.shields.io/badge/language-lua-blue" alt="">
+<img src="https://img.shields.io/badge/purpose-xai-orange" alt="">
+<a href="https://github.com/timm/lua/blob/main/LICENSE.md#top"><img src="https://img.shields.io/badge/license-BSD2-green" alt=""></a></p>
+<p><b>Tony Hoare:</b>
+“Inside every large program is a small program struggling to get out.”</p><p>
+<b>Dieter Rams:</b>
+“Less, but better.”</p></p>
 <p><a href="about.html">about</a>  | <a href="bob.html">bob</a> | <a href="cols.html">cols</a> | 
 <a href="data.html">data</a> | <a href="lib.html">lib</a> | <a href="num.html">num</a> | <a href="row.html">row</a> |
 <a href="sample.html">sample</a> | <a href="sym.html">sym</a> | <a href="xy.html">xy</a> | &copy;2022,&nbsp;timm<hr></p>
-<p><img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=120>
-<b>Tony Hoare:</b>
-"Inside every large program is a small program struggling to get out."</p><p>
-<b>Dieter Rams:</b>
-"Less, but better."</p><br clear=all><hr>
- 
 
             </div>
             
@@ -99,6 +101,27 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-4">&#x00a7;</a>
               </div>
+              <p>Return two sets of rows, one for the best and the other that samples the rest.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data:bestOrRest</span><span class="hljs-params">(    m,n)</span></span>
+  <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(<span class="hljs-built_in">self</span>.rows)
+  n = #<span class="hljs-built_in">self</span>.rows
+  m = <span class="hljs-built_in">self</span>:enough(n)
+  <span class="hljs-keyword">return</span> slice(<span class="hljs-built_in">self</span>.rows,<span class="hljs-number">1</span>,   m, <span class="hljs-number">1</span>),                  <span class="hljs-comment">-- all the first `m` items</span>
+         slice(<span class="hljs-built_in">self</span>.rows,m+<span class="hljs-number">1</span>, n, (n-m)//(the.rest*m)) <span class="hljs-comment">-- some of the rest</span>
+  <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-5">&#x00a7;</a>
+              </div>
               <p>Duplicate <code>self</code>‘s structure, add in <code>src</code> if is supplied.</p>
 
             </div>
@@ -111,39 +134,17 @@
         </li>
         
         
-        <li id="section-5">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-5">&#x00a7;</a>
-              </div>
-              <p>Return two datas, one for the best and a sample of the rest.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data:bestRest</span><span class="hljs-params">(    m,n)</span></span>
-  <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(<span class="hljs-built_in">self</span>.rows)
-  n = #<span class="hljs-built_in">self</span>.rows
-  m = <span class="hljs-built_in">self</span>:enough(n)
-  <span class="hljs-keyword">return</span> slice(<span class="hljs-built_in">self</span>.rows,<span class="hljs-number">1</span>,m), slice(<span class="hljs-built_in">self</span>.rows,m+<span class="hljs-number">1</span>,n,(n-m)//(the.rest*m)) <span class="hljs-keyword">end</span></pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-6">
             <div class="annotation">
               
               <div class="sswrap ">
                 <a class="ss" href="#section-6">&#x00a7;</a>
               </div>
-              <p>Return smallest useful number of rows.</p>
+              <p>Return the XY bins that separate the <code>listOfRows</code></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data:enough</span><span class="hljs-params">(n)</span></span>
-  <span class="hljs-keyword">return</span> (the.<span class="hljs-built_in">min</span> &gt;=<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> the.<span class="hljs-built_in">min</span> <span class="hljs-keyword">or</span> (n <span class="hljs-keyword">or</span> #<span class="hljs-built_in">self</span>.rows)^the.<span class="hljs-built_in">min</span>) // <span class="hljs-number">1</span> <span class="hljs-keyword">end</span> 
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data:contrasts</span><span class="hljs-params">(listOfRows,    out)</span></span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data:contrasts</span><span class="hljs-params">(listOfRows,    out)</span></span>
   out = {}
   <span class="hljs-keyword">for</span> _,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(<span class="hljs-built_in">self</span>.cols.x) <span class="hljs-keyword">do</span>
     <span class="hljs-keyword">for</span> _,xy <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(XY.contrasts(col,listOfRows)) <span class="hljs-keyword">do</span>
@@ -159,17 +160,12 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-7">&#x00a7;</a>
               </div>
-              <p>For <code>showCols</code> (default=<code>data.cols.x</code>) in <code>data</code>, show <code>fun</code> (default=<code>mid</code>),
-rounding numbers to <code>places</code> (default=2)</p>
+              <p>Return smallest useful number of rows.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data:stats</span><span class="hljs-params">(  places,showCols,fun,    t,v)</span></span>
-  showCols, fun = showCols <span class="hljs-keyword">or</span> <span class="hljs-built_in">self</span>.cols.y, fun <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;mid&quot;</span>
-  t={}; <span class="hljs-keyword">for</span> _,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(showCols) <span class="hljs-keyword">do</span> 
-          v=fun(col)
-          v=<span class="hljs-built_in">type</span>(v)==<span class="hljs-string">&quot;number&quot;</span> <span class="hljs-keyword">and</span> rnd(v,places) <span class="hljs-keyword">or</span> v
-          t[col.name]=v <span class="hljs-keyword">end</span>; <span class="hljs-keyword">return</span> t <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data:enough</span><span class="hljs-params">(n)</span></span>
+  <span class="hljs-keyword">return</span> (the.<span class="hljs-built_in">min</span> &gt;=<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> the.<span class="hljs-built_in">min</span> <span class="hljs-keyword">or</span> (n <span class="hljs-keyword">or</span> #<span class="hljs-built_in">self</span>.rows)^the.<span class="hljs-built_in">min</span>) // <span class="hljs-number">1</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -179,6 +175,27 @@ rounding numbers to <code>places</code> (default=2)</p>
               
               <div class="sswrap ">
                 <a class="ss" href="#section-8">&#x00a7;</a>
+              </div>
+              <p>For <code>showCols</code> (default=<code>data.cols.x</code>) in <code>data</code>, show <code>fun</code> (default=<code>mid</code>),
+rounding numbers to <code>places</code> (default=2)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data:stats</span><span class="hljs-params">(  places,showCols,todo,    t,v)</span></span>
+  showCols, todo = showCols <span class="hljs-keyword">or</span> <span class="hljs-built_in">self</span>.cols.y, todo <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;mid&quot;</span>
+  t={}; <span class="hljs-keyword">for</span> _,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(showCols) <span class="hljs-keyword">do</span> 
+          v=<span class="hljs-built_in">getmetatable</span>(col)[todo](col)
+          v=<span class="hljs-built_in">type</span>(v)==<span class="hljs-string">&quot;number&quot;</span> <span class="hljs-keyword">and</span> rnd(v,places) <span class="hljs-keyword">or</span> v
+          t[col.name]=v <span class="hljs-keyword">end</span>; <span class="hljs-keyword">return</span> t <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-9">&#x00a7;</a>
               </div>
               <p>That’s all folks.</p>
 
