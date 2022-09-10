@@ -44,8 +44,8 @@
             
             <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span>
 <span class="hljs-keyword">local</span> the  = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;about&quot;</span>
-<span class="hljs-keyword">local</span> Cols = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;cols&quot;</span>
-<span class="hljs-keyword">local</span> Row  = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;row&quot;</span>
+<span class="hljs-keyword">local</span> Cols = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;Cols&quot;</span>
+<span class="hljs-keyword">local</span> Row  = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;Row&quot;</span>
 <span class="hljs-keyword">local</span> XY   = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;xy&quot;</span>
 <span class="hljs-keyword">local</span> csv,lt,o,obj,push,rnd,slice = l.csv,l.lt,l.o,l.obj,l.push,l.rnd,l.slice</pre></div></div>
             
@@ -147,7 +147,7 @@
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data:contrasts</span><span class="hljs-params">(listOfRows,    out)</span></span>
   out = {}
   <span class="hljs-keyword">for</span> _,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(<span class="hljs-built_in">self</span>.cols.x) <span class="hljs-keyword">do</span>
-    <span class="hljs-keyword">for</span> _,xy <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(XY.discretize(col,listOfRows)) <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">for</span> _,xy <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(XY.contrasts(col,listOfRows)) <span class="hljs-keyword">do</span>
       push(out, xy) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">return</span> out <span class="hljs-keyword">end</span></pre></div></div>
             

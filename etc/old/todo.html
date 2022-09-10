@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>todo.lua</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>todo.lua</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-1">&#x00a7;</a>
+              </div>
+              <p><span id="forkongithub"><a href="https://github.com/timm/lua">Fork me on GitHub</a></span>
+<img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=150></p>
+<p><img src="https://img.shields.io/badge/language-lua-blue" alt="">
+<img src="https://img.shields.io/badge/purpose-xai-orange" alt="">
+<a href="https://github.com/timm/lua/blob/main/LICENSE.md#top"><img src="https://img.shields.io/badge/license-BSD2-green" alt=""></a></p>
+<p><b>Tony Hoare:</b>
+“Inside every large program is a small program struggling to get out.”</p><p>
+<b>Dieter Rams:</b>
+“Less, but better.”</p></p>
+<p><a href="about.html">about</a>  | <a href="bob.html">bob</a> | <a href="cols.html">cols</a> | 
+<a href="data.html">data</a> | <a href="lib.html">lib</a> | <a href="num.html">num</a> | <a href="row.html">row</a> |
+<a href="sample.html">sample</a> | <a href="sym.html">sym</a> | <a href="xy.html">xy</a> | &copy;2022,&nbsp;timm<hr></p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-2">&#x00a7;</a>
+              </div>
+              <p><strong>Return true if <code>row1</code>‘s goals are worse than <code>row2:</code>.</strong></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">ROW:__lt</span><span class="hljs-params">(row2)</span></span>
+  <span class="hljs-keyword">local</span> row1=<span class="hljs-built_in">self</span>
+  row1.evaled,row2.evaled= <span class="hljs-literal">true</span>,<span class="hljs-literal">true</span>
+  <span class="hljs-keyword">local</span> s1,s2,d,n,x,y=<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>
+  <span class="hljs-keyword">local</span> ys,e = row1._about.y,<span class="hljs-built_in">math</span>.<span class="hljs-built_in">exp</span>(<span class="hljs-number">1</span>)
+  <span class="hljs-keyword">for</span> _,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(ys) <span class="hljs-keyword">do</span>
+    x,y= row1.cells[col.at], row2.cells[col.at]
+    x,y= col:norm(x), col:norm(y)
+    s1 = s1 - e^(col.w * (x-y)/#ys)
+    s2 = s2 - e^(col.w * (y-x)/#ys) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> s2/#ys &lt; s1/#ys <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-3">&#x00a7;</a>
+              </div>
+              <p><strong>XY summarize data from the same rows from two columns.</strong><br><code>num2</code> is optional (defaults to <code>num1</code>).<br><code>y</code> is optional (defaults to a new NOM)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">XY:new</span><span class="hljs-params">(str,at,num1,num2,nom)</span></span>
+  <span class="hljs-keyword">return</span> {txt = str,
+          at  = at,
+          xlo = num1, 
+          xhi = num2 <span class="hljs-keyword">or</span> num1, 
+          y   = nom <span class="hljs-keyword">or</span> NOM(str,at)} <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-4">&#x00a7;</a>
+              </div>
+              <p>– —- —- Discretization
+<strong>Divide column values into many bins, then merge unneeded ones</strong><br>When reading this code, remember that NOMinals can’t get rounded or merged
+(only RATIOS).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> bins={}
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">bins.find</span><span class="hljs-params">(rows,col)</span></span>
+  <span class="hljs-keyword">local</span> n,xys = <span class="hljs-number">0</span>,{} 
+  <span class="hljs-keyword">for</span> _,row <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(rows) <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">local</span> x = row.cells[col.at]
+    <span class="hljs-keyword">if</span> x~= <span class="hljs-string">&quot;?&quot;</span> <span class="hljs-keyword">then</span>
+      n = n+<span class="hljs-number">1</span>
+      <span class="hljs-keyword">local</span> bin = col.isNom <span class="hljs-keyword">and</span> x <span class="hljs-keyword">or</span> bins._bin(col,x)
+      <span class="hljs-keyword">local</span> xy  = xys[bin] <span class="hljs-keyword">or</span> XY(col.txt,col.at, x)
+      add2(xy, x, row.label)
+      xys[bin] = xy <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
+  xys = <span class="hljs-built_in">sort</span>(xys, lt<span class="hljs-string">&quot;xlo&quot;</span>)
+  <span class="hljs-keyword">return</span> col.isNom <span class="hljs-keyword">and</span> xys <span class="hljs-keyword">or</span> bins._merges(xys,n^the.<span class="hljs-built_in">min</span>) <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-5">&#x00a7;</a>
+              </div>
+              <p>RATIOs get rounded into  <code>the.bins</code> divisions.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">bins._bin</span><span class="hljs-params">(ratio,x,     a,b,lo,hi)</span></span>
+  a = ratio:holds()
+  lo,hi = a[<span class="hljs-number">1</span>], a[#a]
+  b = (hi - lo)/the.bins
+  <span class="hljs-keyword">return</span> hi==lo <span class="hljs-keyword">and</span> <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> <span class="hljs-built_in">math</span>.<span class="hljs-built_in">floor</span>(x/b+<span class="hljs-number">.5</span>)*b  <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-6">&#x00a7;</a>
+              </div>
+              <p>While adjacent things can be merged, keep merging.
+Then make sure the bins to cover &pm; &infin;.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">bins._merges</span><span class="hljs-params">(xys0,nMin)</span></span> 
+  <span class="hljs-keyword">local</span> n,xys1 = <span class="hljs-number">1</span>,{}
+  <span class="hljs-keyword">while</span> n &lt;= #xys0 <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">local</span> xymerged = n&lt;#xys0 <span class="hljs-keyword">and</span> bins._merged(xys0[n], xys0[n+<span class="hljs-number">1</span>],nMin) 
+    xys1[#xys1+<span class="hljs-number">1</span>]  = xymerged <span class="hljs-keyword">or</span> xys0[n]
+    n = n + (xymerged <span class="hljs-keyword">and</span> <span class="hljs-number">2</span> <span class="hljs-keyword">or</span> <span class="hljs-number">1</span>) <span class="hljs-comment">-- if merged, skip next bin</span>
+  <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">if</span>   #xys1 &lt; #xys0 
+  <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> bins._merges(xys1,nMin) 
+  <span class="hljs-keyword">else</span> xys1[<span class="hljs-number">1</span>].xlo = -big
+       <span class="hljs-keyword">for</span> n=<span class="hljs-number">2</span>,#xys1 <span class="hljs-keyword">do</span> xys1[n].xlo = xys1[n<span class="hljs-number">-1</span>].xhi <span class="hljs-keyword">end</span> 
+       xys1[#xys1].xhi = big
+       <span class="hljs-keyword">return</span> xys1 <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-7">&#x00a7;</a>
+              </div>
+              <p>Merge two bins if they are too small or too complex.
+E.g. if each bin only has “rest” values, then combine them.
+Returns nil otherwise (which is used to signal “no merge possible”).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">bins._merged</span><span class="hljs-params">(xy1,xy2,nMin)</span></span>   
+  <span class="hljs-keyword">local</span> i,j= xy1.y, xy2.y
+  <span class="hljs-keyword">local</span> k = NOM(i.txt, i.at)
+  <span class="hljs-keyword">for</span> x,n <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(i.has) <span class="hljs-keyword">do</span> add(k,x,n) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">for</span> x,n <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(j.has) <span class="hljs-keyword">do</span> add(k,x,n) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">local</span> tooSmall   = i.n &lt; nMin <span class="hljs-keyword">or</span> j.n &lt; nMin 
+  <span class="hljs-keyword">local</span> tooComplex = div(k) &lt;= (i.n*div(i) + j.n*div(j))/k.n 
+  <span class="hljs-keyword">if</span> tooSmall <span class="hljs-keyword">or</span> tooComplex <span class="hljs-keyword">then</span> 
+    <span class="hljs-keyword">return</span> XY(xy1.txt,xy1.at, xy1.xlo, xy2.xhi, k) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-8">&#x00a7;</a>
+              </div>
+              <p><strong>XY summarize data from the same rows from two columns.</strong>
+<code>num2</code> is optional (defaults to <code>num1</code>).
+<code>y</code> is optional (defaults to a new NOM)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">XY:new</span><span class="hljs-params">(str,at,num1,num2,nom)</span></span>
+  <span class="hljs-keyword">return</span> {txt = str,
+          at  = at,
+          xlo = num1,
+          xhi = num2 <span class="hljs-keyword">or</span> num1,
+          y   = nom <span class="hljs-keyword">or</span> NOM(str,at)} <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
