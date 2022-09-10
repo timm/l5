@@ -79,7 +79,7 @@ function eg.bignum(  num)
   the.sample = 32
   for i=1,10000 do num:add(i) end
   oo(num._has:nums())
-  return 32==#num._has._has; end
+  return 32==#num._has._has; end 
 
 -- Show we can read csv files.
 function eg.csv(   n) 
