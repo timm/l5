@@ -28,7 +28,7 @@
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
               <p><span id="forkongithub"><a href="https://github.com/timm/lua">Fork me on GitHub</a></span>
-<img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=150></p>
+<img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=200></p>
 <p><img src="https://img.shields.io/badge/language-lua-blue" alt="">
 <img src="https://img.shields.io/badge/purpose-xai-orange" alt="">
 <a href="https://github.com/timm/lua/blob/main/LICENSE.md#top"><img src="https://img.shields.io/badge/license-BSD2-green" alt=""></a></p>
@@ -44,10 +44,10 @@
             
             <div class="content"><div class='highlight'><pre><span class="hljs-keyword">return</span> <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;lib&quot;</span>).settings<span class="hljs-string">[[   
 
-BOB : summarized csv file
+L5 : a little light learning library, in LUA
 (c) 2022 Tim Menzies &lt;timm@ieee.org&gt; BSD-2 license
 
-USAGE: lua bob.lua [OPTIONS]
+USAGE: lua l5.lua [OPTIONS]
 
 OPTIONS:
  -e  --eg       start-up example                      = nothing
@@ -71,33 +71,25 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-2">&#x00a7;</a>
               </div>
-              <h2 id="coding-conventions">Coding Conventions</h2>
-<p>Every file should start with <code>require&quot;lib&quot;</code>.</p>
-<p>Function argument conventions: </p>
+              <p>Coding Conventions</p>
 <ul>
-<li><ol>
+<li><p>Every file should start with <code>require&quot;lib&quot;</code>.</p>
+</li>
+<li><p>Function argument conventions: </p>
+<ul>
 <li>two blanks denote optionas, four blanls denote locals:</li>
-</ol>
-</li>
-<li><ol start="2">
-<li>prefix n,s,is,fun denotes number,string,bool,function;</li>
-</ol>
-</li>
-<li><ol start="3">
+<li>prefix n,s,is,fun denotes number,string,bool,function; </li>
 <li>suffix s means list of thing (so names is list of strings)</li>
-</ol>
-</li>
-<li><ol start="4">
 <li>c is a column index (usually)</li>
-</ol>
+</ul>
+</li>
+<li><p>Code starts with a help string, from which we extract settings to the <code>the</code>
+ variable.</p>
+</li>
+<li><p>Code ends with <code>eg</code>s, containing demo code. To run some example <code>x</code> then::</p>
+<p>  lua l5.lua -e x</p>
 </li>
 </ul>
-<p>Code starts with a help string, from which we extract settings to the <code>the</code>
-variable.</p>
-<p>Code ends with <code>eg</code>s, containing demo code. The command line</p>
-<pre><code>lua eg.lua -e x
-</code></pre>
-<p>runs example <code>x</code>.</p>
 
             </div>
             
