@@ -30,24 +30,38 @@ function XY:add(x,y)
     self.y:add(y) end 
   return self end
 
-function XY:selects(row,     v)
-  v = row.cells[self.at]
-  if v =="?"                            then return true end
-  if self.xlo==self.xhi and v==self.xlo then return true end
-  if self.xlo < v and v <= self.xhi     then return true end end
-
 -- 
 function XY:merged(xy2,nMin,    new)
   new = self.y:merged(xy2.y, nMin)
   if new then
     return XY(self.at,self.name,self.xlo,xy2.xhi,new) end end
 
--- Class method. Discretization
+-- Return true if `row` selected by `self`
+function XY:select(row,     v)
+  v = row.cells[self.at]
+  if v =="?" then return true end ------------------ assume yes for unknowns
+  if self.xlo==self.xhi and v==self.xlo then return true end -- for symbols
+  if self.xlo < v and v <= self.xhi     then return true end -- for numerics
+end
+
+-- Return subset of `rows` selected by `self`
+function XY:selects(rows)
+  return map(rows,function(row) if self:select(row) then return row end end) end
+
+-- ## Class Methods
+-- Manipulates sets of `XY`s.
+
+-- Discretization
 function XY.discretize(col,listOfRows,   xys,n)
   xys,n = XY.unsuper(col,listOfRows)
   return XY.super(col,xys,n) end
 
--- Class method. Unsupervised discretization
+-- Supervised discretization
+function XY.super(col,xys,n)
+  n = the.min >= 1 and the.min or n^the.min
+  return col:merges(sort(xys,lt"xlo"), n) end
+
+-- Simple unsupervised discretization
 function XY.unsuper(col,listOfRows)
   local n,xys = 0,{} 
   for label, rows in pairs(listOfRows) do
@@ -59,11 +73,6 @@ function XY.unsuper(col,listOfRows)
         xys[bin]  = xys[bin] or XY(col.at,col.name,x)
         xys[bin]:add(x,label) end end end
   return sort(xys,lt"xlo"), n end
-
--- Class method. Supervised discretization
-function XY.super(col,xys,n)
-  n = the.min >= 1 and the.min or n^the.min
-  return col:merges(sort(xys,lt"xlo"), n) end
 
 -- That's all folks
 return XY

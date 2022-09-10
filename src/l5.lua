@@ -84,7 +84,7 @@ function eg.bignum(  num)
 -- Show we can read csv files.
 function eg.csv(   n) 
   n=0
-  csv("../../data/auto93.csv",function(row)
+  csv("../data/auto93.csv",function(row)
     n=n+1; if n> 10 then return else oo(row) end end); return true end
 
 -- Can I load a csv file into a Data?.
@@ -95,7 +95,7 @@ function eg.data(   d)
 
 -- Print some stats on columns.
 function eg.stats(   data,mid,div)
-  data = Data("../../data/auto93.csv")
+  data = Data("../data/auto93.csv")
   print("xmid", o( data:stats(2, data.cols.x, "mid")))
   print("xdiv", o( data:stats(3, data.cols.x, "div")))
   print("ymid", o( data:stats(2, data.cols.y, "mid")))
@@ -104,7 +104,7 @@ function eg.stats(   data,mid,div)
 
 -- Distance functions.
 function eg.around(    data,around)
-  data = Data("../../data/auto93.csv") 
+  data = Data("../data/auto93.csv") 
   print(data.rows[1]:dist(data.rows[2]))
   around = data.rows[1]:around(data.rows)
   for i=1,#data.rows,32 do print(i, o(around[i].row.cells),around[i].dist) end
@@ -112,7 +112,7 @@ function eg.around(    data,around)
 
 -- Multi-objective sorting can rank "good" rows before the others.
 function eg.sort(    data,around)
-  data = Data("../../data/auto93.csv") 
+  data = Data("../data/auto93.csv") 
   table.sort(data.rows)
   print(o(map(data.cols.y, function(col) return col.name end)))
   for i=1,#data.rows,32 do 
@@ -121,7 +121,7 @@ function eg.sort(    data,around)
 
 -- Sort on goals, report median goals seen in best or rest.
 function eg.bestOrRest(   data,bestRows,restRows,best,rest)
-  data = Data("../../data/auto93.csv") 
+  data = Data("../data/auto93.csv") 
   bestRows,restRows = data:bestOrRest()
   best,rest = data:clone(bestRows), data:clone(restRows)
   print("besty", o(best:stats()))
@@ -130,7 +130,7 @@ function eg.bestOrRest(   data,bestRows,restRows,best,rest)
 
 -- Simple unsupervised discretization. Break numbers on (max-min)/the.bins.
 function eg.unsuper(   data,bests,rests,fun,rows,best)
-  data = Data("../../data/auto93.csv") 
+  data = Data("../data/auto93.csv") 
   bests,rests = data:bestOrRest()
   for _,col in pairs(data.cols.x) do
     print("\n" .. col.name)
@@ -145,7 +145,7 @@ function eg.unsuper(   data,bests,rests,fun,rows,best)
 -- are very weak at selecting for the "best" rows. So lets combine the
 -- small and complex ones and rank the remaining by how well they select for best.
 function eg.super(   data,bests,rests,fun,rows,best,old,z)
-  data = Data("../../data/auto93.csv") 
+  data = Data("../data/auto93.csv") 
   bests,rests = data:bestOrRest()
   fun = function(xy) return {xy=xy,z=xy.y:bestOrRest("bests", #bests, #rests)} end
   old=""

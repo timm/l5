@@ -24,14 +24,14 @@ function Data:add(xs,    row)
         for _,col in pairs(todo) do 
           col:add(row.cells[col.at]) end end end end
 
--- Return two sets of rows, one for the best and the other that samples the rest.
+-- Return three sets of rows, one for the best and the others for the rests.
 function Data:bestOrRest(    m,n)
   table.sort(self.rows)
   n = #self.rows
   m = self:enough(n)
-  return slice(self.rows,1,   m, 1),                  -- all the first `m` items
-         slice(self.rows,m+1, n, (n-m)//(the.rest*m)) -- some of the rest
-  end 
+  return slice(self.rows,1,   m, 1),                   -- all the first `m` items
+         slice(self.rows,m+1, n, (n-m)//(the.rest*m)), -- some of the rest
+         slice(self.rows,m+1, n, 1) end                -- all the rest
 
 -- Duplicate `self`'s structure, add in `src` if is supplied.
 function Data:clone(  src,    out)
@@ -60,5 +60,15 @@ function Data:stats(  places,showCols,todo,    t,v)
           v=type(v)=="number" and rnd(v,places) or v
           t[col.name]=v end; return t end
 
+-- function Data:greedyBest(   stop,out)
+--   out  = out or {}
+--   stop = stop or (the.min >=1 and the.min or (#self.rows^the.min))
+--   if #self.rows < stop then return out end
+--   bests,restsSome,restAll = data:bestOrRest()
+--   sorter = function(xy) return {xy=xy,z=xy.y:bestOrRest("bests", #bests, #rests)} end
+--   todo = sort(map(data:contrasts({rests=rests,bests=bests}),sorter),gt"z")[1].xy
+--   
+--   do
+--   
 -- That's all folks.
 return Data
