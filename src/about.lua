@@ -1,6 +1,6 @@
 return require("lib").settings[[   
 
-L5 : a little light learning library, in LUA
+L5 : a lean little learning library, in LUA
 (c) 2022 Tim Menzies <timm@ieee.org> BSD-2 license
 
 USAGE: lua l5.lua [OPTIONS]
