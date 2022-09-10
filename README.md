@@ -6,6 +6,6 @@ For the last 20 years, my graduate students have explored explainable AI, multi-
 etc, etc. Can I summarize all the work? Code it up in under 1000 lines of code? Refactor it into a library of learning tools that can be mixed and matched
 as required?
 
-[Let's take a look and see...](http://menzies.us/lua/about.html).
+[Let's take a look and see...](http://menzies.us/l5/about.html).
 
 

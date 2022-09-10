@@ -1,9 +1,9 @@
--- <span id="forkongithub"><a href="https://github.com/timm/lua">Fork me on GitHub</a></span>
+-- <span id="forkongithub"><a href="https://github.com/timm/l5">Fork me on GitHub</a></span>
 -- <img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=200>
 --  
 -- ![](https://img.shields.io/badge/language-lua-blue)
 -- ![](https://img.shields.io/badge/purpose-xai-orange)
--- [![](https://img.shields.io/badge/license-BSD2-green)](https://github.com/timm/lua/blob/main/LICENSE.md#top)
+-- [![](https://img.shields.io/badge/license-BSD2-green)](https://github.com/timm/l5/blob/main/LICENSE.md#top)
 --    
 -- <b>Tony Hoare:</b>
 -- "Inside every large program is a small program struggling to get out."</p><p>
