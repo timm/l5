@@ -17,7 +17,7 @@ OPTIONS:
  -r  --rest     size of "rest" set                    = 3
  -s  --seed     random number seed                    = 10019
  -S  --sample   how many numbers to keep              = 512 ]]
-
+--    
 -- ## Coding Conventions
 -- 
 -- Every file should start with `require"lib"`.
