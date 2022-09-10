@@ -30,32 +30,42 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 ```
-                                              ,:
-                                            ,' |
-                                           /   :
-                                        --'   /
-                                        \/ />/
-                                        / /_\
-                                     __/   /
-                                     )'-. /
-                                     ./  :\
-                                      /.' '
-                                    '/'
-                                    +
-                                   '
-                                 `.
-                             .-"-
-                            (    |
-                         . .-'  '.
-                        ( (.   )8:
-                    .'    / (_  )
-                     _. :(.   )8P  `
-                 .  (  `-' (  `.   .
-                  .  :  (   .a8a)
-                 /_`( "a `a. )"'
-             (  (/  .  ' )=='
-            (   (    )  .8"   +
-              (`'8a.( _(   (
-           ..-. `8P    ) `  )  +
-         -'   (      -ab:  )
+                         4MMMMMMMMMMMML
+                       4MMMMMMMMMMMMMMMML
+                      MMMMMMMMMMMMMMMMMMML
+                     4MMMMMMMMMMMMMMMMMMMMM
+                    4MMMMMMMMMMMMMMMMMMMMMML
+                    MMMMP   MMMMMM   MMMMMMM
+                    MMMM MM  MMM  MM  MMMMMM
+                    MMMM MM  MMM  MM  MMMMML
+                     MMM MP,,,,,,,MM  MMMMMM
+                      MM,"          "MMMMMMP
+                      MMw           'MMMMMM
+                      MM"w         w MMMMMMML
+                      MM" w       w " MMMoMMML
+                     MMM " wwwwwww "  MMMMMMML
+                   MMMP   ".,,,,,,"     MMMMMMMML
+                  MMMP                    MMMMMMMML
+                MMMMM                      MMMMMMMML
+               MMMMM,,-''             ''-,,MMMMMMMMML
+              MMMMM                          MMMMMMMMML
+             MMMMM                            MMMMMMMMML
+            MMMMM                             MMMMMMMMMM
+            MMMM                               MMMMMMMMMM
+           MMMMM                               MMMMMMMMMML
+          MMMMM                                MMMMMMMMMMM
+         MMMMMM                                MMMMMMMMMMM
+         MMMMMMM                               MMMMMMMMMMM
+         """"MMMM                             MMMMMMMMMMP
+        "     ""MMM                            MMMMMMMMP
+   "" "         "MMMMMM                      """"MMMMMP"""
+ "               "MMMMMMM                   ""   """"""   "
+ "                ""MMMMMM                 M"             " ""
+  "                 "                   MMM"                  "
+ "                   "M               MMMM"                   "
+ "                    "MM        MMMMMMMMM"                ""
+ "                    "MMMMMMMMMMMMMMMMMMM"              """
+  """"                "MMMMMMMMMMMMMMMMMM"           """"
+      """"""""       MMMMM               "        ""
+              """"""""                      """""""  Larry Ewing & r^2
 ```
