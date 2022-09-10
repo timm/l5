@@ -9,4 +9,3 @@ as required?
 [Let's take a look and see...](http://menzies.us/lua/about.html).
 
 
-![equation](https://latex.codecogs.com/png.image?\dpi{110}\begin{array}{l}c(p,n)&space;=&space;1-(1-p)^n\\n(c,p)&space;=&space;\frac{log(1-c)}{log(1-p)}\\s&space;=&space;log_2(n)&space;&space;\end{array})
