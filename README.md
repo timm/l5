@@ -1,4 +1,4 @@
-<img align=right width=300 src="https://raw.githubusercontent.com/timm/shortr/master/docs/img/cup.png">
+<img align=right width=200 src="https://raw.githubusercontent.com/timm/shortr/master/docs/img/cup.png">
 
 # A little light learning library, in LUA
 
