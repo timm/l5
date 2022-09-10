@@ -72,7 +72,8 @@ function XY.unsuper(col,listOfRows)
         local bin = col:discretize(x)
         xys[bin]  = xys[bin] or XY(col.at,col.name,x)
         xys[bin]:add(x,label) end end end
-  return sort(xys,lt"xlo"), n end
+  local xys1={}; for _,xy in pairs(xys) do l.push(xys1,xy) end 
+  return sort(xys1,lt"xlo"), n end
 
 -- That's all folks
 return XY

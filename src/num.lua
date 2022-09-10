@@ -25,7 +25,7 @@ function Num:add(v,    pos)
 
 -- Discretize a number, rounds to  `the.bins` divisions.
 function Num:discretize(x,     tmp)
-  tmp = (self.hi - self.lo)/the.bins
+  tmp = (self.hi - self.lo)/(the.bins - 1)
   return self.hi==self.lo and 1 or math.floor(x/tmp+.5)*tmp end 
 
 -- distance between two values.

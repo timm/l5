@@ -101,7 +101,7 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-4">&#x00a7;</a>
               </div>
-              <p>Return two sets of rows, one for the best and the other that samples the rest.</p>
+              <p>Return three sets of rows, one for the best and the others for the rests.</p>
 
             </div>
             
@@ -109,9 +109,9 @@
   <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(<span class="hljs-built_in">self</span>.rows)
   n = #<span class="hljs-built_in">self</span>.rows
   m = <span class="hljs-built_in">self</span>:enough(n)
-  <span class="hljs-keyword">return</span> slice(<span class="hljs-built_in">self</span>.rows,<span class="hljs-number">1</span>,   m, <span class="hljs-number">1</span>),                  <span class="hljs-comment">-- all the first `m` items</span>
-         slice(<span class="hljs-built_in">self</span>.rows,m+<span class="hljs-number">1</span>, n, (n-m)//(the.rest*m)) <span class="hljs-comment">-- some of the rest</span>
-  <span class="hljs-keyword">end</span></pre></div></div>
+  <span class="hljs-keyword">return</span> slice(<span class="hljs-built_in">self</span>.rows,<span class="hljs-number">1</span>,   m, <span class="hljs-number">1</span>),                   <span class="hljs-comment">-- all the first `m` items</span>
+         slice(<span class="hljs-built_in">self</span>.rows,m+<span class="hljs-number">1</span>, n, (n-m)//(the.rest*m)), <span class="hljs-comment">-- some of the rest</span>
+         slice(<span class="hljs-built_in">self</span>.rows,m+<span class="hljs-number">1</span>, n, <span class="hljs-number">1</span>) <span class="hljs-keyword">end</span>                <span class="hljs-comment">-- all the rest</span></pre></div></div>
             
         </li>
         
@@ -197,7 +197,15 @@ rounding numbers to <code>places</code> (default=2)</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-9">&#x00a7;</a>
               </div>
-              <p>That’s all folks.</p>
+              <p>function Data:greedyBest(   stop,out)
+  out  = out or {}
+  stop = stop or (the.min &gt;=1 and the.min or (#self.rows^the.min))
+  if #self.rows &lt; stop then return out end
+  bests,restsSome,restAll = data:bestOrRest()
+  sorter = function(xy) return {xy=xy,z=xy.y:bestOrRest(“bests”, #bests, #rests)} end
+  todo = sort(map(data:contrasts({rests=rests,bests=bests}),sorter),gt”z”)[1].xy</p>
+<p>  do</p>
+<p>That’s all folks.</p>
 
             </div>
             
