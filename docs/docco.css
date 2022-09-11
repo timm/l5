@@ -54,7 +54,7 @@ b, strong {
 }
 
 p {
-  xtext-align: right;
+  text-align: right;
   margin: 15px 0 0px;
 }
   .annotation ul, .annotation ol {

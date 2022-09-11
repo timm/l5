@@ -27,8 +27,9 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
-              <p><span id="forkongithub"><a href="https://github.com/timm/l5">Fork me on GitHub</a></span>
-<img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=200></p>
+              <p>This is L5 (a  <b>L</b>ean <b>L</b>ittle <b>L</b>earning <b>L</b>ibrary, written in <strong>LUA</strong>). 
+<span id="forkongithub"><a href="https://github.com/timm/l5">Fork me on GitHub</a></span>
+<img src="https://i.stack.imgur.com/JMnkQ.gif" align=left width=200></p>
 <p><img src="https://img.shields.io/badge/language-lua-blue" alt="">
 <img src="https://img.shields.io/badge/purpose-xai-orange" alt="">
 <a href="https://github.com/timm/l5/blob/main/LICENSE.md#top"><img src="https://img.shields.io/badge/license-BSD2-green" alt=""></a></p>
@@ -71,11 +72,13 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-3">&#x00a7;</a>
               </div>
-              <h2 id="create">Create</h2>
+              <h3 id="create">Create</h3>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:new</span><span class="hljs-params">(t,data)</span></span> 
+            <div class="content"><div class='highlight'><pre>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:new</span><span class="hljs-params">(t,data)</span></span> 
   <span class="hljs-keyword">return</span> {cells     = t,          <span class="hljs-comment">-- one record</span>
           cooked    = l.copy(t),  <span class="hljs-comment">-- used if we discretize data</span>
           isEvaled  = <span class="hljs-literal">false</span>,      <span class="hljs-comment">-- true if y-values evaluated.</span>
@@ -91,8 +94,20 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-4">&#x00a7;</a>
               </div>
-              <h2 id="query">Query</h2>
-<p><code>self</code> is ranked before <code>row2</code> if self “dominates” <code>row</code></p>
+              <h3 id="query">Query</h3>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-5">&#x00a7;</a>
+              </div>
+              <p><code>self</code> is ranked before <code>row2</code> if self “dominates” <code>row</code></p>
 
             </div>
             
@@ -113,14 +128,26 @@
         </li>
         
         
-        <li id="section-5">
+        <li id="section-6">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-5">&#x00a7;</a>
+                <a class="ss" href="#section-6">&#x00a7;</a>
               </div>
-              <h2 id="distance">Distance</h2>
-<p>– Sort <code>rows</code> (default=<code>data.rows</code>) by distance to <code>self</code>.</p>
+              <h3 id="distance">Distance</h3>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-7">&#x00a7;</a>
+              </div>
+              <p>– Sort <code>rows</code> (default=<code>data.rows</code>) by distance to <code>self</code>.</p>
 
             </div>
             
@@ -131,11 +158,11 @@
         </li>
         
         
-        <li id="section-6">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-6">&#x00a7;</a>
+                <a class="ss" href="#section-8">&#x00a7;</a>
               </div>
               <p>Distance between rows (returns 0..1). For unknown values, assume max distance.</p>
 
@@ -150,11 +177,11 @@
         </li>
         
         
-        <li id="section-7">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-7">&#x00a7;</a>
+                <a class="ss" href="#section-9">&#x00a7;</a>
               </div>
               <p>That’s all folks.</p>
 

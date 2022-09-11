@@ -27,8 +27,9 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
-              <p><span id="forkongithub"><a href="https://github.com/timm/l5">Fork me on GitHub</a></span>
-<img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=200></p>
+              <p>This is L5 (a  <b>L</b>ean <b>L</b>ittle <b>L</b>earning <b>L</b>ibrary, written in <strong>LUA</strong>). 
+<span id="forkongithub"><a href="https://github.com/timm/l5">Fork me on GitHub</a></span>
+<img src="https://i.stack.imgur.com/JMnkQ.gif" align=left width=200></p>
 <p><img src="https://img.shields.io/badge/language-lua-blue" alt="">
 <img src="https://img.shields.io/badge/purpose-xai-orange" alt="">
 <a href="https://github.com/timm/l5/blob/main/LICENSE.md#top"><img src="https://img.shields.io/badge/license-BSD2-green" alt=""></a></p>
@@ -61,7 +62,22 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> XY=obj<span class="hljs-string">&quot;XY&quot;</span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> XY=obj<span class="hljs-string">&quot;XY&quot;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-3">&#x00a7;</a>
+              </div>
+              <h3 id="create">Create</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">XY:new</span><span class="hljs-params">(c,s,nlo,nhi,nom)</span></span>
   <span class="hljs-keyword">return</span> {name= s,          <span class="hljs-comment">-- name of this column</span>
@@ -69,7 +85,22 @@
           xlo = nlo,        <span class="hljs-comment">-- min x seen so far</span>
           xhi = nhi <span class="hljs-keyword">or</span> nlo, <span class="hljs-comment">-- max x seen so far</span>
           y   = nom <span class="hljs-keyword">or</span> Sym(c,s) <span class="hljs-comment">-- y symbols see so far</span>
-          } <span class="hljs-keyword">end</span>
+          } <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-4">&#x00a7;</a>
+              </div>
+              <h3 id="print">Print</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">XY:__tostring</span><span class="hljs-params">()</span></span>
   <span class="hljs-keyword">local</span> x,lo,hi,big = <span class="hljs-built_in">self</span>.name, <span class="hljs-built_in">self</span>.xlo, <span class="hljs-built_in">self</span>.xhi, <span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>
@@ -81,11 +112,24 @@
         </li>
         
         
-        <li id="section-3">
+        <li id="section-5">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-3">&#x00a7;</a>
+                <a class="ss" href="#section-5">&#x00a7;</a>
+              </div>
+              <h3 id="update">Update</h3>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-6">&#x00a7;</a>
               </div>
               <p>Extend <code>xlo</code> <code>xhi</code> to cover <code>x</code>. Also, add <code>y</code> to <code>self.y</code>.</p>
 
@@ -101,16 +145,19 @@
         </li>
         
         
-        <li id="section-4">
+        <li id="section-7">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-4">&#x00a7;</a>
+                <a class="ss" href="#section-7">&#x00a7;</a>
               </div>
-              
+              <h3 id="misc">Misc</h3>
+
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">XY:merged</span><span class="hljs-params">(xy2,nMin,    new)</span></span>
+            <div class="content"><div class='highlight'><pre>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">XY:merged</span><span class="hljs-params">(xy2,nMin,    new)</span></span>
   new = <span class="hljs-built_in">self</span>.y:merged(xy2.y, nMin)
   <span class="hljs-keyword">if</span> new <span class="hljs-keyword">then</span>
     <span class="hljs-keyword">return</span> XY(<span class="hljs-built_in">self</span>.at,<span class="hljs-built_in">self</span>.name,<span class="hljs-built_in">self</span>.xlo,xy2.xhi,new) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
@@ -118,11 +165,11 @@
         </li>
         
         
-        <li id="section-5">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-5">&#x00a7;</a>
+                <a class="ss" href="#section-8">&#x00a7;</a>
               </div>
               <p>Return true if <code>row</code> selected by <code>self</code></p>
 
@@ -138,11 +185,11 @@
         </li>
         
         
-        <li id="section-6">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-6">&#x00a7;</a>
+                <a class="ss" href="#section-9">&#x00a7;</a>
               </div>
               <p>Return subset of <code>rows</code> selected by <code>self</code></p>
 
@@ -154,42 +201,56 @@
         </li>
         
         
-        <li id="section-7">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-7">&#x00a7;</a>
+                <a class="ss" href="#section-10">&#x00a7;</a>
               </div>
               <h2 id="class-methods">Class Methods</h2>
-<p>Manipulates sets of <code>XY</code>s.</p>
 
             </div>
             
         </li>
         
         
-        <li id="section-8">
+        <li id="section-11">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-8">&#x00a7;</a>
+                <a class="ss" href="#section-11">&#x00a7;</a>
               </div>
-              <p>Discretization</p>
+              <p>Manipulates sets of <code>XY</code>s.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">XY.discretize</span><span class="hljs-params">(col,listOfRows,   xys,n)</span></span>
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-12">&#x00a7;</a>
+              </div>
+              <h3 id="discretization">Discretization</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">XY.discretize</span><span class="hljs-params">(col,listOfRows,   xys,n)</span></span>
   xys,n = XY.unsuper(col,listOfRows)
   <span class="hljs-keyword">return</span> XY.super(col,xys,n) <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
         
-        <li id="section-9">
+        <li id="section-13">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-9">&#x00a7;</a>
+                <a class="ss" href="#section-13">&#x00a7;</a>
               </div>
               <p>Supervised discretization</p>
 
@@ -202,11 +263,11 @@
         </li>
         
         
-        <li id="section-10">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-10">&#x00a7;</a>
+                <a class="ss" href="#section-14">&#x00a7;</a>
               </div>
               <p>Simple unsupervised discretization</p>
 
@@ -228,11 +289,11 @@
         </li>
         
         
-        <li id="section-11">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-11">&#x00a7;</a>
+                <a class="ss" href="#section-15">&#x00a7;</a>
               </div>
               <p>That’s all folks</p>
 

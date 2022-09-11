@@ -163,8 +163,16 @@ function eg.super(   data,bests,rests,fun,rows,best,old,z)
 
 -- Find best ranges
 function eg.greedyBest(   data)
+  local function report(best,rest,xy,     n)
+    n=Num()
+    for _,rows in pairs{best,rest} do
+      for _,row in pairs(rows) do
+        n:add(row.rank) end end 
+    print(#rest+#best,o(n:pers({.25,.5,.75})),xy)
+    end
   data = Data("../data/auto93.csv") 
-  data:greedyBest() end
+  data:greedyBest( report) 
+  return true end
 
  -- ---------------------------------
 -- Start up

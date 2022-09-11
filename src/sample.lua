@@ -5,13 +5,13 @@ local obj, per = l.obj, l.per
 -- `Sample` keeps at most `the.sample` numbers.
 local Sample=obj"Sample"
 
--- ## Create
+-- ### Create
 function Sample:new(c,s) 
   return {n=0,               -- number items seen so far
           _has={},           -- cache for values
           isSorted=true} end -- false if no sort since last update
 
--- ## Update
+-- ### Update
 -- Reservoir sampler. Keep at most `the.sample` numbers 
 -- (and if we run out of space, delete something old, at random).,  
 function Sample:add(v,    pos)
@@ -21,8 +21,7 @@ function Sample:add(v,    pos)
   if pos then self.isSorted = false 
               self._has[pos] = tonumber(v) end end 
 
--- ## Query
-
+-- ### Query
 -- Return diversity
 function Sample:div() return (per(self:nums(),.9) - per(self:nums(),.1))/2.58 end
 

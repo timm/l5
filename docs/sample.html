@@ -27,8 +27,9 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
-              <p><span id="forkongithub"><a href="https://github.com/timm/l5">Fork me on GitHub</a></span>
-<img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=200></p>
+              <p>This is L5 (a  <b>L</b>ean <b>L</b>ittle <b>L</b>earning <b>L</b>ibrary, written in <strong>LUA</strong>). 
+<span id="forkongithub"><a href="https://github.com/timm/l5">Fork me on GitHub</a></span>
+<img src="https://i.stack.imgur.com/JMnkQ.gif" align=left width=200></p>
 <p><img src="https://img.shields.io/badge/language-lua-blue" alt="">
 <img src="https://img.shields.io/badge/purpose-xai-orange" alt="">
 <a href="https://github.com/timm/l5/blob/main/LICENSE.md#top"><img src="https://img.shields.io/badge/license-BSD2-green" alt=""></a></p>
@@ -70,11 +71,13 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-3">&#x00a7;</a>
               </div>
-              <h2 id="create">Create</h2>
+              <h3 id="create">Create</h3>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sample:new</span><span class="hljs-params">(c,s)</span></span> 
+            <div class="content"><div class='highlight'><pre>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sample:new</span><span class="hljs-params">(c,s)</span></span> 
   <span class="hljs-keyword">return</span> {n=<span class="hljs-number">0</span>,               <span class="hljs-comment">-- number items seen so far</span>
           _has={},           <span class="hljs-comment">-- cache for values</span>
           isSorted=<span class="hljs-literal">true</span>} <span class="hljs-keyword">end</span> <span class="hljs-comment">-- false if no sort since last update</span></pre></div></div>
@@ -88,8 +91,20 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-4">&#x00a7;</a>
               </div>
-              <h2 id="update">Update</h2>
-<p>Reservoir sampler. Keep at most <code>the.sample</code> numbers 
+              <h3 id="update">Update</h3>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-5">&#x00a7;</a>
+              </div>
+              <p>Reservoir sampler. Keep at most <code>the.sample</code> numbers 
 (and if we run out of space, delete something old, at random).,  </p>
 
             </div>
@@ -104,30 +119,15 @@
         </li>
         
         
-        <li id="section-5">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-5">&#x00a7;</a>
-              </div>
-              <h2 id="query">Query</h2>
-
-            </div>
-            
-        </li>
-        
-        
         <li id="section-6">
             <div class="annotation">
               
               <div class="sswrap ">
                 <a class="ss" href="#section-6">&#x00a7;</a>
               </div>
-              <p>Return diversity</p>
+              <h3 id="query">Query</h3>
 
             </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sample:div</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> (per(<span class="hljs-built_in">self</span>:nums(),<span class="hljs-number">.9</span>) - per(<span class="hljs-built_in">self</span>:nums(),<span class="hljs-number">.1</span>))/<span class="hljs-number">2.58</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -138,11 +138,11 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-7">&#x00a7;</a>
               </div>
-              <p>Return middle</p>
+              <p>Return diversity</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sample:mid</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> per(<span class="hljs-built_in">self</span>:nums(), <span class="hljs-number">.5</span>) <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sample:div</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> (per(<span class="hljs-built_in">self</span>:nums(),<span class="hljs-number">.9</span>) - per(<span class="hljs-built_in">self</span>:nums(),<span class="hljs-number">.1</span>))/<span class="hljs-number">2.58</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -152,6 +152,21 @@
               
               <div class="sswrap ">
                 <a class="ss" href="#section-8">&#x00a7;</a>
+              </div>
+              <p>Return middle</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sample:mid</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> per(<span class="hljs-built_in">self</span>:nums(), <span class="hljs-number">.5</span>) <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-9">&#x00a7;</a>
               </div>
               <p>Return kept numbers, sorted. </p>
 
@@ -165,11 +180,11 @@
         </li>
         
         
-        <li id="section-9">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-9">&#x00a7;</a>
+                <a class="ss" href="#section-10">&#x00a7;</a>
               </div>
               <p>That’s all folks.</p>
 

@@ -18,15 +18,18 @@ OPTIONS:
  -s  --seed     random number seed                    = 10019
  -S  --sample   how many numbers to keep              = 512 ]]
 --    
--- Coding Conventions
--- - Every file should start with `require"lib"`.
--- - Function argument conventions: 
---   -  two blanks denote optionas, four blanls denote locals:
---   -  prefix n,s,is,fun denotes number,string,bool,function; 
---   -  suffix s means list of thing (so names is list of strings)
---   -  c is a column index (usually)
--- - Code starts with a help string, from which we extract settings to the `the`
---  variable.
--- - Code ends with `eg`s, containing demo code. To run some example `x` then::
--- 
---     lua l5.lua -e x
+-- ### Coding Conventions
+--
+-- |What|Notes|
+-- |:---:|-----|
+-- |`require"lib"`| Every file should start with `require"lib"`.|
+-- | 2 blanks| 2 blanks denote optional arguments|
+-- | 4 blanks  | 4 blanls denote local arguments|
+-- | n         | prefix for numerics|
+-- | s         | prefix for strings|
+-- | is        | prefix for bools|
+-- |fun        | preffix for functions|
+-- | suffix s  | list of thing (so names is list of strings) |
+-- |  c        | column index (usually) |
+-- | help string|Found at start of code. Parse to extract settings.|
+-- | eg.x      | Place for demos.  To run, use `lua l5.lua -e x`|

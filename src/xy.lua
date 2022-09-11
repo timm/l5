@@ -7,6 +7,7 @@ local lt,map,sort = l.lt,l.map,l.sort
 -- `XY` stores the `y` symbols seen between `xlo` and `xlo`.
 local XY=obj"XY"
 
+-- ### Create
 function XY:new(c,s,nlo,nhi,nom)
   return {name= s,          -- name of this column
           at  = c,          -- offset for this column
@@ -15,6 +16,7 @@ function XY:new(c,s,nlo,nhi,nom)
           y   = nom or Sym(c,s) -- y symbols see so far
           } end
 
+-- ### Print
 function XY:__tostring()
   local x,lo,hi,big = self.name, self.xlo, self.xhi, math.huge
   if     lo ==  hi  then return string.format("%s == %s", x, lo)
@@ -22,6 +24,7 @@ function XY:__tostring()
   elseif lo == -big then return string.format("%s <= %s", x, hi)
   else                   return string.format("%s <  %s <= %s", lo,x,hi) end end
 
+-- ### Update
 -- Extend `xlo` `xhi` to cover `x`. Also, add `y` to `self.y`.
 function XY:add(x,y)
   if x~="?" then
@@ -30,7 +33,7 @@ function XY:add(x,y)
     self.y:add(y) end 
   return self end
 
--- 
+-- ### Misc
 function XY:merged(xy2,nMin,    new)
   new = self.y:merged(xy2.y, nMin)
   if new then
@@ -51,7 +54,7 @@ function XY:selects(rows)
 -- ## Class Methods
 -- Manipulates sets of `XY`s.
 
--- Discretization
+-- ### Discretization
 function XY.discretize(col,listOfRows,   xys,n)
   xys,n = XY.unsuper(col,listOfRows)
   return XY.super(col,xys,n) end

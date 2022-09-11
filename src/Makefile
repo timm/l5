@@ -8,9 +8,10 @@ TWOPLUS=cat $@ | awk 'BEGIN {FS="\n";RS=""} NR==1 { print("\n\n"); next} {print 
 pub: ## save all to Github
 	git add *;git commit -am save;git push;git status
 
-../docs/%.html: %.lua
+../docs/%.html: %.lua 
 	@mkdir -p $R/docs
-	@cat $R/etc/header $< > /tmp/$<
+	@cat $R/etc/header > /tmp/$<
+	@cat $< | gawk '/^-- ##/{print $0; print"\n"; next} 1' >> /tmp/$<
 	@cd /tmp; docco -l classic -o $R/docs $<
 	@cp $R/etc/docco.css $R/docs
 

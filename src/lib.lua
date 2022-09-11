@@ -1,12 +1,13 @@
 local l = {}
 
 -- ### Find rogue locals
+
 local b4 = {}; -- a cache of old globals. used to find rogue globals.
 for k,v in pairs(_ENV) do b4[k]=v end 
 function l.rogues()
   for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end end
 
--- ### Handle Settings
+-- ### Settings
 -- Create a `the` variables
 function l.settings(s,     t)
   t = {_help=s}
@@ -33,14 +34,20 @@ function l.cli(t)
   if t.help then os.exit(print("\n"..t._help.."\n")) end
   return t end
 
--- ### Lists
+-- ### Sampling
 -- Select any one.
 function l.any(t) return t[math.random(#t)] end
 
 -- Select any `n`.
 function l.many(t1,n,  t2)
+  if n >= #t1 then return l.shuffle(t1) end
   t2={}; for i=1,n do l.push(t2, l.any(t1)) end; return t2 end
 
+-- Randomly shuffle, in place, the list `t`.
+function l.shuffle(t,   j)
+  for i=#t,2,-1 do j=math.random(i); t[i],t[j]=t[j],t[i] end; return t end
+
+-- ### Lists
 -- Deepcopy
 function l.copy(t,    u)
   if type(t) ~= "table" then return t end

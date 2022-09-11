@@ -1,5 +1,6 @@
+-- This is L5 (a  <b>L</b>ean <b>L</b>ittle <b>L</b>earning <b>L</b>ibrary, written in __LUA__). 
 -- <span id="forkongithub"><a href="https://github.com/timm/l5">Fork me on GitHub</a></span>
--- <img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=200>
+-- <img src="https://i.stack.imgur.com/JMnkQ.gif" align=left width=200>
 --  
 -- ![](https://img.shields.io/badge/language-lua-blue)
 -- ![](https://img.shields.io/badge/purpose-xai-orange)

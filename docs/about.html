@@ -27,8 +27,9 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
-              <p><span id="forkongithub"><a href="https://github.com/timm/l5">Fork me on GitHub</a></span>
-<img src="https://miro.medium.com/max/900/1*4H2BbPpqmHVAP5WaGxhjKw.jpeg" align=right width=200></p>
+              <p>This is L5 (a  <b>L</b>ean <b>L</b>ittle <b>L</b>earning <b>L</b>ibrary, written in <strong>LUA</strong>). 
+<span id="forkongithub"><a href="https://github.com/timm/l5">Fork me on GitHub</a></span>
+<img src="https://i.stack.imgur.com/JMnkQ.gif" align=left width=200></p>
 <p><img src="https://img.shields.io/badge/language-lua-blue" alt="">
 <img src="https://img.shields.io/badge/purpose-xai-orange" alt="">
 <a href="https://github.com/timm/l5/blob/main/LICENSE.md#top"><img src="https://img.shields.io/badge/license-BSD2-green" alt=""></a></p>
@@ -71,25 +72,71 @@ OPTIONS:
               <div class="sswrap ">
                 <a class="ss" href="#section-2">&#x00a7;</a>
               </div>
-              <p>Coding Conventions</p>
-<ul>
-<li><p>Every file should start with <code>require&quot;lib&quot;</code>.</p>
-</li>
-<li><p>Function argument conventions: </p>
-<ul>
-<li>two blanks denote optionas, four blanls denote locals:</li>
-<li>prefix n,s,is,fun denotes number,string,bool,function; </li>
-<li>suffix s means list of thing (so names is list of strings)</li>
-<li>c is a column index (usually)</li>
-</ul>
-</li>
-<li><p>Code starts with a help string, from which we extract settings to the <code>the</code>
- variable.</p>
-</li>
-<li><p>Code ends with <code>eg</code>s, containing demo code. To run some example <code>x</code> then::</p>
-<p>  lua l5.lua -e x</p>
-</li>
-</ul>
+              <h3 id="coding-conventions">Coding Conventions</h3>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-3">&#x00a7;</a>
+              </div>
+              <table>
+<thead>
+<tr>
+<th align="center">What</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>require&quot;lib&quot;</code></td>
+<td>Every file should start with <code>require&quot;lib&quot;</code>.</td>
+</tr>
+<tr>
+<td align="center">2 blanks</td>
+<td>2 blanks denote optional arguments</td>
+</tr>
+<tr>
+<td align="center">4 blanks</td>
+<td>4 blanls denote local arguments</td>
+</tr>
+<tr>
+<td align="center">n</td>
+<td>prefix for numerics</td>
+</tr>
+<tr>
+<td align="center">s</td>
+<td>prefix for strings</td>
+</tr>
+<tr>
+<td align="center">is</td>
+<td>prefix for bools</td>
+</tr>
+<tr>
+<td align="center">fun</td>
+<td>preffix for functions</td>
+</tr>
+<tr>
+<td align="center">suffix s</td>
+<td>list of thing (so names is list of strings)</td>
+</tr>
+<tr>
+<td align="center">c</td>
+<td>column index (usually)</td>
+</tr>
+<tr>
+<td align="center">help string</td>
+<td>Found at start of code. Parse to extract settings.</td>
+</tr>
+<tr>
+<td align="center">eg.x</td>
+<td>Place for demos.  To run, use <code>lua l5.lua -e x</code></td>
+</tr>
+</tbody></table>
 
             </div>
             
