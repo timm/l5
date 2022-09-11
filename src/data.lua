@@ -36,6 +36,7 @@ function Data:clone(  src,    out)
 -- Return two sets of rows, one for the best and the rest
 function Data:bestOrRest(    m,n)
   table.sort(self.rows)
+  for i,row in pairs(self.rows) do row.rank = i end
   n = #self.rows
   m = the.min >=1 and the.min or (#self.rows)^the.min
   return slice(self.rows,1,m), slice(self.rows,m+1) end 
