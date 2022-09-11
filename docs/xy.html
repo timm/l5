@@ -222,7 +222,8 @@
         <span class="hljs-keyword">local</span> bin = col:discretize(x)
         xys[bin]  = xys[bin] <span class="hljs-keyword">or</span> XY(col.at,col.name,x)
         xys[bin]:add(x,label) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-built_in">sort</span>(xys,lt<span class="hljs-string">&quot;xlo&quot;</span>), n <span class="hljs-keyword">end</span></pre></div></div>
+  <span class="hljs-keyword">local</span> xys1={}; <span class="hljs-keyword">for</span> _,xy <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(xys) <span class="hljs-keyword">do</span> l.push(xys1,xy) <span class="hljs-keyword">end</span> 
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">sort</span>(xys1,lt<span class="hljs-string">&quot;xlo&quot;</span>), n <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         

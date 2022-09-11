@@ -59,12 +59,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> Sample=obj<span class="hljs-string">&quot;Sample&quot;</span>
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sample:new</span><span class="hljs-params">(c,s)</span></span> 
-  <span class="hljs-keyword">return</span> {n=<span class="hljs-number">0</span>,               <span class="hljs-comment">-- number items seen so far</span>
-          _has={},           <span class="hljs-comment">-- cache for values</span>
-          isSorted=<span class="hljs-literal">true</span>} <span class="hljs-keyword">end</span> <span class="hljs-comment">-- false if no sort since last update</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> Sample=obj<span class="hljs-string">&quot;Sample&quot;</span></pre></div></div>
             
         </li>
         
@@ -75,7 +70,26 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-3">&#x00a7;</a>
               </div>
-              <p>Reservoir sampler. Keep at most <code>the.sample</code> numbers 
+              <h2 id="create">Create</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sample:new</span><span class="hljs-params">(c,s)</span></span> 
+  <span class="hljs-keyword">return</span> {n=<span class="hljs-number">0</span>,               <span class="hljs-comment">-- number items seen so far</span>
+          _has={},           <span class="hljs-comment">-- cache for values</span>
+          isSorted=<span class="hljs-literal">true</span>} <span class="hljs-keyword">end</span> <span class="hljs-comment">-- false if no sort since last update</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-4">&#x00a7;</a>
+              </div>
+              <h2 id="update">Update</h2>
+<p>Reservoir sampler. Keep at most <code>the.sample</code> numbers 
 (and if we run out of space, delete something old, at random).,  </p>
 
             </div>
@@ -90,11 +104,24 @@
         </li>
         
         
-        <li id="section-4">
+        <li id="section-5">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-4">&#x00a7;</a>
+                <a class="ss" href="#section-5">&#x00a7;</a>
+              </div>
+              <h2 id="query">Query</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-6">&#x00a7;</a>
               </div>
               <p>Return diversity</p>
 
@@ -105,11 +132,11 @@
         </li>
         
         
-        <li id="section-5">
+        <li id="section-7">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-5">&#x00a7;</a>
+                <a class="ss" href="#section-7">&#x00a7;</a>
               </div>
               <p>Return middle</p>
 
@@ -120,11 +147,11 @@
         </li>
         
         
-        <li id="section-6">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-6">&#x00a7;</a>
+                <a class="ss" href="#section-8">&#x00a7;</a>
               </div>
               <p>Return kept numbers, sorted. </p>
 
@@ -138,11 +165,11 @@
         </li>
         
         
-        <li id="section-7">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-7">&#x00a7;</a>
+                <a class="ss" href="#section-9">&#x00a7;</a>
               </div>
               <p>That’s all folks.</p>
 

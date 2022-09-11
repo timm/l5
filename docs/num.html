@@ -60,15 +60,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> Num=obj<span class="hljs-string">&quot;Num&quot;</span>
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num:new</span><span class="hljs-params">(c,s)</span></span> 
-  <span class="hljs-keyword">return</span> {n=<span class="hljs-number">0</span>, at=c <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>, name=s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>,  <span class="hljs-comment">-- as per Sym</span>
-          _has = Sample(),  <span class="hljs-comment">-- where we keep, at most, `the.sample` nums</span>
-          lo = <span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>,   <span class="hljs-comment">-- lowest seen</span>
-          hi = -<span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>,  <span class="hljs-comment">-- highest seen</span>
-          w = ((s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>):<span class="hljs-built_in">find</span><span class="hljs-string">&quot;-$&quot;</span> <span class="hljs-keyword">and</span> <span class="hljs-number">-1</span> <span class="hljs-keyword">or</span> <span class="hljs-number">1</span>) <span class="hljs-comment">-- are we minimizing this?</span>
-         } <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> Num=obj<span class="hljs-string">&quot;Num&quot;</span></pre></div></div>
             
         </li>
         
@@ -79,7 +71,29 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-3">&#x00a7;</a>
               </div>
-              <p>Reservoir sampler. Keep at most <code>the.nums</code> numbers 
+              <h2 id="create">Create</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num:new</span><span class="hljs-params">(c,s)</span></span> 
+  <span class="hljs-keyword">return</span> {n=<span class="hljs-number">0</span>, at=c <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>, name=s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>,  <span class="hljs-comment">-- as per Sym</span>
+          _has = Sample(),  <span class="hljs-comment">-- where we keep, at most, `the.sample` nums</span>
+          lo = <span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>,   <span class="hljs-comment">-- lowest seen</span>
+          hi = -<span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>,  <span class="hljs-comment">-- highest seen</span>
+          w = ((s <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>):<span class="hljs-built_in">find</span><span class="hljs-string">&quot;-$&quot;</span> <span class="hljs-keyword">and</span> <span class="hljs-number">-1</span> <span class="hljs-keyword">or</span> <span class="hljs-number">1</span>) <span class="hljs-comment">-- are we minimizing this?</span>
+         } <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-4">&#x00a7;</a>
+              </div>
+              <h2 id="update">Update</h2>
+<p>Reservoir sampler. Keep at most <code>the.nums</code> numbers 
 (and if we run out of room, delete something old, at random).,  </p>
 
             </div>
@@ -94,30 +108,32 @@
         </li>
         
         
-        <li id="section-4">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-4">&#x00a7;</a>
-              </div>
-              <p>Discretize a number, rounds to  <code>the.bins</code> divisions.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num:discretize</span><span class="hljs-params">(x,     tmp)</span></span>
-  tmp = (<span class="hljs-built_in">self</span>.hi - <span class="hljs-built_in">self</span>.lo)/the.bins
-  <span class="hljs-keyword">return</span> <span class="hljs-built_in">self</span>.hi==<span class="hljs-built_in">self</span>.lo <span class="hljs-keyword">and</span> <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> <span class="hljs-built_in">math</span>.<span class="hljs-built_in">floor</span>(x/tmp+<span class="hljs-number">.5</span>)*tmp <span class="hljs-keyword">end</span></pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-5">
             <div class="annotation">
               
               <div class="sswrap ">
                 <a class="ss" href="#section-5">&#x00a7;</a>
               </div>
-              <p>distance between two values.</p>
+              <h2 id="discretize">Discretize</h2>
+<p>Discretize a number, rounds to  <code>the.bins</code> divisions.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num:discretize</span><span class="hljs-params">(x,     tmp)</span></span>
+  tmp = (<span class="hljs-built_in">self</span>.hi - <span class="hljs-built_in">self</span>.lo)/(the.bins - <span class="hljs-number">1</span>)
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">self</span>.hi==<span class="hljs-built_in">self</span>.lo <span class="hljs-keyword">and</span> <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> <span class="hljs-built_in">math</span>.<span class="hljs-built_in">floor</span>(x/tmp+<span class="hljs-number">.5</span>)*tmp <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-6">&#x00a7;</a>
+              </div>
+              <h2 id="distance">Distance</h2>
+<p>distance between two values.</p>
 
             </div>
             
@@ -131,45 +147,18 @@
         </li>
         
         
-        <li id="section-6">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-6">&#x00a7;</a>
-              </div>
-              <p>Return diversity</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num:div</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> <span class="hljs-built_in">self</span>._has:div() <span class="hljs-keyword">end</span></pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-7">
             <div class="annotation">
               
               <div class="sswrap ">
                 <a class="ss" href="#section-7">&#x00a7;</a>
               </div>
-              <p>If too (small or complex), adjacent bins. Repeat till no more merges found.</p>
+              <h2 id="query">Query</h2>
+<p>Return diversity</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num:merges</span><span class="hljs-params">(xys0,nMin,   n,xys1,fillInAnyGaps)</span></span> 
-  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fillInAnyGaps</span><span class="hljs-params">(xys)</span></span> <span class="hljs-comment">-- extend across whole number line</span>
-     <span class="hljs-keyword">for</span> n = <span class="hljs-number">2</span>,#xys <span class="hljs-keyword">do</span> xys[n].xlo = xys[n<span class="hljs-number">-1</span>].xhi <span class="hljs-keyword">end</span> 
-     xys[  <span class="hljs-number">1</span>  ].xlo = -<span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>
-     xys1[#xys].xhi =  <span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>
-     <span class="hljs-keyword">return</span> xys 
-  <span class="hljs-keyword">end</span> <span class="hljs-comment">--------- </span>
-  n,xys1 = <span class="hljs-number">1</span>,{}
-  <span class="hljs-keyword">while</span> n &lt;= #xys0 <span class="hljs-keyword">do</span>
-    <span class="hljs-keyword">local</span> xymerged  = n&lt;#xys0 <span class="hljs-keyword">and</span> xys0[n]:merged(xys0[n+<span class="hljs-number">1</span>],nMin) <span class="hljs-comment">--skip last bin </span>
-    xys1[<span class="hljs-number">1</span> + #xys1] = xymerged <span class="hljs-keyword">or</span> xys0[n]       <span class="hljs-comment">-- push something to xys1      </span>
-    n               = n + (xymerged <span class="hljs-keyword">and</span> <span class="hljs-number">2</span> <span class="hljs-keyword">or</span> <span class="hljs-number">1</span>) <span class="hljs-comment">-- if merged, skip next bin</span>
-  <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">return</span> #xys1 == #xys0 <span class="hljs-keyword">and</span> fillInAnyGaps(xys0) <span class="hljs-keyword">or</span> <span class="hljs-built_in">self</span>:merges(xys1,nMin) <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num:div</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> <span class="hljs-built_in">self</span>._has:div() <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -210,6 +199,35 @@
               
               <div class="sswrap ">
                 <a class="ss" href="#section-10">&#x00a7;</a>
+              </div>
+              <h2 id="discretize">Discretize</h2>
+<p>If too (small or complex), adjacent bins. Repeat till no more merges found.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num:merges</span><span class="hljs-params">(xys0,nMin,   n,xys1,fillInAnyGaps)</span></span> 
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fillInAnyGaps</span><span class="hljs-params">(xys)</span></span> <span class="hljs-comment">-- extend across whole number line</span>
+     <span class="hljs-keyword">for</span> n = <span class="hljs-number">2</span>,#xys <span class="hljs-keyword">do</span> xys[n].xlo = xys[n<span class="hljs-number">-1</span>].xhi <span class="hljs-keyword">end</span> 
+     xys[  <span class="hljs-number">1</span>  ].xlo = -<span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>
+     xys1[#xys].xhi =  <span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>
+     <span class="hljs-keyword">return</span> xys 
+  <span class="hljs-keyword">end</span> <span class="hljs-comment">--------- </span>
+  n,xys1 = <span class="hljs-number">1</span>,{}
+  <span class="hljs-keyword">while</span> n &lt;= #xys0 <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">local</span> xymerged  = n&lt;#xys0 <span class="hljs-keyword">and</span> xys0[n]:merged(xys0[n+<span class="hljs-number">1</span>],nMin) <span class="hljs-comment">--skip last bin </span>
+    xys1[<span class="hljs-number">1</span> + #xys1] = xymerged <span class="hljs-keyword">or</span> xys0[n]       <span class="hljs-comment">-- push something to xys1      </span>
+    n               = n + (xymerged <span class="hljs-keyword">and</span> <span class="hljs-number">2</span> <span class="hljs-keyword">or</span> <span class="hljs-number">1</span>) <span class="hljs-comment">-- if merged, skip next bin</span>
+  <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> #xys1 == #xys0 <span class="hljs-keyword">and</span> fillInAnyGaps(xys0) <span class="hljs-keyword">or</span> <span class="hljs-built_in">self</span>:merges(xys1,nMin) <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-11">&#x00a7;</a>
               </div>
               <p>That’s all folks.</p>
 

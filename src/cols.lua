@@ -6,6 +6,7 @@ local Sym  = require"sym"
 -- `Columns` Holds of summaries of columns. 
 local Cols = obj"Cols"
 
+-- ## Create
 -- Columns are created once, then may appear in  multiple slots.
 function Cols:new(names) 
   self.names=names -- all column names

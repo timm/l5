@@ -6,6 +6,7 @@ local copy,lt,map,obj,sort = l.copy,l.lt,l.map,l.obj,l.sort
 -- `Row` holds one record
 local Row = obj"Row"
 
+-- ## Create
 function Row:new(t,data) 
   return {cells     = t,          -- one record
           cooked    = l.copy(t),  -- used if we discretize data
@@ -13,6 +14,7 @@ function Row:new(t,data)
           outerSpace= data        -- background space of all examples
          } end
 
+-- ## Query
 -- `self` is ranked before `row2` if self "dominates" `row`
 function Row:__lt(row2)
   self.evaled, row2.evaled= true,true
@@ -25,13 +27,14 @@ function Row:__lt(row2)
     s2 = s2 - 2.71828^(col.w * (y-x)/#ys) end
   return s1/#ys < s2/#ys end
 
+function Row:cols(cols)
+  return map(cols, function(col) return self.cells[col.at] end) end
+  
+-- ## Distance
 -- -- Sort `rows` (default=`data.rows`) by distance to `self`.
 function Row:around(rows,     fun)
   function fun(row2) return {row=row2, dist=self:dist(row2)} end
   return sort(map(rows, fun),lt"dist") end
-
-function Row:cols(cols)
-  return map(cols, function(col) return self.cells[col.at] end) end
 
 -- Distance between rows (returns 0..1). For unknown values, assume max distance.
 function Row:dist(row2,    d)

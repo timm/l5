@@ -60,14 +60,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> Row = obj<span class="hljs-string">&quot;Row&quot;</span>
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:new</span><span class="hljs-params">(t,data)</span></span> 
-  <span class="hljs-keyword">return</span> {cells     = t,          <span class="hljs-comment">-- one record</span>
-          cooked    = l.copy(t),  <span class="hljs-comment">-- used if we discretize data</span>
-          isEvaled  = <span class="hljs-literal">false</span>,      <span class="hljs-comment">-- true if y-values evaluated.</span>
-          outerSpace= data        <span class="hljs-comment">-- background space of all examples</span>
-         } <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> Row = obj<span class="hljs-string">&quot;Row&quot;</span></pre></div></div>
             
         </li>
         
@@ -78,7 +71,28 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-3">&#x00a7;</a>
               </div>
-              <p><code>self</code> is ranked before <code>row2</code> if self “dominates” <code>row</code></p>
+              <h2 id="create">Create</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:new</span><span class="hljs-params">(t,data)</span></span> 
+  <span class="hljs-keyword">return</span> {cells     = t,          <span class="hljs-comment">-- one record</span>
+          cooked    = l.copy(t),  <span class="hljs-comment">-- used if we discretize data</span>
+          isEvaled  = <span class="hljs-literal">false</span>,      <span class="hljs-comment">-- true if y-values evaluated.</span>
+          outerSpace= data        <span class="hljs-comment">-- background space of all examples</span>
+         } <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-4">&#x00a7;</a>
+              </div>
+              <h2 id="query">Query</h2>
+<p><code>self</code> is ranked before <code>row2</code> if self “dominates” <code>row</code></p>
 
             </div>
             
@@ -91,24 +105,7 @@
     x,y= col:norm(x), col:norm(y)
     s1 = s1 - <span class="hljs-number">2.71828</span>^(col.w * (x-y)/#ys)
     s2 = s2 - <span class="hljs-number">2.71828</span>^(col.w * (y-x)/#ys) <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">return</span> s1/#ys &lt; s2/#ys <span class="hljs-keyword">end</span></pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-4">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-4">&#x00a7;</a>
-              </div>
-              <p>– Sort <code>rows</code> (default=<code>data.rows</code>) by distance to <code>self</code>.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:around</span><span class="hljs-params">(rows,     fun)</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fun</span><span class="hljs-params">(row2)</span></span> <span class="hljs-keyword">return</span> {row=row2, dist=<span class="hljs-built_in">self</span>:dist(row2)} <span class="hljs-keyword">end</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-built_in">sort</span>(map(rows, fun),lt<span class="hljs-string">&quot;dist&quot;</span>) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> s1/#ys &lt; s2/#ys <span class="hljs-keyword">end</span>
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:cols</span><span class="hljs-params">(cols)</span></span>
   <span class="hljs-keyword">return</span> map(cols, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(col)</span></span> <span class="hljs-keyword">return</span> <span class="hljs-built_in">self</span>.cells[col.at] <span class="hljs-keyword">end</span>) <span class="hljs-keyword">end</span></pre></div></div>
@@ -121,6 +118,24 @@
               
               <div class="sswrap ">
                 <a class="ss" href="#section-5">&#x00a7;</a>
+              </div>
+              <h2 id="distance">Distance</h2>
+<p>– Sort <code>rows</code> (default=<code>data.rows</code>) by distance to <code>self</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Row:around</span><span class="hljs-params">(rows,     fun)</span></span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fun</span><span class="hljs-params">(row2)</span></span> <span class="hljs-keyword">return</span> {row=row2, dist=<span class="hljs-built_in">self</span>:dist(row2)} <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">sort</span>(map(rows, fun),lt<span class="hljs-string">&quot;dist&quot;</span>) <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-6">&#x00a7;</a>
               </div>
               <p>Distance between rows (returns 0..1). For unknown values, assume max distance.</p>
 
@@ -135,11 +150,11 @@
         </li>
         
         
-        <li id="section-6">
+        <li id="section-7">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-6">&#x00a7;</a>
+                <a class="ss" href="#section-7">&#x00a7;</a>
               </div>
               <p>That’s all folks.</p>
 

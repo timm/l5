@@ -6,6 +6,7 @@ local obj, per = l.obj, l.per
 -- `Num` summarizes a stream of numbers.
 local Num=obj"Num"
 
+-- ## Create
 function Num:new(c,s) 
   return {n=0, at=c or 0, name=s or "",  -- as per Sym
           _has = Sample(),  -- where we keep, at most, `the.sample` nums
@@ -14,6 +15,7 @@ function Num:new(c,s)
           w = ((s or ""):find"-$" and -1 or 1) -- are we minimizing this?
          } end
 
+-- ## Update
 -- Reservoir sampler. Keep at most `the.nums` numbers 
 -- (and if we run out of room, delete something old, at random).,  
 function Num:add(v,    pos)
@@ -23,11 +25,13 @@ function Num:add(v,    pos)
   self.hi = math.max(v, self.hi)
   self._has:add(v) end 
 
+-- ## Discretize
 -- Discretize a number, rounds to  `the.bins` divisions.
 function Num:discretize(x,     tmp)
   tmp = (self.hi - self.lo)/(the.bins - 1)
   return self.hi==self.lo and 1 or math.floor(x/tmp+.5)*tmp end 
 
+-- ## Distance
 -- distance between two values.
 function Num:dist(v1,v2)
   if   v1=="?" and v2=="?" then return 1 end
@@ -36,9 +40,18 @@ function Num:dist(v1,v2)
   if v2=="?" then v2 = v1<.5 and 1 or 0 end
   return math.abs(v1-v2) end 
 
+-- ## Query
 -- Return diversity
 function Num:div() return self._has:div() end
 
+-- Return middle
+function Num:mid() return self._has:mid() end
+
+-- Normalized numbers 0..1. Everything else normalizes to itself.
+function Num:norm(n) 
+ return x=="?" and x or (n-self.lo)/(self.hi-self.lo + 1E-32) end
+
+-- ## Discretize
 -- If too (small or complex), adjacent bins. Repeat till no more merges found.
 function Num:merges(xys0,nMin,   n,xys1,fillInAnyGaps) 
   function fillInAnyGaps(xys) -- extend across whole number line
@@ -54,13 +67,6 @@ function Num:merges(xys0,nMin,   n,xys1,fillInAnyGaps)
     n               = n + (xymerged and 2 or 1) -- if merged, skip next bin
   end
   return #xys1 == #xys0 and fillInAnyGaps(xys0) or self:merges(xys1,nMin) end
-
--- Return middle
-function Num:mid() return self._has:mid() end
-
--- Normalized numbers 0..1. Everything else normalizes to itself.
-function Num:norm(n) 
- return x=="?" and x or (n-self.lo)/(self.hi-self.lo + 1E-32) end
 
 -- That's all folks.
 return Num
