@@ -1,6 +1,6 @@
 local l=require"lib"
 local csv,fmt,gt,map  = l.csv,l.fmt,l.gt,l.map
-local o,oo,slice,sort = l.map,l.o,l.oo,l.slice,l.sort
+local o,oo,slice,sort = l.o,l.oo,l.slice,l.sort
 local the = require"about"
 local XY = require"xy"
 local Num,Sym = require"num", require"sym"
@@ -82,6 +82,9 @@ function eg.bignum(  num)
   oo(num._has:nums())
   return 32==#num._has._has; end 
 
+function eg.o()
+  oo{1,2,3,4} end
+
 -- Show we can read csv files.
 function eg.csv(   n) 
   n=0
@@ -95,9 +98,8 @@ function eg.data(   d)
   return true end
 
 -- Print some stats on columns.
-function eg.stats(   data,mid,div)
+function eg.stats(   data)
   data = Data(the.file)
-  if true then return 1 end
   print("xmid", o( data:stats(2, data.cols.x, "mid")))
   print("xdiv", o( data:stats(3, data.cols.x, "div")))
   print("ymid", o( data:stats(2, data.cols.y, "mid")))
@@ -163,18 +165,26 @@ function eg.super(   data,bests,rests,fun,rows,best,old,z)
           l.rnd(z,3)) end 
   return true end 
 
--- Find best ranges
-function eg.greedyBest(   data)
-  local function report(best,rest,xy,     n)
-    n=Num()
-    for _,rows in pairs{best,rest} do
-      for _,row in pairs(rows) do
-        n:add(row.rank) end end 
-    print(#rest+#best,fmt("%-20s",o(n:pers({.25,.5,.75}))),xy) 
+local function _gb(n,     data,out,bests,rests,report)
+  function report(bests,rests)
+    for _,rows in pairs{bests,rests} do
+      for _,row in pairs(rows) do n:add(row.rank) end end 
   end -----------------------------
-  print(the.file)
   data = Data(the.file)
-  data:greedyBest(report) 
+  out,bests,rests=data:greedyBest() 
+  report(bests,rests)
+  return data,out,bests,rests
+end
+
+-- Find best ranges
+function eg.greedyBest(    n,out,data,bests,rests)
+  n = Num()
+  io.write(the.file)
+  for i=1,20 do io.write("."); io.flush(); data,out,bests,rests = _gb(n) end
+  print("")
+  oo{cols=#data.cols.all, rows=#data.rows}
+  map(out,print)
+  print(#bests+#rests,fmt("%-20s",o(n:pers({.25,.5,.75})))) 
   return true end
 
  -- ---------------------------------

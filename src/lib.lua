@@ -47,6 +47,9 @@ function l.many(t1,n,  t2)
 function l.shuffle(t,   j)
   for i=#t,2,-1 do j=math.random(i); t[i],t[j]=t[j],t[i] end; return t end
 
+-- ### Strings
+l.fmt = string.format
+
 -- ### Lists
 -- Deepcopy
 function l.copy(t,    u)
@@ -106,9 +109,6 @@ function l.o(t,   seen,show,u)
 
 -- `oo`: prints the string from `o`.   
 function l.oo(t) print(l.o(t)) return t end
-
--- ### Strings
-l.fmt = string.format
 
 -- ### Maths
 function l.rnd(x, places) 

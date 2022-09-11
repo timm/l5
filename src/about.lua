@@ -10,6 +10,7 @@ OPTIONS:
  -b  --bins     max number of bins                    = 16
  -d  --dump     on test failure, exit with stack dump = false
  -f  --file     file with csv data                    = ../data/auto93.csv
+ -F  --far      how far to look for poles (max=1)     = .95
  -h  --help     show help                             = false
  -m  --min      min size. If<1 then t^n else n.       = .5
  -n  --nums     number of nums to keep                = 512

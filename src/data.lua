@@ -3,8 +3,8 @@ local the  = require"about"
 local Cols = require"cols"
 local Row  = require"row"
 local XY   = require"xy"
-local csv,gt,lt,many,map,o,obj = l.csv,l.gt,l.lt,l.many,l.map,l.o,l.obj
-local push,rnd,slice,sort      = l.push,l.rnd,l.slice,l.sort
+local csv,fmt,gt,lt,many,map       = l.csv,l.fmt,l.gt,l.lt,l.many,l.map
+local o,oo,obj,push,rnd,slice,sort = l.o,l.oo,l.obj,l.push,l.rnd,l.slice,l.sort
 
 -- `Data` is a holder of `rows` and their sumamries (in `cols`).
 local Data = obj"Data"
@@ -60,11 +60,12 @@ function Data:contrasts(listOfRows,    out)
       push(out, xy) end end
   return out end
 
-function Data:greedyBest(fun,   out,stop,loop,bests,rests)
+function Data:greedyBest(out,stop,loop,bests,rests)
   out = {}
   stop = the.min >=1 and the.min or (#self.rows)^the.min 
   function loop(bests,rests)
-    if #bests + #rests > stop then
+    if   #bests + #rests >= stop
+    then
       local rests1 = many(rests, the.rest*#bests)
       local ord=function(xy) return {xy=xy,z=xy.y:score("yes",#bests,#rests1)} end
       for _,todo in pairs(sort(map(self:contrasts({yes=bests,no=rests1}),
@@ -73,13 +74,12 @@ function Data:greedyBest(fun,   out,stop,loop,bests,rests)
         local bests2 = todo:selects(bests)
         local rests2 = todo:selects(rests)
         if (#bests2+#rests2 < #bests+#rests) then
-           if fun then fun(bests2,rests2,todo) end
            push(out, todo)
-           return loop(bests2,rests2,out,stop) end  end  end
+           return loop(bests2,rests2) end end end
+    return out, bests,rests 
   end ---------------------------
   bests,rests = self:bestOrRest()
-  loop(bests, rests)
-  return out end 
+  return loop(bests, rests) end
 
 -- That's all folks.
 return Data

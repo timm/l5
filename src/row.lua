@@ -31,17 +31,21 @@ function Row:cols(cols)
   return map(cols, function(col) return self.cells[col.at] end) end
   
 -- ### Distance
--- -- Sort `rows` (default=`data.rows`) by distance to `self`.
-function Row:around(rows,     fun)
-  function fun(row2) return {row=row2, dist=self:dist(row2)} end
-  return sort(map(rows, fun),lt"dist") end
-
 -- Distance between rows (returns 0..1). For unknown values, assume max distance.
 function Row:dist(row2,    d)
   d = 0
   for i,col in pairs(self.outerSpace.cols.x) do 
     d = d + col:dist(self.cells[col.at], row2.cells[col.at])^the.p end
   return (d/#self.outerSpace.cols.x)^(1/the.p) end
+
+-- Sort `rows` (default=`data.rows`) by distance to `self`.
+function Row:around(rows,     fun)
+  function fun(row2) return {row=row2, dist=self:dist(row2)} end
+  return sort(map(rows, fun),lt"dist") end
+
+-- Look for something `the.far` away from `self`. 
+function Row:far(rows) 
+  return per(self:around(rows),the.far).row end
 
 -- That's all folks.
 return Row
