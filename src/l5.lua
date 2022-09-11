@@ -1,5 +1,6 @@
 local l=require"lib"
-local csv,gt,map,o,oo,slice,sort = l.csv,l.gt,l.map,l.o,l.oo,l.slice,l.sort
+local csv,fmt,gt,map  = l.csv,l.fmt,l.gt,l.map
+local o,oo,slice,sort = l.map,l.o,l.oo,l.slice,l.sort
 local the = require"about"
 local XY = require"xy"
 local Num,Sym = require"num", require"sym"
@@ -36,7 +37,7 @@ function eg.LIST(   t)
 -- List test names.
 function eg.LS()
   print("\nExamples lua csv -e ...")
-  for _,k in pairs(eg.LIST()) do print(string.format("\t%s",k)) end 
+  for _,k in pairs(eg.LIST()) do print(fmt("\t%s",k)) end 
   return true end
 
 -- Run all tests
@@ -84,18 +85,19 @@ function eg.bignum(  num)
 -- Show we can read csv files.
 function eg.csv(   n) 
   n=0
-  csv("../data/auto93.csv",function(row)
+  csv(the.file,function(row)
     n=n+1; if n> 10 then return else oo(row) end end); return true end
 
 -- Can I load a csv file into a Data?.
 function eg.data(   d)
-  d = Data("../../data/auto93.csv")
+  d = Data(the.file)
   for _,col in pairs(d.cols.y) do oo(col) end
   return true end
 
 -- Print some stats on columns.
 function eg.stats(   data,mid,div)
-  data = Data("../data/auto93.csv")
+  data = Data(the.file)
+  if true then return 1 end
   print("xmid", o( data:stats(2, data.cols.x, "mid")))
   print("xdiv", o( data:stats(3, data.cols.x, "div")))
   print("ymid", o( data:stats(2, data.cols.y, "mid")))
@@ -104,7 +106,7 @@ function eg.stats(   data,mid,div)
 
 -- Distance functions.
 function eg.around(    data,around)
-  data = Data("../data/auto93.csv") 
+  data = Data(the.file)
   print(data.rows[1]:dist(data.rows[2]))
   around = data.rows[1]:around(data.rows)
   for i=1,#data.rows,32 do print(i, o(around[i].row.cells),around[i].dist) end
@@ -112,7 +114,7 @@ function eg.around(    data,around)
 
 -- Multi-objective sorting can rank "good" rows before the others.
 function eg.sort(    data,around)
-  data = Data("../data/auto93.csv") 
+  data = Data(the.file)
   table.sort(data.rows)
   print(o(map(data.cols.y, function(col) return col.name end)))
   for i=1,#data.rows,32 do 
@@ -121,7 +123,7 @@ function eg.sort(    data,around)
 
 -- Sort on goals, report median goals seen in best or rest.
 function eg.bestOrRest(   data,bestRows,restRows,best,rest)
-  data = Data("../data/auto93.csv") 
+  data = Data(the.file)
   bestRows,restRows = data:bestOrRest()
   best,rest = data:clone(bestRows), data:clone(restRows)
   print("besty", o(best:stats()))
@@ -130,13 +132,13 @@ function eg.bestOrRest(   data,bestRows,restRows,best,rest)
 
 -- Simple unsupervised discretization. Break numbers on (max-min)/the.bins.
 function eg.unsuper(   data,bests,rests,fun,rows,best)
-  data = Data("../data/auto93.csv") 
+  data = Data(the.file)
   bests,rests = data:bestOrRest()
   for _,col in pairs(data.cols.x) do
     print("\n" .. col.name)
     for _,xy in pairs(XY.unsuper(col,{bests=bests,rests=rests})) do 
        print(xy.y.n, 
-             string.format("%-20s",o(xy.y._has)), 
+             fmt("%-20s",o(xy.y._has)), 
              xy) end end 
   return true end
 
@@ -145,7 +147,7 @@ function eg.unsuper(   data,bests,rests,fun,rows,best)
 -- are very weak at selecting for the "best" rows. So lets combine the
 -- small and complex ones and rank the remaining by how well they select for best.
 function eg.super(   data,bests,rests,fun,rows,best,old,z)
-  data = Data("../data/auto93.csv") 
+  data = Data(the.file)
   bests,rests = data:bestOrRest()
   rests = l.many(rests, the.rest*#bests)
   fun = function(xy) return {xy=xy,z=xy.y:score("bests", #bests, #rests)} end
@@ -156,8 +158,8 @@ function eg.super(   data,bests,rests,fun,rows,best,old,z)
     if xy.name ~= old then print("\n"..xy.name) end
     old = xy.name
     print(xy.y.n, 
-          string.format("%-20s",o(xy.y._has)), 
-          string.format("%-20s",xy),
+          fmt("%-20s",o(xy.y._has)), 
+          fmt("%-20s",xy),
           l.rnd(z,3)) end 
   return true end 
 
@@ -168,10 +170,11 @@ function eg.greedyBest(   data)
     for _,rows in pairs{best,rest} do
       for _,row in pairs(rows) do
         n:add(row.rank) end end 
-    print(#rest+#best,o(n:pers({.25,.5,.75})),xy)
-    end
-  data = Data("../data/auto93.csv") 
-  data:greedyBest( report) 
+    print(#rest+#best,fmt("%-20s",o(n:pers({.25,.5,.75}))),xy) 
+  end -----------------------------
+  print(the.file)
+  data = Data(the.file)
+  data:greedyBest(report) 
   return true end
 
  -- ---------------------------------

@@ -99,13 +99,16 @@ function l.o(t,   seen,show,u)
   function show(k,v)
     if not tostring(k):find"^_"  then
       v = l.o(v,seen)
-      return #t==0 and string.format(":%s %s",k,v) or l.o(v,seen) end end
+      return #t==0 and l.fmt(":%s %s",k,v) or l.o(v,seen) end end
   u={}; for k,v in pairs(t) do u[1+#u] = show(k,v) end
   if #t==0 then table.sort(u) end
   return "{"..table.concat(u," ").."}" end
 
 -- `oo`: prints the string from `o`.   
 function l.oo(t) print(l.o(t)) return t end
+
+-- ### Strings
+l.fmt = string.format
 
 -- ### Maths
 function l.rnd(x, places) 
