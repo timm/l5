@@ -18,7 +18,7 @@ function Sym:add(v,  inc)
   self._has[v] = inc + (self._has[v] or 0) end 
 
 -- Score b^2/(b+r) where `b` is for any counts for `goals`.
-function Sym:bestOrRest(goal,B,R,    b,r,e)
+function Sym:score(goal,B,R,    b,r,e)
   b,r,e = 0,0,1E-30
   for x,n in pairs(self._has) do
     if x == goal then b=b+n else r=r+n end end

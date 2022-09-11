@@ -147,7 +147,8 @@ function eg.unsuper(   data,bests,rests,fun,rows,best)
 function eg.super(   data,bests,rests,fun,rows,best,old,z)
   data = Data("../data/auto93.csv") 
   bests,rests = data:bestOrRest()
-  fun = function(xy) return {xy=xy,z=xy.y:bestOrRest("bests", #bests, #rests)} end
+  rests = l.many(rests, the.rest*#bests)
+  fun = function(xy) return {xy=xy,z=xy.y:score("bests", #bests, #rests)} end
   old=""
   for _,xy in pairs(map(data:contrasts({rests=rests,bests=bests}),fun)) do
     z=xy.z
@@ -158,12 +159,14 @@ function eg.super(   data,bests,rests,fun,rows,best,old,z)
           string.format("%-20s",o(xy.y._has)), 
           string.format("%-20s",xy),
           l.rnd(z,3)) end 
-  -- rows=map(data.rows, 
-  --          function(row) if best:selects(row) then return row end end)
-  -- print(#rows)
-  return true end
+  return true end 
 
--- ---------------------------------
+-- Find best ranges
+function eg.greedyBest(   data)
+  data = Data("../data/auto93.csv") 
+  data:greedyBest() end
+
+ -- ---------------------------------
 -- Start up
 -- - Update settings from command-line.
 -- - Run an example.

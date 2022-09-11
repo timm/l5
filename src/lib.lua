@@ -34,6 +34,13 @@ function l.cli(t)
   return t end
 
 -- ### Lists
+-- Select any one.
+function l.any(t) return t[math.random(#t)] end
+
+-- Select any `n`.
+function l.many(t1,n,  t2)
+  t2={}; for i=1,n do l.push(t2, l.any(t1)) end; return t2 end
+
 -- Deepcopy
 function l.copy(t,    u)
   if type(t) ~= "table" then return t end
