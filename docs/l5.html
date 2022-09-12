@@ -45,7 +45,7 @@
             
             <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span>
 <span class="hljs-keyword">local</span> csv,fmt,gt,map  = l.csv,l.fmt,l.gt,l.map
-<span class="hljs-keyword">local</span> o,oo,slice,<span class="hljs-built_in">sort</span> = l.o,l.oo,l.slice,l.<span class="hljs-built_in">sort</span>
+<span class="hljs-keyword">local</span> o,oo,shuffle,slice,<span class="hljs-built_in">sort</span> = l.o,l.oo,l.shuffle,l.slice,l.<span class="hljs-built_in">sort</span>
 <span class="hljs-keyword">local</span> the = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;about&quot;</span>
 <span class="hljs-keyword">local</span> XY = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;xy&quot;</span>
 <span class="hljs-keyword">local</span> Num,Sym = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;num&quot;</span>, <span class="hljs-built_in">require</span><span class="hljs-string">&quot;sym&quot;</span>
@@ -75,6 +75,7 @@
             <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">run</span><span class="hljs-params">(todo,     old,status,out,msg)</span></span>
   <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> eg[todo] <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> <span class="hljs-keyword">end</span>
   <span class="hljs-built_in">math</span>.<span class="hljs-built_in">randomseed</span>(the.seed) <span class="hljs-comment">-- reset seed [1]</span>
+  <span class="hljs-built_in">print</span>(<span class="hljs-built_in">math</span>.<span class="hljs-built_in">random</span>(), the.seed)
   old={}; <span class="hljs-keyword">for</span> k,v <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(the) <span class="hljs-keyword">do</span> old[k]=v <span class="hljs-keyword">end</span> <span class="hljs-comment">--  [2]</span>
   <span class="hljs-keyword">if</span> the.<span class="hljs-built_in">dump</span> <span class="hljs-keyword">then</span> <span class="hljs-comment">-- [4]</span>
     <span class="hljs-built_in">status</span>,out=<span class="hljs-literal">true</span>, eg[todo]() <span class="hljs-comment">-- crash on errors, printing stack dump</span>
@@ -231,7 +232,7 @@ is done such that the kept numbers span the range of inputs).</p>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.bignum</span><span class="hljs-params">(  num)</span></span>
   num=Num()
-  the.sample = <span class="hljs-number">32</span>
+  the.Sample = <span class="hljs-number">32</span>
   <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">10000</span> <span class="hljs-keyword">do</span> num:add(i) <span class="hljs-keyword">end</span>
   oo(num._has:nums())
   <span class="hljs-keyword">return</span> <span class="hljs-number">32</span>==#num._has._has; <span class="hljs-keyword">end</span> 
@@ -415,14 +416,14 @@ small and complex ones and rank the remaining by how well they select for best.<
           l.rnd(z,<span class="hljs-number">3</span>)) <span class="hljs-keyword">end</span> 
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span> 
 
-<span class="hljs-keyword">local</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_gb</span><span class="hljs-params">(n,     data,out,bests,rests,report)</span></span>
-  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">report</span><span class="hljs-params">(bests,rests)</span></span>
-    <span class="hljs-keyword">for</span> _,rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>{bests,rests} <span class="hljs-keyword">do</span>
-      <span class="hljs-keyword">for</span> _,row <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(rows) <span class="hljs-keyword">do</span> n:add(row.rank) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
-  <span class="hljs-keyword">end</span> <span class="hljs-comment">-----------------------------</span>
+<span class="hljs-keyword">local</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">report</span><span class="hljs-params">(num,rows1,rows2)</span></span>
+  <span class="hljs-keyword">for</span> _,rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>{rows1,rows2} <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">for</span> _,row <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(rows) <span class="hljs-keyword">do</span> num:add(row.rank) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">local</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_gb</span><span class="hljs-params">(num,     data,out,bests,rests)</span></span>
   data = Data(the.file)
   out,bests,rests=data:greedyBest() 
-  report(bests,rests)
+  report(num,bests,rests)
   <span class="hljs-keyword">return</span> data,out,bests,rests
 <span class="hljs-keyword">end</span></pre></div></div>
             
@@ -442,11 +443,12 @@ small and complex ones and rank the remaining by how well they select for best.<
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.greedyBest</span><span class="hljs-params">(    n,out,data,bests,rests)</span></span>
   n = Num()
   <span class="hljs-built_in">io</span>.<span class="hljs-built_in">write</span>(the.file)
-  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">20</span> <span class="hljs-keyword">do</span> <span class="hljs-built_in">io</span>.<span class="hljs-built_in">write</span>(<span class="hljs-string">&quot;.&quot;</span>); <span class="hljs-built_in">io</span>.<span class="hljs-built_in">flush</span>(); data,out,bests,rests = _gb(n) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">10</span> <span class="hljs-keyword">do</span> <span class="hljs-built_in">io</span>.<span class="hljs-built_in">write</span>(<span class="hljs-string">&quot;.&quot;</span>); <span class="hljs-built_in">io</span>.<span class="hljs-built_in">flush</span>(); data,out,bests,rests = _gb(n) <span class="hljs-keyword">end</span>
   <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;&quot;</span>)
-  oo{cols=#data.cols.all, rows=#data.rows}
   map(out,<span class="hljs-built_in">print</span>)
-  <span class="hljs-built_in">print</span>(#bests+#rests,fmt(<span class="hljs-string">&quot;%-20s&quot;</span>,o(n:pers({<span class="hljs-number">.25</span>,<span class="hljs-number">.5</span>,<span class="hljs-number">.75</span>})))) 
+  <span class="hljs-built_in">print</span>(o{name=the.file,
+          cols=#data.cols.all, rows=#data.rows},
+    #bests+#rests,fmt(<span class="hljs-string">&quot;%-20s&quot;</span>,o(n:pers({<span class="hljs-number">.25</span>,<span class="hljs-number">.5</span>,<span class="hljs-number">.75</span>})))) 
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -458,9 +460,17 @@ small and complex ones and rank the remaining by how well they select for best.<
               <div class="sswrap ">
                 <a class="ss" href="#section-20">&#x00a7;</a>
               </div>
-              <hr>
+              <p>Half</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.half</span><span class="hljs-params">(  node,data)</span></span>
+  data = Data(the.file)
+  <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(data.rows)
+  <span class="hljs-keyword">for</span> i,row <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(data.rows) <span class="hljs-keyword">do</span> row.rank = <span class="hljs-built_in">math</span>.<span class="hljs-built_in">floor</span>(<span class="hljs-number">100</span>*i/#data.rows) <span class="hljs-keyword">end</span>
+  shuffle(data.rows)
+  node = data:half(data.rows) 
+  <span class="hljs-keyword">return</span> <span class="hljs-number">199</span> == #node.xs <span class="hljs-keyword">and</span> <span class="hljs-number">199</span> == #node.ys <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -470,6 +480,43 @@ small and complex ones and rank the remaining by how well they select for best.<
               
               <div class="sswrap ">
                 <a class="ss" href="#section-21">&#x00a7;</a>
+              </div>
+              <p>Halves</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.bestLeaf</span><span class="hljs-params">(  num)</span></span>
+  num  = Num()
+  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">10</span> <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">local</span> data = Data(the.file)
+    data:bestOrRest()
+    <span class="hljs-keyword">local</span> leaf = data:bestLeaf(data.rows) 
+    report(num,leaf)
+  <span class="hljs-keyword">end</span>
+  <span class="hljs-built_in">print</span>(o(num:pers{<span class="hljs-number">.25</span>, <span class="hljs-number">.5</span>, <span class="hljs-number">.75</span>}))
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-22">&#x00a7;</a>
+              </div>
+              <hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-23">&#x00a7;</a>
               </div>
               <p>Start up</p>
 <ul>
@@ -482,6 +529,7 @@ small and complex ones and rank the remaining by how well they select for best.<
             </div>
             
             <div class="content"><div class='highlight'><pre>the = l.cli(the)  
+<span class="hljs-built_in">print</span>(the.seed)
 run(the.eg)
 l.rogues() 
 <span class="hljs-built_in">os</span>.<span class="hljs-built_in">exit</span>(fails)</pre></div></div>

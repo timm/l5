@@ -56,7 +56,7 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-2">&#x00a7;</a>
               </div>
-              <p><code>Sample</code> keeps at most <code>the.sample</code> numbers.</p>
+              <p><code>Sample</code> keeps at most <code>the.Sample</code> numbers.</p>
 
             </div>
             
@@ -111,8 +111,8 @@
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Sample:add</span><span class="hljs-params">(v,    pos)</span></span>
   <span class="hljs-built_in">self</span>.n  = <span class="hljs-built_in">self</span>.n + <span class="hljs-number">1</span>
-  <span class="hljs-keyword">if</span>     #<span class="hljs-built_in">self</span>._has &lt; the.sample           <span class="hljs-keyword">then</span> pos=<span class="hljs-number">1</span> + (#<span class="hljs-built_in">self</span>._has) 
-  <span class="hljs-keyword">elseif</span> <span class="hljs-built_in">math</span>.<span class="hljs-built_in">random</span>() &lt; the.sample/<span class="hljs-built_in">self</span>.n <span class="hljs-keyword">then</span> pos=<span class="hljs-built_in">math</span>.<span class="hljs-built_in">random</span>(#<span class="hljs-built_in">self</span>._has) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">if</span>     #<span class="hljs-built_in">self</span>._has &lt; the.Sample           <span class="hljs-keyword">then</span> pos=<span class="hljs-number">1</span> + (#<span class="hljs-built_in">self</span>._has) 
+  <span class="hljs-keyword">elseif</span> <span class="hljs-built_in">math</span>.<span class="hljs-built_in">random</span>() &lt; the.Sample/<span class="hljs-built_in">self</span>.n <span class="hljs-keyword">then</span> pos=<span class="hljs-built_in">math</span>.<span class="hljs-built_in">random</span>(#<span class="hljs-built_in">self</span>._has) <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">if</span> pos <span class="hljs-keyword">then</span> <span class="hljs-built_in">self</span>.isSorted = <span class="hljs-literal">false</span> 
               <span class="hljs-built_in">self</span>._has[pos] = <span class="hljs-built_in">tonumber</span>(v) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
             
