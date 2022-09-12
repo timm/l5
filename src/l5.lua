@@ -169,7 +169,7 @@ local function report(num,rows1,rows2)
   for _,rows in pairs{rows1,rows2} do
     for _,row in pairs(rows) do num:add(row.rank) end end end
 
-local function _gb(num,     data,out,bests,rests,report)
+local function _gb(num,     data,out,bests,rests)
   data = Data(the.file)
   out,bests,rests=data:greedyBest() 
   report(num,bests,rests)
@@ -180,11 +180,12 @@ end
 function eg.greedyBest(    n,out,data,bests,rests)
   n = Num()
   io.write(the.file)
-  for i=1,20 do io.write("."); io.flush(); data,out,bests,rests = _gb(n) end
+  for i=1,10 do io.write("."); io.flush(); data,out,bests,rests = _gb(n) end
   print("")
-  oo{cols=#data.cols.all, rows=#data.rows}
   map(out,print)
-  print(#bests+#rests,fmt("%-20s",o(n:pers({.25,.5,.75})))) 
+  print(o{name=the.file,
+          cols=#data.cols.all, rows=#data.rows},
+    #bests+#rests,fmt("%-20s",o(n:pers({.25,.5,.75})))) 
   return true end
 
 -- Half
@@ -193,16 +194,18 @@ function eg.half(  node,data)
   table.sort(data.rows)
   for i,row in pairs(data.rows) do row.rank = math.floor(100*i/#data.rows) end
   shuffle(data.rows)
-  node = data:half() 
+  node = data:half(data.rows) 
   return 199 == #node.xs and 199 == #node.ys end
 
 -- Halves
-function eg.bestLeaf(  data,leaf,num)
-  data = Data(the.file)
-  data:bestOrRest()
-  leaf = data:bestLeaf() 
+function eg.bestLeaf(  num)
   num  = Num()
-  report(num,leaf)
+  for i=1,10 do
+    local data = Data(the.file)
+    data:bestOrRest()
+    local leaf = data:bestLeaf(data.rows) 
+    report(num,leaf)
+  end
   print(o(num:pers{.25, .5, .75}))
   return true end
 

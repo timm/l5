@@ -53,10 +53,9 @@ function Data:stats(  places,showCols,todo,    t,v)
 
 -- ### Distance
 -- Spit rows in two based on distance to two distant points.
-function Data:half(  above,rows)
-  rows = rows or self.rows
+function Data:half(rows,  above)
   local sample = many(rows, the.sample)
-  local x  = above or any(sample):far(sample)
+  local x  = any(sample):far(sample)
   local y  = x:far(sample)
   local c  = x:dist(y)
   local rxs= function(r) return {r=r, x=(r:dist(x)^2+c^2-r:dist(y)^2)/(2*c)} end
@@ -65,15 +64,14 @@ function Data:half(  above,rows)
     push(j<=.5*#rows and xs or ys, rx.r) end
   return {xs=xs, ys=ys, x=x, y=y, c=c} end
 
-function Data:bestLeaf(  above,rows,stop,node)
-  rows = rows or self.rows
+function Data:bestLeaf(rows,  above,stop)
   stop = stop or (the.min >=1 and the.min or (#rows)^the.min)
-  if   #rows < 2*stop
+  if   #rows < stop
   then return rows
-  else node = self:half(above,rows)
+  else local node = self:half(rows,above)
        if    node.x < node.y 
-       then  return self:bestLeaf(node.x, node.xs, stop)
-       else  return self:bestLeaf(node.y, node.ys, stop) end end end
+       then  return self:bestLeaf(node.xs, node.x, stop)
+       else  return self:bestLeaf(node.ys, node.y, stop) end end end
 
 -- ### Ranges
 -- Return the XY bins that separate the `listOfRows`

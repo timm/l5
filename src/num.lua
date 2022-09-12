@@ -47,7 +47,7 @@ function Num:mid() return self._has:mid() end
 
 -- Normalized numbers 0..1. Everything else normalizes to itself.
 function Num:norm(n) 
- return x=="?" and x or (n-self.lo)/(self.hi-self.lo + 1E-32) end
+ return n=="?" and n or (n-self.lo)/(self.hi-self.lo + 1E-32) end
 
 -- ### Discretize
 -- Discretize a number, rounds to  `the.bins` divisions.

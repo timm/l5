@@ -2,11 +2,12 @@ MAKEFLAGS += --silent
 SHELL=/bin/bash
 R=$(shell git rev-parse --show-toplevel)
 
-D=auto2 auto93 nasa93den china coc1000 healthCloseIsses12mths0011-easy healthCloseIsses12mths0001-hard pom SSN SSM#
+D=auto2 auto93 nasa93dem china coc1000 healthCloseIsses12mths0011-easy \
+  healthCloseIsses12mths0001-hard pom SSN SSM#
 
-opt:
-	echo $D
-	$(foreach d,$D, time lua l5.lua -f ../data/$d.csv -e greedyBest; )
+greedyBest:; $(foreach d,$D, lua l5.lua -f ../data/$d.csv -e greedyBest; )
+bestLeaf:;   $(foreach d,$D, lua l5.lua -S 2000 -m 10 -f ../data/$d.csv -e bestLeaf; )
+
 
 TWOPLUS=cat $@ | awk 'BEGIN {FS="\n";RS=""} NR==1 { print("\n\n"); next} {print $$0 "\n\n"}'
 
