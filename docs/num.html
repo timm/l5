@@ -46,7 +46,7 @@
             <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span>
 <span class="hljs-keyword">local</span> the=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;about&quot;</span>
 <span class="hljs-keyword">local</span> Sample=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;sample&quot;</span>
-<span class="hljs-keyword">local</span> obj, per = l.obj, l.per</pre></div></div>
+<span class="hljs-keyword">local</span> map, obj, per = l.map, l.obj, l.per</pre></div></div>
             
         </li>
         
@@ -190,11 +190,12 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-10">&#x00a7;</a>
               </div>
-              <p>Return middle</p>
+              <p>Return interquartile range</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num:mid</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> <span class="hljs-built_in">self</span>._has:mid() <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num:pers</span><span class="hljs-params">(t,    a)</span></span> 
+  a=<span class="hljs-built_in">self</span>._has:nums(); <span class="hljs-keyword">return</span> map(t, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(p)</span></span> <span class="hljs-keyword">return</span> per(a,p) <span class="hljs-keyword">end</span>) <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -204,6 +205,21 @@
               
               <div class="sswrap ">
                 <a class="ss" href="#section-11">&#x00a7;</a>
+              </div>
+              <p>Return middle</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num:mid</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">return</span> <span class="hljs-built_in">self</span>._has:mid() <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-12">&#x00a7;</a>
               </div>
               <p>Normalized numbers 0..1. Everything else normalizes to itself.</p>
 
@@ -215,11 +231,11 @@
         </li>
         
         
-        <li id="section-12">
+        <li id="section-13">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-12">&#x00a7;</a>
+                <a class="ss" href="#section-13">&#x00a7;</a>
               </div>
               <h3 id="discretize">Discretize</h3>
 
@@ -228,11 +244,11 @@
         </li>
         
         
-        <li id="section-13">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-13">&#x00a7;</a>
+                <a class="ss" href="#section-14">&#x00a7;</a>
               </div>
               <p>Discretize a number, rounds to  <code>the.bins</code> divisions.</p>
 
@@ -245,17 +261,17 @@
         </li>
         
         
-        <li id="section-14">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-14">&#x00a7;</a>
+                <a class="ss" href="#section-15">&#x00a7;</a>
               </div>
               <p>If too (small or complex), adjacent bins. Repeat till no more merges found.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num:merges</span><span class="hljs-params">(xys0,nMin,   n,xys1,fillInAnyGaps)</span></span> 
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Num:merges</span><span class="hljs-params">(xys0,nMin,   n,xys1,fillInAnyGaps,loop)</span></span> 
   <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fillInAnyGaps</span><span class="hljs-params">(xys)</span></span> <span class="hljs-comment">-- extend across whole number line</span>
      <span class="hljs-keyword">for</span> n = <span class="hljs-number">2</span>,#xys <span class="hljs-keyword">do</span> xys[n].xlo = xys[n<span class="hljs-number">-1</span>].xhi <span class="hljs-keyword">end</span> 
      xys[  <span class="hljs-number">1</span>  ].xlo = -<span class="hljs-built_in">math</span>.<span class="hljs-built_in">huge</span>
@@ -275,11 +291,11 @@
         </li>
         
         
-        <li id="section-15">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-15">&#x00a7;</a>
+                <a class="ss" href="#section-16">&#x00a7;</a>
               </div>
               <p>That’s all folks.</p>
 

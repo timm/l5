@@ -48,8 +48,8 @@
 <span class="hljs-keyword">local</span> Cols = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;cols&quot;</span>
 <span class="hljs-keyword">local</span> Row  = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;row&quot;</span>
 <span class="hljs-keyword">local</span> XY   = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;xy&quot;</span>
-<span class="hljs-keyword">local</span> csv,gt,lt,many,map,o,obj = l.csv,l.gt,l.lt,l.many,l.map,l.o,l.obj
-<span class="hljs-keyword">local</span> push,rnd,slice,<span class="hljs-built_in">sort</span>      = l.push,l.rnd,l.slice,l.<span class="hljs-built_in">sort</span></pre></div></div>
+<span class="hljs-keyword">local</span> csv,fmt,gt,lt,many,map       = l.csv,l.fmt,l.gt,l.lt,l.many,l.map
+<span class="hljs-keyword">local</span> o,oo,obj,push,rnd,slice,<span class="hljs-built_in">sort</span> = l.o,l.oo,l.obj,l.push,l.rnd,l.slice,l.<span class="hljs-built_in">sort</span></pre></div></div>
             
         </li>
         
@@ -168,7 +168,7 @@
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data:bestOrRest</span><span class="hljs-params">(    m,n)</span></span>
   <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(<span class="hljs-built_in">self</span>.rows)
-  <span class="hljs-keyword">for</span> i,row <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(<span class="hljs-built_in">self</span>.rows) <span class="hljs-keyword">do</span> row.rank = i <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">for</span> i,row <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(<span class="hljs-built_in">self</span>.rows) <span class="hljs-keyword">do</span> row.rank = <span class="hljs-built_in">math</span>.<span class="hljs-built_in">floor</span>(<span class="hljs-number">100</span>*i/#<span class="hljs-built_in">self</span>.rows) <span class="hljs-keyword">end</span>
   n = #<span class="hljs-built_in">self</span>.rows
   m = the.<span class="hljs-built_in">min</span> &gt;=<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> the.<span class="hljs-built_in">min</span> <span class="hljs-keyword">or</span> (#<span class="hljs-built_in">self</span>.rows)^the.<span class="hljs-built_in">min</span>
   <span class="hljs-keyword">return</span> slice(<span class="hljs-built_in">self</span>.rows,<span class="hljs-number">1</span>,m), slice(<span class="hljs-built_in">self</span>.rows,m+<span class="hljs-number">1</span>) <span class="hljs-keyword">end</span></pre></div></div>
@@ -203,7 +203,7 @@ rounding numbers to <code>places</code> (default=2)</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-10">&#x00a7;</a>
               </div>
-              <h3 id="ranges">Ranges</h3>
+              <h3 id="distance">Distance</h3>
 
             </div>
             
@@ -216,6 +216,54 @@ rounding numbers to <code>places</code> (default=2)</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-11">&#x00a7;</a>
               </div>
+              <p>Spit rows in two based on distance to two distant points.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data:half</span><span class="hljs-params">(  above,rows)</span></span>
+  rows = rows <span class="hljs-keyword">or</span> <span class="hljs-built_in">self</span>.rows
+  <span class="hljs-keyword">local</span> sample = many(rows, the.sample)
+  <span class="hljs-keyword">local</span> x  = above <span class="hljs-keyword">or</span> any(sample):far(some)
+  <span class="hljs-keyword">local</span> y  = x:far(sample)
+  <span class="hljs-keyword">local</span> c  = x:dist(y)
+  <span class="hljs-keyword">local</span> rxs= <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(r)</span></span> <span class="hljs-keyword">return</span> {r=r, x=(r:dist(x)^<span class="hljs-number">2</span>+c^<span class="hljs-number">2</span>-r:dist(y)^<span class="hljs-number">2</span>)/(<span class="hljs-number">2</span>*c)} <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">local</span> xs,ys = {},{}
+  <span class="hljs-keyword">for</span> j,rx <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(<span class="hljs-built_in">sort</span>(map(rows,fxs), lt<span class="hljs-string">&quot;x&quot;</span>)) <span class="hljs-keyword">do</span> 
+    push(j&lt;=<span class="hljs-number">.5</span>*#rows <span class="hljs-keyword">and</span> xs <span class="hljs-keyword">or</span> ys, rx.r) <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">return</span> {xs=xs, ys=ys, x=x, y=y, c=c} <span class="hljs-keyword">end</span>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data:bestLeaf</span><span class="hljs-params">(  above,rows,stop)</span></span>
+  rows = rows <span class="hljs-keyword">or</span> <span class="hljs-built_in">self</span>.rows
+  stop = (the.<span class="hljs-built_in">min</span> &gt;=<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> the.<span class="hljs-built_in">min</span> <span class="hljs-keyword">or</span> (#rows)^the.<span class="hljs-built_in">min</span>)
+  <span class="hljs-keyword">if</span>   #rows &lt; <span class="hljs-number">2</span>*<span class="hljs-built_in">min</span>
+  <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> rows
+  <span class="hljs-keyword">else</span> node = <span class="hljs-built_in">self</span>:half(above,rows)
+       <span class="hljs-keyword">if</span>    node.x &lt; node.y 
+       <span class="hljs-keyword">then</span>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">self</span>:bestLeaf(node.x, node.xs, stop)
+       <span class="hljs-keyword">else</span>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">self</span>:bestLear(node.y, node.ys, stop) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-12">&#x00a7;</a>
+              </div>
+              <h3 id="ranges">Ranges</h3>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-13">&#x00a7;</a>
+              </div>
               <p>Return the XY bins that separate the <code>listOfRows</code></p>
 
             </div>
@@ -227,35 +275,35 @@ rounding numbers to <code>places</code> (default=2)</p>
       push(out, xy) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">return</span> out <span class="hljs-keyword">end</span>
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data:greedyBest</span><span class="hljs-params">(   bests,rests,loop,out,stop)</span></span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Data:greedyBest</span><span class="hljs-params">(out,stop,loop,bests,rests)</span></span>
   out = {}
   stop = the.<span class="hljs-built_in">min</span> &gt;=<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> the.<span class="hljs-built_in">min</span> <span class="hljs-keyword">or</span> (#<span class="hljs-built_in">self</span>.rows)^the.<span class="hljs-built_in">min</span> 
   <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">loop</span><span class="hljs-params">(bests,rests)</span></span>
-    <span class="hljs-built_in">print</span>(#bests, #rests)
-    <span class="hljs-keyword">if</span> #bests + #rests &gt; stop <span class="hljs-keyword">then</span>
+    <span class="hljs-keyword">if</span>   #bests + #rests &gt;= stop
+    <span class="hljs-keyword">then</span>
       <span class="hljs-keyword">local</span> rests1 = many(rests, the.rest*#bests)
-      <span class="hljs-keyword">local</span> fun=<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(xy)</span></span> <span class="hljs-keyword">return</span> {xy=xy,z=xy.y:score(<span class="hljs-string">&quot;yes&quot;</span>,#bests,#rests1)} <span class="hljs-keyword">end</span>
+      <span class="hljs-keyword">local</span> ord=<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(xy)</span></span> <span class="hljs-keyword">return</span> {xy=xy,z=xy.y:score(<span class="hljs-string">&quot;yes&quot;</span>,#bests,#rests1)} <span class="hljs-keyword">end</span>
       <span class="hljs-keyword">for</span> _,todo <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(<span class="hljs-built_in">sort</span>(map(<span class="hljs-built_in">self</span>:contrasts({yes=bests,no=rests1}),
-                          fun),gt<span class="hljs-string">&quot;z&quot;</span>)) <span class="hljs-keyword">do</span>
+                          ord),gt<span class="hljs-string">&quot;z&quot;</span>)) <span class="hljs-keyword">do</span>
         todo = todo.xy
         <span class="hljs-keyword">local</span> bests2 = todo:selects(bests)
         <span class="hljs-keyword">local</span> rests2 = todo:selects(rests)
         <span class="hljs-keyword">if</span> (#bests2+#rests2 &lt; #bests+#rests) <span class="hljs-keyword">then</span>
            push(out, todo)
-           <span class="hljs-keyword">return</span> loop(bests2,rests2,out,stop) <span class="hljs-keyword">end</span> 
-  <span class="hljs-keyword">end</span> <span class="hljs-comment">---------------------------------</span>
+           <span class="hljs-keyword">return</span> loop(bests2,rests2) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">return</span> out, bests,rests 
+  <span class="hljs-keyword">end</span> <span class="hljs-comment">---------------------------</span>
   bests,rests = <span class="hljs-built_in">self</span>:bestOrRest()
-  loop(bests, rests)
-  <span class="hljs-keyword">return</span> out <span class="hljs-keyword">end</span></pre></div></div>
+  <span class="hljs-keyword">return</span> loop(bests, rests) <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
         
-        <li id="section-12">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-12">&#x00a7;</a>
+                <a class="ss" href="#section-14">&#x00a7;</a>
               </div>
               <p>That’s all folks.</p>
 

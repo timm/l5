@@ -1,6 +1,6 @@
 local l=require"lib"
 local csv,fmt,gt,map  = l.csv,l.fmt,l.gt,l.map
-local o,oo,slice,sort = l.o,l.oo,l.slice,l.sort
+local o,oo,shuffle,slice,sort = l.o,l.oo,l.shuffle,l.slice,l.sort
 local the = require"about"
 local XY = require"xy"
 local Num,Sym = require"num", require"sym"
@@ -165,14 +165,14 @@ function eg.super(   data,bests,rests,fun,rows,best,old,z)
           l.rnd(z,3)) end 
   return true end 
 
-local function _gb(n,     data,out,bests,rests,report)
-  function report(bests,rests)
-    for _,rows in pairs{bests,rests} do
-      for _,row in pairs(rows) do n:add(row.rank) end end 
-  end -----------------------------
+local function report(num,rows1,rows2)
+  for _,rows in pairs{rows1,rows2} do
+    for _,row in pairs(rows) do num:add(row.rank) end end end
+
+local function _gb(num,     data,out,bests,rests,report)
   data = Data(the.file)
   out,bests,rests=data:greedyBest() 
-  report(bests,rests)
+  report(num,bests,rests)
   return data,out,bests,rests
 end
 
@@ -185,6 +185,25 @@ function eg.greedyBest(    n,out,data,bests,rests)
   oo{cols=#data.cols.all, rows=#data.rows}
   map(out,print)
   print(#bests+#rests,fmt("%-20s",o(n:pers({.25,.5,.75})))) 
+  return true end
+
+-- Half
+function eg.half(  node,data)
+  data = Data(the.file)
+  table.sort(data.rows)
+  for i,row in pairs(data.rows) do row.rank = math.floor(100*i/#data.rows) end
+  shuffle(data.rows)
+  node = data:half() 
+  return 199 == #node.xs and 199 == #node.ys end
+
+-- Halves
+function eg.bestLeaf(  data,leaf,num)
+  data = Data(the.file)
+  data:bestOrRest()
+  leaf = data:bestLeaf() 
+  num  = Num()
+  report(num,leaf)
+  print(o(num:pers{.25, .5, .75}))
   return true end
 
  -- ---------------------------------

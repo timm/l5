@@ -1,6 +1,6 @@
 local l=require"lib"
 local the=require"about"
-local o, oo = l.o, l.oo
+local o, oo, per = l.o, l.oo, l.per
 local copy,lt,map,obj,sort = l.copy,l.lt,l.map,l.obj,l.sort
 
 -- `Row` holds one record

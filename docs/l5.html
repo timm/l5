@@ -44,7 +44,8 @@
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-keyword">local</span> l=<span class="hljs-built_in">require</span><span class="hljs-string">&quot;lib&quot;</span>
-<span class="hljs-keyword">local</span> csv,gt,map,o,oo,slice,<span class="hljs-built_in">sort</span> = l.csv,l.gt,l.map,l.o,l.oo,l.slice,l.<span class="hljs-built_in">sort</span>
+<span class="hljs-keyword">local</span> csv,fmt,gt,map  = l.csv,l.fmt,l.gt,l.map
+<span class="hljs-keyword">local</span> o,oo,slice,<span class="hljs-built_in">sort</span> = l.o,l.oo,l.slice,l.<span class="hljs-built_in">sort</span>
 <span class="hljs-keyword">local</span> the = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;about&quot;</span>
 <span class="hljs-keyword">local</span> XY = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;xy&quot;</span>
 <span class="hljs-keyword">local</span> Num,Sym = <span class="hljs-built_in">require</span><span class="hljs-string">&quot;num&quot;</span>, <span class="hljs-built_in">require</span><span class="hljs-string">&quot;sym&quot;</span>
@@ -130,7 +131,7 @@ function eg.BAD() print(eg.dont.have.this.field) end</p>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.LS</span><span class="hljs-params">()</span></span>
   <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;\nExamples lua csv -e ...&quot;</span>)
-  <span class="hljs-keyword">for</span> _,k <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(eg.LIST()) <span class="hljs-keyword">do</span> <span class="hljs-built_in">print</span>(<span class="hljs-built_in">string</span>.<span class="hljs-built_in">format</span>(<span class="hljs-string">&quot;\t%s&quot;</span>,k)) <span class="hljs-keyword">end</span> 
+  <span class="hljs-keyword">for</span> _,k <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(eg.LIST()) <span class="hljs-keyword">do</span> <span class="hljs-built_in">print</span>(fmt(<span class="hljs-string">&quot;\t%s&quot;</span>,k)) <span class="hljs-keyword">end</span> 
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -233,7 +234,10 @@ is done such that the kept numbers span the range of inputs).</p>
   the.sample = <span class="hljs-number">32</span>
   <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">10000</span> <span class="hljs-keyword">do</span> num:add(i) <span class="hljs-keyword">end</span>
   oo(num._has:nums())
-  <span class="hljs-keyword">return</span> <span class="hljs-number">32</span>==#num._has._has; <span class="hljs-keyword">end</span></pre></div></div>
+  <span class="hljs-keyword">return</span> <span class="hljs-number">32</span>==#num._has._has; <span class="hljs-keyword">end</span> 
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.o</span><span class="hljs-params">()</span></span>
+  oo{<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>} <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -250,7 +254,7 @@ is done such that the kept numbers span the range of inputs).</p>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.csv</span><span class="hljs-params">(   n)</span></span> 
   n=<span class="hljs-number">0</span>
-  csv(<span class="hljs-string">&quot;../data/auto93.csv&quot;</span>,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(row)</span></span>
+  csv(the.file,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(row)</span></span>
     n=n+<span class="hljs-number">1</span>; <span class="hljs-keyword">if</span> n&gt; <span class="hljs-number">10</span> <span class="hljs-keyword">then</span> <span class="hljs-keyword">return</span> <span class="hljs-keyword">else</span> oo(row) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span>); <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
@@ -267,7 +271,7 @@ is done such that the kept numbers span the range of inputs).</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.data</span><span class="hljs-params">(   d)</span></span>
-  d = Data(<span class="hljs-string">&quot;../../data/auto93.csv&quot;</span>)
+  d = Data(the.file)
   <span class="hljs-keyword">for</span> _,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(d.cols.y) <span class="hljs-keyword">do</span> oo(col) <span class="hljs-keyword">end</span>
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
             
@@ -284,8 +288,8 @@ is done such that the kept numbers span the range of inputs).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.stats</span><span class="hljs-params">(   data,mid,div)</span></span>
-  data = Data(<span class="hljs-string">&quot;../data/auto93.csv&quot;</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.stats</span><span class="hljs-params">(   data)</span></span>
+  data = Data(the.file)
   <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;xmid&quot;</span>, o( data:stats(<span class="hljs-number">2</span>, data.cols.x, <span class="hljs-string">&quot;mid&quot;</span>)))
   <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;xdiv&quot;</span>, o( data:stats(<span class="hljs-number">3</span>, data.cols.x, <span class="hljs-string">&quot;div&quot;</span>)))
   <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;ymid&quot;</span>, o( data:stats(<span class="hljs-number">2</span>, data.cols.y, <span class="hljs-string">&quot;mid&quot;</span>)))
@@ -306,7 +310,7 @@ is done such that the kept numbers span the range of inputs).</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.around</span><span class="hljs-params">(    data,around)</span></span>
-  data = Data(<span class="hljs-string">&quot;../data/auto93.csv&quot;</span>) 
+  data = Data(the.file)
   <span class="hljs-built_in">print</span>(data.rows[<span class="hljs-number">1</span>]:dist(data.rows[<span class="hljs-number">2</span>]))
   around = data.rows[<span class="hljs-number">1</span>]:around(data.rows)
   <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,#data.rows,<span class="hljs-number">32</span> <span class="hljs-keyword">do</span> <span class="hljs-built_in">print</span>(i, o(around[i].row.cells),around[i].dist) <span class="hljs-keyword">end</span>
@@ -326,7 +330,7 @@ is done such that the kept numbers span the range of inputs).</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.sort</span><span class="hljs-params">(    data,around)</span></span>
-  data = Data(<span class="hljs-string">&quot;../data/auto93.csv&quot;</span>) 
+  data = Data(the.file)
   <span class="hljs-built_in">table</span>.<span class="hljs-built_in">sort</span>(data.rows)
   <span class="hljs-built_in">print</span>(o(map(data.cols.y, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(col)</span></span> <span class="hljs-keyword">return</span> col.name <span class="hljs-keyword">end</span>)))
   <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,#data.rows,<span class="hljs-number">32</span> <span class="hljs-keyword">do</span> 
@@ -347,7 +351,7 @@ is done such that the kept numbers span the range of inputs).</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.bestOrRest</span><span class="hljs-params">(   data,bestRows,restRows,best,rest)</span></span>
-  data = Data(<span class="hljs-string">&quot;../data/auto93.csv&quot;</span>) 
+  data = Data(the.file)
   bestRows,restRows = data:bestOrRest()
   best,rest = data:clone(bestRows), data:clone(restRows)
   <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;besty&quot;</span>, o(best:stats()))
@@ -368,13 +372,13 @@ is done such that the kept numbers span the range of inputs).</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.unsuper</span><span class="hljs-params">(   data,bests,rests,fun,rows,best)</span></span>
-  data = Data(<span class="hljs-string">&quot;../data/auto93.csv&quot;</span>) 
+  data = Data(the.file)
   bests,rests = data:bestOrRest()
   <span class="hljs-keyword">for</span> _,col <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(data.cols.x) <span class="hljs-keyword">do</span>
     <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;\n&quot;</span> .. col.name)
     <span class="hljs-keyword">for</span> _,xy <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(XY.unsuper(col,{bests=bests,rests=rests})) <span class="hljs-keyword">do</span> 
        <span class="hljs-built_in">print</span>(xy.y.n, 
-             <span class="hljs-built_in">string</span>.<span class="hljs-built_in">format</span>(<span class="hljs-string">&quot;%-20s&quot;</span>,o(xy.y._has)), 
+             fmt(<span class="hljs-string">&quot;%-20s&quot;</span>,o(xy.y._has)), 
              xy) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
             
@@ -395,7 +399,7 @@ small and complex ones and rank the remaining by how well they select for best.<
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.super</span><span class="hljs-params">(   data,bests,rests,fun,rows,best,old,z)</span></span>
-  data = Data(<span class="hljs-string">&quot;../data/auto93.csv&quot;</span>) 
+  data = Data(the.file)
   bests,rests = data:bestOrRest()
   rests = l.many(rests, the.rest*#bests)
   fun = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(xy)</span></span> <span class="hljs-keyword">return</span> {xy=xy,z=xy.y:score(<span class="hljs-string">&quot;bests&quot;</span>, #bests, #rests)} <span class="hljs-keyword">end</span>
@@ -406,10 +410,21 @@ small and complex ones and rank the remaining by how well they select for best.<
     <span class="hljs-keyword">if</span> xy.name ~= old <span class="hljs-keyword">then</span> <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;\n&quot;</span>..xy.name) <span class="hljs-keyword">end</span>
     old = xy.name
     <span class="hljs-built_in">print</span>(xy.y.n, 
-          <span class="hljs-built_in">string</span>.<span class="hljs-built_in">format</span>(<span class="hljs-string">&quot;%-20s&quot;</span>,o(xy.y._has)), 
-          <span class="hljs-built_in">string</span>.<span class="hljs-built_in">format</span>(<span class="hljs-string">&quot;%-20s&quot;</span>,xy),
+          fmt(<span class="hljs-string">&quot;%-20s&quot;</span>,o(xy.y._has)), 
+          fmt(<span class="hljs-string">&quot;%-20s&quot;</span>,xy),
           l.rnd(z,<span class="hljs-number">3</span>)) <span class="hljs-keyword">end</span> 
-  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span> 
+
+<span class="hljs-keyword">local</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_gb</span><span class="hljs-params">(n,     data,out,bests,rests,report)</span></span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">report</span><span class="hljs-params">(bests,rests)</span></span>
+    <span class="hljs-keyword">for</span> _,rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>{bests,rests} <span class="hljs-keyword">do</span>
+      <span class="hljs-keyword">for</span> _,row <span class="hljs-keyword">in</span> <span class="hljs-built_in">pairs</span>(rows) <span class="hljs-keyword">do</span> n:add(row.rank) <span class="hljs-keyword">end</span> <span class="hljs-keyword">end</span> 
+  <span class="hljs-keyword">end</span> <span class="hljs-comment">-----------------------------</span>
+  data = Data(the.file)
+  out,bests,rests=data:greedyBest() 
+  report(bests,rests)
+  <span class="hljs-keyword">return</span> data,out,bests,rests
+<span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
@@ -424,9 +439,15 @@ small and complex ones and rank the remaining by how well they select for best.<
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.greedyBest</span><span class="hljs-params">(   data)</span></span>
-  data = Data(<span class="hljs-string">&quot;../data/auto93.csv&quot;</span>) 
-  data:greedyBest() <span class="hljs-keyword">end</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">eg.greedyBest</span><span class="hljs-params">(    n,out,data,bests,rests)</span></span>
+  n = Num()
+  <span class="hljs-built_in">io</span>.<span class="hljs-built_in">write</span>(the.file)
+  <span class="hljs-keyword">for</span> i=<span class="hljs-number">1</span>,<span class="hljs-number">20</span> <span class="hljs-keyword">do</span> <span class="hljs-built_in">io</span>.<span class="hljs-built_in">write</span>(<span class="hljs-string">&quot;.&quot;</span>); <span class="hljs-built_in">io</span>.<span class="hljs-built_in">flush</span>(); data,out,bests,rests = _gb(n) <span class="hljs-keyword">end</span>
+  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;&quot;</span>)
+  oo{cols=#data.cols.all, rows=#data.rows}
+  map(out,<span class="hljs-built_in">print</span>)
+  <span class="hljs-built_in">print</span>(#bests+#rests,fmt(<span class="hljs-string">&quot;%-20s&quot;</span>,o(n:pers({<span class="hljs-number">.25</span>,<span class="hljs-number">.5</span>,<span class="hljs-number">.75</span>})))) 
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-keyword">end</span></pre></div></div>
             
         </li>
         
