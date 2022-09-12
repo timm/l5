@@ -2,7 +2,7 @@ local l=require"lib"
 local the=require"about"
 local obj, per = l.obj, l.per
 
--- `Sample` keeps at most `the.sample` numbers.
+-- `Sample` keeps at most `the.Sample` numbers.
 local Sample=obj"Sample"
 
 -- ### Create
@@ -16,8 +16,8 @@ function Sample:new(c,s)
 -- (and if we run out of space, delete something old, at random).,  
 function Sample:add(v,    pos)
   self.n  = self.n + 1
-  if     #self._has < the.sample           then pos=1 + (#self._has) 
-  elseif math.random() < the.sample/self.n then pos=math.random(#self._has) end
+  if     #self._has < the.Sample           then pos=1 + (#self._has) 
+  elseif math.random() < the.Sample/self.n then pos=math.random(#self._has) end
   if pos then self.isSorted = false 
               self._has[pos] = tonumber(v) end end 
 

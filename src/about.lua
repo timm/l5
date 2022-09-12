@@ -17,7 +17,7 @@ OPTIONS:
  -p  --p        distance calculation coefficient      = 2
  -r  --rest     size of "rest" set                    = 3
  -s  --seed     random number seed                    = 10019
- -S  --sample   how many numbers to keep              = 512 ]]
+ -S  --Sample   how many numbers to keep              = 512 ]]
 --    
 -- ### Coding Conventions
 --

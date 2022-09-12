@@ -16,6 +16,7 @@ local eg,fails = {},0
 local function run(todo,     old,status,out,msg)
   if not eg[todo] then return end
   math.randomseed(the.seed) -- reset seed [1]
+  print(math.random(), the.seed)
   old={}; for k,v in pairs(the) do old[k]=v end --  [2]
   if the.dump then -- [4]
     status,out=true, eg[todo]() -- crash on errors, printing stack dump
@@ -77,7 +78,7 @@ function eg.num(  num,mid,div)
 -- is done such that the kept numbers span the range of inputs).
 function eg.bignum(  num)
   num=Num()
-  the.sample = 32
+  the.Sample = 32
   for i=1,10000 do num:add(i) end
   oo(num._has:nums())
   return 32==#num._has._has; end 
@@ -216,6 +217,7 @@ function eg.bestLeaf(  num)
 -- - Run some lint code (in this case, to find any rogue globals).
 -- - Report back to the operating system the number of errors found.
 the = l.cli(the)  
+print(the.seed)
 run(the.eg)
 l.rogues() 
 os.exit(fails) 
