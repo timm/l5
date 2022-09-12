@@ -10,7 +10,7 @@ local Row = obj"Row"
 function Row:new(t,data) 
   return {cells     = t,          -- one record
           cooked    = l.copy(t),  -- used if we discretize data
-          isEvaled  = false,      -- true if y-values evaluated.
+          evaled  = false,      -- true if y-values evaluated.
           outerSpace= data        -- background space of all examples
          } end
 
@@ -32,10 +32,11 @@ function Row:cols(cols)
   
 -- ### Distance
 -- Distance between rows (returns 0..1). For unknown values, assume max distance.
-function Row:dist(row2,    d)
+function Row:dist(row2,    d,d1)
   d = 0
   for i,col in pairs(self.outerSpace.cols.x) do 
-    d = d + col:dist(self.cells[col.at], row2.cells[col.at])^the.p end
+    d1 = col:dist(self.cells[col.at], row2.cells[col.at]) 
+    d  = d + d1^the.p end
   return (d/#self.outerSpace.cols.x)^(1/the.p) end
 
 -- Sort `rows` (default=`data.rows`) by distance to `self`.

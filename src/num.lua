@@ -47,6 +47,8 @@ function Num:mid() return self._has:mid() end
 
 -- Normalized numbers 0..1. Everything else normalizes to itself.
 function Num:norm(n) 
+  --local a=self._has:nums()
+  --local lo,hi = a[1], a[#a]
  return n=="?" and n or (n-self.lo)/(self.hi-self.lo + 1E-32) end
 
 -- ### Discretize

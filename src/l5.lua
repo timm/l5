@@ -1,6 +1,6 @@
 local l=require"lib"
-local csv,fmt,gt,map  = l.csv,l.fmt,l.gt,l.map
-local o,oo,shuffle,slice,sort = l.o,l.oo,l.shuffle,l.slice,l.sort
+local csv,fmt,gt,map,o,oo  = l.csv,l.fmt,l.gt,l.map,l.o,l.oo
+local per,push,shuffle,slice,sort = l.per,l.push,l.shuffle,l.slice,l.sort
 local the = require"about"
 local XY = require"xy"
 local Num,Sym = require"num", require"sym"
@@ -86,6 +86,11 @@ function eg.bignum(  num)
 function eg.o()
   oo{1,2,3,4} end
 
+function eg.per()
+    local a={}; for i=1,100 do push(a,i) end
+    print(o(map({.1,.3,.5,.7,.9},function(p) return per(a,p) end)))
+    return per(a,.7)==70 end
+
 -- Show we can read csv files.
 function eg.csv(   n) 
   n=0
@@ -106,6 +111,18 @@ function eg.stats(   data)
   print("ymid", o( data:stats(2, data.cols.y, "mid")))
   print("ydiv", o( data:stats(3, data.cols.y, "div")))
   return true end
+
+function eg.dist(     num)
+  data = Data(the.file)
+  num=Num()
+  for _,x in pairs(data.rows) do
+    for _,y in pairs(data.rows) do num:add(x:dist(y)) end end
+  oo(num:pers{.1,.3,.5,.7,.9})
+  -- for i=1,1 do
+  --   x=l.any(data.rows)
+  --   y=l.any(data.rows)
+  --   print(x:dist(x), x:dist(y),  y:dist(x)) end end
+end
 
 -- Distance functions.
 function eg.around(    data,around)
@@ -166,6 +183,11 @@ function eg.super(   data,bests,rests,fun,rows,best,old,z)
           l.rnd(z,3)) end 
   return true end 
 
+local function evals(rows,    n)
+  n=0
+  for _,row in pairs(rows) do n = n+(row.evaled and 1 or 0) end 
+  return n end 
+
 local function report(num,rows1,rows2)
   for _,rows in pairs{rows1,rows2} do
     for _,row in pairs(rows) do num:add(row.rank) end end end
@@ -186,7 +208,7 @@ function eg.greedyBest(    n,out,data,bests,rests)
   map(out,print)
   print(o{name=the.file,
           cols=#data.cols.all, rows=#data.rows},
-    #bests+#rests,fmt("%-20s",o(n:pers({.25,.5,.75})))) 
+    #bests+#rests,fmt("%-20s",o(n:pers({.1,.3,.5,.7,.9})))) 
   return true end
 
 -- Half
@@ -199,15 +221,23 @@ function eg.half(  node,data)
   return 199 == #node.xs and 199 == #node.ys end
 
 -- Halves
-function eg.bestLeaf(  num)
+function eg.bestLeaf(  num,evaluated)
   num  = Num()
-  for i=1,10 do
+  evaluated= Num()
+  print(the.file)
+  oo(the)
+  local leaf
+  for i=1,20 do
     local data = Data(the.file)
-    data:bestOrRest()
-    local leaf = data:bestLeaf(data.rows) 
+    data:cheat()
+    leaf = data:bestLeaf(data.rows) 
     report(num,leaf)
+    evaluated:add(evals(data.rows))
   end
-  print(o(num:pers{.25, .5, .75}))
+  print(#leaf,
+        o(num:pers{.1,.3,.5,.7,.9}),
+        o(evaluated:pers{.1,.3,.5,.7,.9})
+        )
   return true end
 
  -- ---------------------------------

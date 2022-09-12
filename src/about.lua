@@ -12,12 +12,12 @@ OPTIONS:
  -f  --file     file with csv data                    = ../data/auto93.csv
  -F  --Far      how far to look for poles (max=1)     = .95
  -h  --help     show help                             = false
- -m  --min      min size. If<1 then t^n else n.       = .5
+ -m  --min      min size. If<1 then t^min else min.   = 10
  -n  --nums     number of nums to keep                = 512
  -p  --p        distance calculation coefficient      = 2
  -r  --rest     size of "rest" set                    = 3
  -s  --seed     random number seed                    = 10019
- -S  --Sample   how many numbers to keep              = 512 ]]
+ -S  --Sample   how many numbers to keep              = 10000 ]]
 --    
 -- ### Coding Conventions
 --

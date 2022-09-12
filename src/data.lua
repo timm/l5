@@ -34,13 +34,13 @@ function Data:add(xs,    row)
           col:add(row.cells[col.at]) end end end end
 
 -- ### Query
--- Return two sets of rows, one for the best and the rest
-function Data:bestOrRest(    m,n)
+-- Add percentile rank to rows, then scramble row order and forget we peeked.
+function Data:cheat(    m,n)
   table.sort(self.rows)
-  for i,row in pairs(self.rows) do row.rank = math.floor(100*i/#self.rows) end
-  n = #self.rows
-  m = the.min >=1 and the.min or (#self.rows)^the.min
-  return slice(self.rows,1,m), slice(self.rows,m+1) end 
+  for i,row in pairs(self.rows) do 
+    row.rank = math.floor(100*i/#self.rows) 
+    row.evaled = false end
+  self.rows = l.shuffle(self.rows) end
 
 -- For `showCols` (default=`data.cols.x`) in `data`, show `fun` (default=`mid`),
 -- rounding numbers to `places` (default=2)
@@ -54,21 +54,25 @@ function Data:stats(  places,showCols,todo,    t,v)
 -- ### Distance
 -- Spit rows in two based on distance to two distant points.
 function Data:half(rows,  above)
-  local sample = many(rows, the.sample)
-  local x  = any(sample):far(sample)
+  local sample = many(rows, the.Sample)
+  if above then oo(above.cells) end
+  local x  = above or any(sample):far(sample)
   local y  = x:far(sample)
   local c  = x:dist(y)
-  local rxs= function(r) return {r=r, x=(r:dist(x)^2+c^2-r:dist(y)^2)/(2*c)} end
+  local rxs= function(r, a,b)
+               a, b = r:dist(x), r:dist(y)
+               return {r=r, x=(a^2 + c^2 - b^2)/(2*c)} end
   local xs,ys = {},{}
   for j,rx in pairs(sort(map(rows,rxs), lt"x")) do 
-    push(j<=.5*#rows and xs or ys, rx.r) end
+    push(j<#rows/2 and xs or ys, rx.r) end
   return {xs=xs, ys=ys, x=x, y=y, c=c} end
 
 function Data:bestLeaf(rows,  above,stop)
   stop = stop or (the.min >=1 and the.min or (#rows)^the.min)
   if   #rows < stop
   then return rows
-  else local node = self:half(rows,above)
+  else 
+       local node = self:half(rows,above)
        if    node.x < node.y 
        then  return self:bestLeaf(node.xs, node.x, stop)
        else  return self:bestLeaf(node.ys, node.y, stop) end end end
@@ -85,19 +89,23 @@ function Data:contrasts(listOfRows,    out)
 function Data:greedyBest(out,stop,loop,bests,rests)
   out = {}
   stop = the.min >=1 and the.min or (#self.rows)^the.min 
+  print("stop",stop)
   function loop(bests,rests)
     if   #bests + #rests >= stop
     then
       local rests1 = many(rests, the.rest*#bests)
       local ord=function(xy) return {xy=xy,z=xy.y:score("yes",#bests,#rests1)} end
-      for _,todo in pairs(sort(map(self:contrasts({yes=bests,no=rests1}),
+      for i,todo in pairs(sort(map(self:contrasts({yes=bests,no=rests1}),
                           ord),gt"z")) do
-        todo = todo.xy
-        local bests2 = todo:selects(bests)
-        local rests2 = todo:selects(rests)
-        if (#bests2+#rests2 < #bests+#rests) then
-           push(out, todo)
-           return loop(bests2,rests2) end end end
+        if i <= 10 then
+          io.write("+")
+          todo = todo.xy
+          local bests2 = todo:selects(bests)
+          local rests2 = todo:selects(rests)
+          if (#bests2+#rests2 < #bests+#rests) then
+             io.write("!")
+             push(out, todo)
+             return loop(bests2,rests2) end end end end
     return out, bests,rests 
   end ---------------------------
   bests,rests = self:bestOrRest()
