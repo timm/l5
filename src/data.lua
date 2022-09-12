@@ -50,7 +50,31 @@ function Data:stats(  places,showCols,todo,    t,v)
             v=getmetatable(col)[todo](col)
             v=type(v)=="number" and rnd(v,places) or v
             t[col.name]=v end; return t end
-  
+
+-- ### Distance
+-- Spit rows in two based on distance to two distant points.
+function Data:half(  above,rows)
+  rows = rows or self.rows
+  local sample = many(rows, the.sample)
+  local x  = above or any(sample):far(some)
+  local y  = x:far(sample)
+  local c  = x:dist(y)
+  local rxs= function(r) return {r=r, x=(r:dist(x)^2+c^2-r:dist(y)^2)/(2*c)} end
+  local xs,ys = {},{}
+  for j,rx in pairs(sort(map(rows,fxs), lt"x")) do 
+    push(j<=.5*#rows and xs or ys, rx.r) end
+  return {xs=xs, ys=ys, x=x, y=y, c=c} end
+
+function Data:bestLeaf(  above,rows,stop)
+  rows = rows or self.rows
+  stop = (the.min >=1 and the.min or (#rows)^the.min)
+  if   #rows < 2*min
+  then return rows
+  else node = self:half(above,rows)
+       if    node.x < node.y 
+       then  return self:bestLeaf(node.x, node.xs, stop)
+       else  return self:bestLear(node.y, node.ys, stop) end end end
+
 -- ### Ranges
 -- Return the XY bins that separate the `listOfRows`
 function Data:contrasts(listOfRows,    out)
