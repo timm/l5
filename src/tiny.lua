@@ -22,22 +22,29 @@ OPTIONS:
  -S  --Sample   how many numbers to keep              = 10000 ]]
 
 local any,copy,csv,lt,many,map = l.any,l.copy,l.csv,l.lt,l.many,l.map
-local o,obj,oo,per,push    = l.o,l.obj,l.oo,l.per, l.push
-local rnd,sort             = l.rnd, l.sort
+local o,obj,oo,per,push        = l.o,l.obj,l.oo,l.per, l.push
+local rnd,sort                 = l.rnd, l.sort
 local Data,Num,Row,Skip,Sym
 
 -- ----------------------------------------------------------------------------
 Skip=obj"Skip"
-function Skip:new(c,x) return {at=c,txt=x} end
-function Skip:add(x)   return x end
-function Skip:dist(v1,v2) return 0,0 end
+function Skip:new(c,x)     return {at=c,txt=x} end
+function Skip:add(x)       return x end
+function Skip:discretize(x) return x end
+function Skip:dist(v1,v2)  return 0,0 end
 
 -- ----------------------------------------------------------------------------
 Sym=obj"Sym"
-function Sym:new(c,x) return {at=c or 0,txt=x or "",has={}} end
-function Sym:add(x)   if x~="?" then self.has[x]=1+(self.has[x] or 0) end end
+function Sym:new(c,x) return {at=c or 0,txt=x or "",n=0,has={}} end
+function Sym:add(x)   
+  if x~="?" then self.n =1+self.n;self.has[x]=1+(self.has[x] or 0) end end
+function Sym:discretize(x) return x end
 function Sym:dist(v1,v2) 
   return  (v1=="?" and v2=="?" and 1 or v1==v2 and 0 or 1),1 end
+function Sym:entropy(     e,fun)
+  function fun(p) return p*math.log(p,2) end
+  e=0; for _,n in pairs(self.has) do if n>0 then e=e-fun(n/self.n) end end
+  return e end
 
 -- ----------------------------------------------------------------------------
 Num=obj"Num"
@@ -45,9 +52,14 @@ function Num:new(c,x)
   return {at=c or 0,txt=x or "",lo=1E32,hi=-1E32, has={},
           w=(x or ""):find"-$" and -1 or 1} end
 function Num:add(x) 
-  if x~="?" then self.lo = math.min(x,self.lo)
+  if x~="?" then self.n = self.n+1
+                 self.lo = math.min(x,self.lo)
                  self.hi = math.max(x,self.hi) 
                  push(self.has,x) end end
+function Num:discretize(x,    tmp)
+  tmp = (self.hi - self.lo)/(the.bins - 1)
+  return self.lo == self.hi and 1 or math.floor(x/tmp+.5)*tmp end
+
 function Num:norm(n) 
   return n=="?" and n or (n-self.lo)/(self.hi-self.lo + 1E-32) end
 function Num:pers(t,    a)
@@ -88,7 +100,11 @@ function Row:__lt(row)
     s2 = s2 - 2.71828^(col.w * (y-x)/#ys) end
   return s1/#ys < s2/#ys end
 
--- ----------------------------------------------------------------------------
+function Row:discretize()
+  self.cooked=map(self._data.cols.all, 
+                  function(col) col:discretize(self.cells[col.at]) end) end
+
+-- ----------------------------------------------------------------------------
 Data=obj"Data"
 function Data:new(src)
   self.rows, self.cols = {}, {all={},x={},y={}}
@@ -114,13 +130,13 @@ function Data:cheat()
   self.rows = l.shuffle(self.rows) end
 
 function Data:half(rows,  above,     some,x,y,c,rxs,xs,ys)
-  rows  = rows or self.rows
-  some  = many(rows, the.Sample)
-  x     = above or any(some):far(some)
-  y     = x:far(some)
-  c     = x - y
-  rxs   = function(r) return {r=r,x=((r-x)^2 + c^2 - (r-y)^2)/(2*c)} end
-  xs,ys = {},{}
+  rows = rows or self.rows
+  some = many(rows, the.Sample)
+  x    = above or any(some):far(some)
+  y    = x:far(some)
+  c    = x - y
+  rxs  = function(r) return {r=r,x=((r-x)^2 + c^2 - (r-y)^2)/(2*c)} end
+  xs,ys= {},{}
   for j,rx in pairs(sort(map(rows,rxs),lt"x")) do
     push(j<=#rows/2 and xs or ys, rx.r) end
   return {xs=xs, ys=ys, x=x, y=y, c=c} end
@@ -134,7 +150,20 @@ function Data:best(rows,  above,stop)
        if    node.x < node.y 
        then  return self:best(node.xs, node.x, stop)
        else  return self:best(node.ys, node.y, stop) end end end
-  
+
+function Data:discretize()
+  for _,row in pairs(self.rows) do row:discretize() end end
+
+function Data:xentropy(     e,sym)
+  self:discretize()
+  e=0
+  for _,col in pairs(self.cols.x) do
+    sym = Sym()
+    for _,row in pairs(self.rows) do sym:add(row.cooked[col.at]) end
+    print(sym)
+    e = e + sym:entropy() end 
+  return e end
+
 -- ----------------------------------------------------------------------------
 local eg = {}
 local function run(    fails,old)
@@ -187,5 +216,9 @@ function eg.half(     num)
     map(d:best(),function(row) num:add(row.rank) end) end
   oo(num:pers{.1,.3,.5,.7,.9})
   return end
+
+function eg.discretize(   d)
+  d=Data(the.file)
+  print(d:xentropy()); return true end
 
 run()
