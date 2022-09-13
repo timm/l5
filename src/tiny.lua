@@ -151,6 +151,21 @@ function Data:best(rows,  above,stop)
        then  return self:best(node.xs, node.x, stop)
        else  return self:best(node.ys, node.y, stop) end end end
 
+function Data:fours(rows, stop)
+  rows = rows or l.shallowCopy(self.rows)
+  stop = stop or (the.min >=1 and the.min or (#rows)^the.min)
+  if   #rows < stop
+  then return rows
+  else rows  = shuffle(rows)
+       fours = {}; for i=1,4 do push(fours, table.remove(rows)) end
+       t = {}
+       for row1 in pairs(rows) do
+         four1 = sort(map(fours,function(row2) 
+                                  return {d=row1-row2, r=row2} end),lt"d")[1].r
+         t[four1._id] = t[four1._id] or {}
+         push(t[four1._id], four1) end end 
+  self:fours(sort(fours)[1],stop) end
+    
 function Data:discretize()
   for _,row in pairs(self.rows) do row:discretize() end end
 
@@ -220,5 +235,9 @@ function eg.half(     num)
 function eg.discretize(   d)
   d=Data(the.file)
   print(d:xentropy()); return true end
+
+function eg.fours(    d)
+  d=Data(the.file)
+  d:fours() end
 
 run()

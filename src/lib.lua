@@ -57,6 +57,11 @@ function l.copy(t,    u)
   u={}; for k,v in pairs(t) do u[k] = l.copy(v) end
   return setmetatable(u,getmetatable(t))  end
 
+function l.shallowCopy(t,    u)
+  if type(t) ~= "table" then return t end
+  u={}; for k,v in pairs(t) do u[k] = v end
+  return setmetatable(u,getmetatable(t))  end
+
 -- Return the `p`-th thing from the sorted list `t`.
 function l.per(t,p)
   p=math.floor(((p or .5)*#t)+.5); return t[math.max(1,math.min(#t,p))] end
@@ -116,9 +121,10 @@ function l.rnd(x, places)
   return math.floor(x * mult + 0.5) / mult end
 
 -- obj("Thing") enables a constructor Thing:new() ... and a pretty-printer
+local _id=0
 function l.obj(s,    t,i,new) 
   t={__tostring = function(x) return s..l.o(x) end}
-  function new(k,...) i=setmetatable({},k);
+  function new(k,...) _id=_id+1; i=setmetatable({_id=_id},k);
                       return setmetatable(t.new(i,...) or i,k) end
   t.__index = t;return setmetatable(t,{__call=new}) end
 
