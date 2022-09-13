@@ -1,6 +1,6 @@
 #!/usr/bin/env lua
-local l=require("lib")
-local the=l.settings[[   
+local _=require("lib")
+local the=_.settings[[   
 
 L5 : a lean little learning library, in LUA
 (c) 2022 Tim Menzies <timm@ieee.org> BSD-2 license
@@ -21,17 +21,10 @@ OPTIONS:
  -s  --seed     random number seed                    = 10019
  -S  --Sample   how many numbers to keep              = 10000 ]]
 
-local any,copy,csv,lt,many,map = l.any,l.copy,l.csv,l.lt,l.many,l.map
-local o,obj,oo,per,push        = l.o,l.obj,l.oo,l.per, l.push
-local rnd,sort                 = l.rnd, l.sort
-local Data,Num,Row,Skip,Sym
-
--- ----------------------------------------------------------------------------
-Skip=obj"Skip"
-function Skip:new(c,x)     return {at=c,txt=x} end
-function Skip:add(x)       return x end
-function Skip:discretize(x) return x end
-function Skip:dist(v1,v2)  return 0,0 end
+local any,cli,copy,csv,lt,many,map= _.any,_.cli,_.copy,_.csv,_.lt,_.many,_.map
+local o,obj,oo,per,push,rnd,rogues= _.o,_.obj,_.oo,_.per,_.push,_.rnd,_.rogues
+local shallowCopy,shuffle,sort    = _.sort,_.shallowCopy,_.sort
+local Data,Num,Row,Some,Sym
 
 -- ----------------------------------------------------------------------------
 Sym=obj"Sym"
@@ -40,42 +33,59 @@ function Sym:add(x)
   if x~="?" then self.n =1+self.n;self.has[x]=1+(self.has[x] or 0) end end
 function Sym:discretize(x) return x end
 function Sym:dist(v1,v2) 
-  return  (v1=="?" and v2=="?" and 1 or v1==v2 and 0 or 1),1 end
+  return  v1=="?" and v2=="?" and 1 or v1==v2 and 0 or 1 end
 function Sym:entropy(     e,fun)
   function fun(p) return p*math.log(p,2) end
   e=0; for _,n in pairs(self.has) do if n>0 then e=e-fun(n/self.n) end end
   return e end
 
 -- ----------------------------------------------------------------------------
+Some=obj"Some"
+function Some:new(c,x) 
+  return {at=c or 0, txt=x or "",n=0,isSorted=true, _has={}} end
+function Some:nums()
+  if not self.isSorted then table.sort(self._has) end
+  self.isSorted=true
+  return self._has end
+
+function Some:add(v,    pos)
+  if v~="?" then 
+    self.n=self.n+1
+    if #self._has < the.Sample then pos=1+(#self._has)
+    elseif math.random()<the.Sample/self.n then pos=math.rand(#self._has) end
+    if pos then self.isSorted=false
+                self._has[pos]= v end end end
+
+-- ----------------------------------------------------------------------------
 Num=obj"Num"
 function Num:new(c,x) 
-  return {at=c or 0,txt=x or "",lo=1E32,hi=-1E32, has={},
+  return {at=c or 0,txt=x or "",lo=1E32,hi=-1E32, n=0, has=Some(),
           w=(x or ""):find"-$" and -1 or 1} end
 function Num:add(x) 
   if x~="?" then self.n = self.n+1
                  self.lo = math.min(x,self.lo)
                  self.hi = math.max(x,self.hi) 
-                 push(self.has,x) end end
+                 self.has:add(x)  end end
+function Num:norm(n,   lo,hi) 
+  lo,hi=self.lo,self.hi
+  return n=="?" and n or (hi-lo < 1E-0 and 0 or  (n-lo)/(hi-lo + 1E-32)) end
+function Num:pers(t,    a)
+  a=self.has:nums()
+  return map(t,function(p) return per(a,p) end) end
 function Num:discretize(x,    tmp)
   tmp = (self.hi - self.lo)/(the.bins - 1)
   return self.lo == self.hi and 1 or math.floor(x/tmp+.5)*tmp end
 
-function Num:norm(n) 
-  return n=="?" and n or (n-self.lo)/(self.hi-self.lo + 1E-32) end
-function Num:pers(t,    a)
-  a=sort(self.has)
-  return map(t,function(p) return per(a,p) end) end
-
 function Num:dist(v1,v2)
-  if   v1=="?" and v2=="?" then return 1,1 end
+  if   v1=="?" and v2=="?" then return 1 end
   v1,v2 = self:norm(v1), self:norm(v2)
   if v1=="?" then v1 = v2<.5 and 1 or 0 end 
   if v2=="?" then v2 = v1<.5 and 1 or 0 end
-  return math.abs(v1-v2),1 end 
+  return math.abs(v1-v2) end 
 
 -- ----------------------------------------------------------------------------
 Row=obj"Row"
-function Row:new(data,t) return {_data=data,cells=t} end
+function Row:new(data,t) return {cells=t} end
 function Row:around(rows)
   return sort(map(rows, function(r) return {row=r,d=self-r} end),lt"d") end
 function Row:far(rows) 
@@ -84,8 +94,8 @@ function Row:far(rows)
 function Row:__sub(row,    d,n,d1,n1)
   d,n = 0,0
   for i,col in pairs(self._data.cols.x) do 
-    d1,n1= col:dist(self.cells[col.at], row.cells[col.at])
-    n = n + n1
+    d1= col:dist(self.cells[col.at], row.cells[col.at])
+    n = n + 1
     d = d + d1^the.p end
   return (d/n)^(1/the.p) end
 
@@ -107,27 +117,37 @@ function Row:discretize()
 -- ----------------------------------------------------------------------------
 Data=obj"Data"
 function Data:new(src)
-  self.rows, self.cols = {}, {all={},x={},y={}}
+  self.rows, self.cols = {}, {names=nil,all={},x={},y={}}
+  self:import(src) end
+
+function Data:import(src)
   if   type(src)=="string" 
   then csv(src,       function(row) self:add(row) end) 
-  else map(src or {}, function(row) self:add(row) end) end end
+  else map(src or {}, function(row) self:add(row) end) end 
+  return self end
 
-function Data:add(row,    what)
-  function what(x)
-    return x:find":$" and Skip or (x:find"^[A-Z]" and Num or Sym) end
+function Data:clone(  src) return Data({self.cols.names}):import(src) end
+
+function Data:add(row,    id, what)
+  function what(c,x)
+    return (x:find"^[A-Z]" and Num or Sym)(c,x) end
   if   #self.cols.all==0 
-  then for c,x in pairs(row) do 
-         local col = push(self.cols.all, what(x)(c,x)) 
-         push(x:find"[!+-]" and self.cols.y or self.cols.x, col) end 
+  then self.cols.names=row
+       for c,x in pairs(row) do 
+         local col = push(self.cols.all, what(c,x)) 
+         if not x:find":$" then
+           push(x:find"[!+-]" and self.cols.y or self.cols.x, col) end end
   else row = row.cells and row or Row(self,row)
-       for c,col in pairs(self.cols.all) do col:add(row.cells[c]) end 
-       push(self.rows, row) end end
+       row._data = self
+       push(self.rows, row) 
+       for _,cols in pairs{self.cols.x, self.cols.y} do
+         for _,col in pairs(cols) do col:add(row.cells[col.at]) end end end end 
 
 function Data:cheat()
   for i,row in pairs(sort(self.rows)) do 
-    row.rank = 1+math.floor(100*i/#self.rows) 
+    row.rank = math.floor(.5+ 100*i/#self.rows) 
     row.evaled = false end
-  self.rows = l.shuffle(self.rows) end
+  self.rows = shuffle(self.rows) end
 
 function Data:half(rows,  above,     some,x,y,c,rxs,xs,ys)
   rows = rows or self.rows
@@ -152,7 +172,7 @@ function Data:best(rows,  above,stop)
        else  return self:best(node.ys, node.y, stop) end end end
 
 function Data:fours(rows, stop)
-  rows = rows or l.shallowCopy(self.rows)
+  rows = rows or shallowCopy(self.rows)
   stop = stop or (the.min >=1 and the.min or (#rows)^the.min)
   if   #rows < stop
   then return rows
@@ -175,15 +195,14 @@ function Data:xentropy(     e,sym)
   for _,col in pairs(self.cols.x) do
     sym = Sym()
     for _,row in pairs(self.rows) do sym:add(row.cooked[col.at]) end
-    print(sym)
     e = e + sym:entropy() end 
   return e end
 
 -- ----------------------------------------------------------------------------
 local eg = {}
-local function run(    fails,old)
+local function egs(    fails,old)
+  the = cli(the)
   fails=0
-  the = l.cli(the)
   old = copy(the)
   for k,fun in pairs(eg) do
     if the.eg == "all" or the.eg == k then
@@ -191,7 +210,7 @@ local function run(    fails,old)
       math.randomseed(the.seed)
       print("\n>>>>>",k)
       if not fun() then fails = fails+1 end end end
-  l.rogues()
+  rogues()
   os.exit(fails) end
 
 function eg.the() oo(the); return true end
@@ -210,26 +229,28 @@ function eg.dist(    num,d,r1,r2,r3)
   d=Data(the.file)
   num=Num()
   for i=1,20 do
-    r1=l.any(d.rows)
-    r2=l.any(d.rows)
+    r1=any(d.rows)
+    r2=any(d.rows)
     r3=r1:far(d.rows)
     io.write(rnd(r3-r1)," ")
     num:add(rnd(r2-r1)) end 
-  oo(sort(num.has))
+  oo(sort(num.has:nums()))
+  print(#d.rows)
   return true end
 
 function eg.sort(     d)
   d = Data(the.file)
-  sort(d.rows)
-  for i=1,#d.rows,32 do print(i,o(d.rows[i].cells)) end end
+  d:cheat()
+  for i=1,#d.rows,32 do print(i,d.rows[i].rank,o(d.rows[i].cells)) end end
 
-function eg.half(     num)
+function eg.half(     num,tmp)
   num=Num()
   for i=1,20 do
     local d = Data(the.file)
     d:cheat()
-    map(d:best(),function(row) num:add(row.rank) end) end
-  oo(num:pers{.1,.3,.5,.7,.9})
+    tmp=d:best()
+    map(tmp,function(row) num:add(row.rank) end) end
+  print(#tmp,o(num:pers{.1,.3,.5,.7,.9}))
   return end
 
 function eg.discretize(   d)
@@ -240,4 +261,4 @@ function eg.fours(    d)
   d=Data(the.file)
   d:fours() end
 
-run()
+egs()
