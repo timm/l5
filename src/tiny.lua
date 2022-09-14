@@ -161,10 +161,11 @@ function Egs:four( rows,stop,evals,above, four)
   stop = stop or the.min >=1 and the.min or (#self.rows)^the.min
   evals= evals or {}
   pop  = table.remove
+  print("")
+  print(#rows,stop)
   if #rows < stop then return rows,evals end
   four = {above or pop(rows), pop(rows), pop(rows), pop(rows)}
   four= self:betters(four)
-  print("")
   map(four,oo)
   --for _,row in pairs(four) do evals[row[1]] = true end
   bests ={} 
