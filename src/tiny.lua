@@ -76,20 +76,20 @@ function Num:dist(v1,v2)
   if v2=="?" then v2 = v1<.5 and 1 or 0 end
   return math.abs(v1-v2) end
 -- ----------------------------------------------------------------------------
-function Egs:new(src)
+function Egs:new(src) -- constructor
   self.rows, self.cols = {}, {names=nil,all={},x={},y={}}
   if   type(src)=="string" 
   then csv(src,       function(row) self:add(row) end) 
   else map(src or {}, function(row) self:add(row) end) end  end
 
-function Egs:clone(  src,    out) 
+function Egs:clone(  src,    out) -- copy structure
   out= Egs({self.cols.names})
   map(src or {}, function (row) out:add(row) end)
   return out end
 
-function Egs:add(row,    what)
+function Egs:add(row,    what) -- add  row. update summaries
   what = function(c,x) return (x:find"^[A-Z]" and Num or Sym)(c,x) end
-  if   #self.cols.all==0 
+  if   #self.cols.all==0  -- special case. reading row1
   then self.cols.names=row
        for c,x in pairs(row) do 
          local col = push(self.cols.all, what(c,x)) 
@@ -100,11 +100,7 @@ function Egs:add(row,    what)
          for _,col in pairs(cols) do 
            col:add(row[col.at]) end end end end 
 
-function Egs:betters(rows)
-  return sort(rows or self.rows, 
-              function(r1,r2) return self:better(r1,r2) end) end
-
-function Egs:better(row1,row2)
+function Egs:better(row1,row2) -- is row1 better than row2
   local s1,s2,d,n,x,y,ys=0,0,0,0
   ys = self.cols.y
   for _,col in pairs(ys) do
@@ -114,13 +110,30 @@ function Egs:better(row1,row2)
     s2 = s2 - 2.71828^(col.w * (y-x)/#ys) end
   return s1/#ys < s2/#ys end
 
-function Egs:cheat(   ranks)
+function Egs:betters(rows) -- sort a set of rows
+  return sort(rows or self.rows, 
+              function(r1,r2) return self:better(r1,r2) end) end
+
+function Egs:cheat(   ranks) -- return percentile ranks for rows
   ranks={}
   for i,row in pairs(self:betters()) do
     ranks[row[1]] = math.floor(.5+ 100*i/#self.rows) end
   return self.rows,ranks end
 
-function Egs:half(  above,     some,x,y,c,rxs,xs,ys)
+function Egs:dist(row1,row2,    d,n,d1) -- distance between rows
+  d,n = 0,0; for i,col in pairs(self.cols.x) do 
+               d1   = col:dist(row1[col.at], row2[col.at])
+               n, d = n + 1,  d + d1^the.p end
+  return (d/n)^(1/the.p) end
+
+function Egs:around(r1,rows) -- sort `rows` by distance to `r11.
+  return sort(map(rows,
+                  function(r2) return {r=r2,d=self:dist(r1,r2)} end),lt"d") end
+
+function Egs:far(row,rows) return per(self:around(row,rows),the.far).r end
+
+function Egs:half(  above, -- split data by distance to two distant points
+                  some,x,y,c,rxs,xs,ys) 
   some = many(self.rows, the.Sample)
      x = above or self:far(any(some),some)
      y = self:far(x,some)
@@ -132,7 +145,7 @@ function Egs:half(  above,     some,x,y,c,rxs,xs,ys)
     if j<=#self.rows/2 then xs:add(rx.r) else ys:add(rx.r) end end
   return {xs=xs, ys=ys, x=x, y=y, c=c} end
 
-function Egs:best(  above,stop,evals)
+function Egs:best(  above,stop,evals) --recursively divide, looking 4 best leaf
   stop = stop or (the.min >=1 and the.min or (#self.rows)^the.min)
   evals= evals or 2
   if   #self.rows < stop
@@ -140,19 +153,7 @@ function Egs:best(  above,stop,evals)
   else local node = self:half(above)
        if    self:better(node.x,node.y) 
        then  return node.xs:best(node.x, stop, evals+1)
-       else  return node.ys:best(node.y, stop, evals+1) end end end
-
-function Egs:far(row,rows) return per(self:around(row,rows),the.far).r end
-
-function Egs:around(r1,rows)
-  return sort(map(rows,
-                  function(r2) return {r=r2,d=self:dist(r1,r2)} end),lt"d") end
-
-function Egs:dist(row1,row2,    d,n,d1)
-  d,n = 0,0; for i,col in pairs(self.cols.x) do 
-               d1   = col:dist(row1[col.at], row2[col.at])
-               n, d = n + 1,  d + d1^the.p end
-  return (d/n)^(1/the.p) end
+       else  return node.ys:best(node.y, stop, evals+1) end end end
 -- ----------------------------------------------------------------------------
 local go = {}
 local function goes(    fails,old)
