@@ -31,7 +31,11 @@ function l.cli(t)
       if x=="-"..(slot:sub(1,1)) or x=="--"..slot then
         v = v=="false" and "true" or v=="true" and "false" or arg[n+1] end end
     t[slot] = l.coerce(v) end
-  if t.help then os.exit(print("\n"..t._help.."\n")) end
+  if t.help then 
+    t._help=t._help
+            :gsub("%s([-][-]?%S[a-z]*)",function (s) return " "..l.yellow(s) end)
+            :gsub("([A-Z][A-Z]+)"      ,function (s) return l.red(s) end)
+    os.exit(print("\n"..t._help.."\n")) end
   return t end
 
 -- ### Sampling
@@ -49,6 +53,13 @@ function l.shuffle(t,   j)
 
 -- ### Strings
 l.fmt = string.format
+
+-- Print as red, green, yellow, blue.
+function l.color(s,n) return l.fmt("\27[1m\27[%sm%s\27[0m",n,s) end
+function l.red(s)     return l.color(s,31) end
+function l.green(s)   return l.color(s,32) end
+function l.yellow(s)  return l.color(s,34) end
+function l.blue(s)    return l.color(s,36) end
 
 -- ### Lists
 -- Deepcopy
@@ -87,12 +98,13 @@ function l.slice(t,  nGo,nStop,nStep,    u)
   return u end
 
 -- Call `fun` on each row. Row cells are divided on `,`.
-function l.csv(sFilename, fun,      src,s,t)
-  src = io.input(sFilename)
+function l.csv(sFilename, fun,      src,s,t,n)
+  src, n = io.input(sFilename), 0
   while true do
     s = io.read()
     if not s then return io.close(src) else 
-      t={}
+      t = n==0 and {"_id:"} or {n}
+      n = n+1
       for s1 in s:gmatch("([^,]+)") do t[1+#t] = l.coerce(s1) end
       fun(t) end end end
 
