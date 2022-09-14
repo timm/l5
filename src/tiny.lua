@@ -22,7 +22,7 @@ OPTIONS:
 
 local any,cli,copy,csv,lt,many,map= _.any,_.cli,_.copy,_.csv,_.lt,_.many,_.map
 local o,obj,oo,per,push,rnd,rogues= _.o,_.obj,_.oo,_.per,_.push,_.rnd,_.rogues
-local shallowCopy,shuffle,sort  = _.sort,_.shallowCopy,_.sort
+local shallowCopy,shuffle,sort  = _.shallowCopy,_.shuffle,_.sort
 local Egs,Num,Row,Some,Sym = obj"Egs",obj"Num",obj"Row",obj"Some",obj"Sym"
 
 -- ----------------------------------------------------------------------------
@@ -155,27 +155,23 @@ function Egs:best(  above,stop,evals) --recursively divide, looking 4 best leaf
        then  return node.xs:best(node.x, stop, evals+1)
        else  return node.ys:best(node.y, stop, evals+1) end end end
 
-function Egs:four( rows,stop,evals,above, four)
-  local rows,pop,bests
-  rows = rows or self.rows
+function Egs:fours( rows,stop,evals,above, four)
+  local pop,bests
   stop = stop or the.min >=1 and the.min or (#self.rows)^the.min
   evals= evals or {}
   pop  = table.remove
-  print("")
-  print(#rows,stop)
-  if #rows < stop then return rows,evals end
-  four = {above or pop(rows), pop(rows), pop(rows), pop(rows)}
-  four= self:betters(four)
+  print(#rows)
+  four = self:betters{above or pop(rows), pop(rows), pop(rows), pop(rows)}
   map(four,oo)
   --for _,row in pairs(four) do evals[row[1]] = true end
   bests ={} 
   for _,row in pairs(rows) do
     if four[1][1] == self:around(row,four)[1].r[1] then push(bests,row) end
   end 
-  print(four[1][1],stop,#bests,#rows)
-  if   #bests < #rows 
-  then return self:four(bests,stop,evals,four[1]) 
-  else return rows,evals end   end
+  print("::",four[1][1],stop,#bests,#rows)
+  if   #bests >= stop and #bests < #rows 
+  then return self:fours(bests,stop,evals,four[1]) 
+  else return bests,evals end   end
 
 -- ----------------------------------------------------------------------------
 local go = {}
@@ -262,10 +258,8 @@ function go.discretize(   d)
 function go.four(    d,ranks,rows,evals)
   d=Egs(the.file)
   --_,ranks= d:cheat()
-  d.rows = shuffle(d.rows)
-  d.rows = shuffle(d.rows)
-  rows,evals=d:four(d.rows) 
-  print(#rows)
+  rows,evals=d:fours(shuffle(d.rows)) 
+  --print(#rows)
 --oo(map(rows,function(row) io.write(ranks[row[1]] ," ") end)) end
 end
 
