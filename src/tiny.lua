@@ -31,7 +31,6 @@ Sym=obj"Sym"
 function Sym:new(c,x) return {at=c or 0,txt=x or "",n=0,has={}} end
 function Sym:add(x)   
   if x~="?" then self.n =1+self.n;self.has[x]=1+(self.has[x] or 0) end end
-function Sym:discretize(x) return x end
 function Sym:dist(v1,v2) 
   return  v1=="?" and v2=="?" and 1 or v1==v2 and 0 or 1 end
 function Sym:entropy(     e,fun)
@@ -72,9 +71,6 @@ function Num:norm(n,   lo,hi)
 function Num:pers(t,    a)
   a=self.has:nums()
   return map(t,function(p) return per(a,p) end) end
-function Num:discretize(x,    tmp)
-  tmp = (self.hi - self.lo)/(the.bins - 1)
-  return self.lo == self.hi and 1 or math.floor(x/tmp+.5)*tmp end
 
 function Num:dist(v1,v2)
   if   v1=="?" and v2=="?" then return 1 end
@@ -84,35 +80,26 @@ function Num:dist(v1,v2)
   return math.abs(v1-v2) end 
 
 -- ----------------------------------------------------------------------------
-Row=obj"Row"
-function Row:new(data,t) return {cells=t} end
-function Row:around(rows)
-  return sort(map(rows, function(r) return {row=r,d=self-r} end),lt"d") end
-function Row:far(rows) 
-  return per(self:around(rows),the.far).row end
-
-function Row:__sub(row,    d,n,d1,n1)
+function Data:around(r1,rows)
+  return sort(map(rows, 
+                function(r2) return {r=r2,d=self:dist(r1,r2)} end),lt"d") end
+function Data:dist(row1,row2,    d,n,d1,n1)
   d,n = 0,0
-  for i,col in pairs(self._data.cols.x) do 
-    d1= col:dist(self.cells[col.at], row.cells[col.at])
+  for i,col in pairs(self.cols.x) do 
+    d1= col:dist(row1[col.at], row2[col.at])
     n = n + 1
     d = d + d1^the.p end
   return (d/n)^(1/the.p) end
 
-function Row:__lt(row)
-  self.evaled, row.evaled = true,true
+function Data:better(row1,row2)
   local s1,s2,d,n,x,y=0,0,0,0
-  local ys = self._data.cols.y
+  local ys = self.cols.y
   for _,col in pairs(ys) do
-    x,y= self.cells[col.at], row.cells[col.at]
+    x,y= row1[col.at], row2[col.at]
     x,y= col:norm(x), col:norm(y)
     s1 = s1 - 2.71828^(col.w * (x-y)/#ys)
     s2 = s2 - 2.71828^(col.w * (y-x)/#ys) end
   return s1/#ys < s2/#ys end
-
-function Row:discretize()
-  self.cooked=map(self._data.cols.all, 
-                  function(col) col:discretize(self.cells[col.at]) end) end
 
 -- ----------------------------------------------------------------------------
 Data=obj"Data"
@@ -144,18 +131,20 @@ function Data:add(row,    id, what)
          for _,col in pairs(cols) do col:add(row.cells[col.at]) end end end end 
 
 function Data:cheat()
+  ranks={}
   for i,row in pairs(sort(self.rows)) do 
-    row.rank = math.floor(.5+ 100*i/#self.rows) 
-    row.evaled = false end
+    ranks[row[1]] = math.floor(.5+ 100*i/#self.rows) end
   self.rows = shuffle(self.rows) end
 
 function Data:half(rows,  above,     some,x,y,c,rxs,xs,ys)
+  local function far(r,rs) return per(data.around(r,rs),the.far).row end
   rows = rows or self.rows
   some = many(rows, the.Sample)
-  x    = above or any(some):far(some)
-  y    = x:far(some)
-  c    = x - y
-  rxs  = function(r) return {r=r,x=((r-x)^2 + c^2 - (r-y)^2)/(2*c)} end
+     x = above or far(any(some),some)
+     y = far(x,some)
+     c = self:dist(x,y)
+   rxs = function(r) return 
+                  {r=r, x=(self:dist(r,x)^2 + c^2 - self:dist(r,y)^2)/(2*c)} end
   xs,ys= {},{}
   for j,rx in pairs(sort(map(rows,rxs),lt"x")) do
     push(j<=#rows/2 and xs or ys, rx.r) end
@@ -170,33 +159,6 @@ function Data:best(rows,  above,stop)
        if    node.x < node.y 
        then  return self:best(node.xs, node.x, stop)
        else  return self:best(node.ys, node.y, stop) end end end
-
-function Data:fours(rows, stop)
-  rows = rows or shallowCopy(self.rows)
-  stop = stop or (the.min >=1 and the.min or (#rows)^the.min)
-  if   #rows < stop
-  then return rows
-  else rows  = shuffle(rows)
-       fours = {}; for i=1,4 do push(fours, table.remove(rows)) end
-       t = {}
-       for row1 in pairs(rows) do
-         four1 = sort(map(fours,function(row2) 
-                                  return {d=row1-row2, r=row2} end),lt"d")[1].r
-         t[four1._id] = t[four1._id] or {}
-         push(t[four1._id], four1) end end 
-  self:fours(sort(fours)[1],stop) end
-    
-function Data:discretize()
-  for _,row in pairs(self.rows) do row:discretize() end end
-
-function Data:xentropy(     e,sym)
-  self:discretize()
-  e=0
-  for _,col in pairs(self.cols.x) do
-    sym = Sym()
-    for _,row in pairs(self.rows) do sym:add(row.cooked[col.at]) end
-    e = e + sym:entropy() end 
-  return e end
 
 -- ----------------------------------------------------------------------------
 local eg = {}

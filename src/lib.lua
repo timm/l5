@@ -87,12 +87,13 @@ function l.slice(t,  nGo,nStop,nStep,    u)
   return u end
 
 -- Call `fun` on each row. Row cells are divided on `,`.
-function l.csv(sFilename, fun,      src,s,t)
-  src = io.input(sFilename)
+function l.csv(sFilename, fun,      src,s,t,n)
+  src, n = io.input(sFilename), 0
   while true do
     s = io.read()
     if not s then return io.close(src) else 
-      t={}
+      t = n==0 and {"_id:"} or {n}
+      n = n+1
       for s1 in s:gmatch("([^,]+)") do t[1+#t] = l.coerce(s1) end
       fun(t) end end end
 
