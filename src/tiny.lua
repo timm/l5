@@ -79,28 +79,6 @@ function Num:dist(v1,v2)
   if v2=="?" then v2 = v1<.5 and 1 or 0 end
   return math.abs(v1-v2) end 
 
--- ----------------------------------------------------------------------------
-function Data:around(r1,rows)
-  return sort(map(rows, 
-                function(r2) return {r=r2,d=self:dist(r1,r2)} end),lt"d") end
-function Data:dist(row1,row2,    d,n,d1,n1)
-  d,n = 0,0
-  for i,col in pairs(self.cols.x) do 
-    d1= col:dist(row1[col.at], row2[col.at])
-    n = n + 1
-    d = d + d1^the.p end
-  return (d/n)^(1/the.p) end
-
-function Data:better(row1,row2)
-  local s1,s2,d,n,x,y=0,0,0,0
-  local ys = self.cols.y
-  for _,col in pairs(ys) do
-    x,y= row1[col.at], row2[col.at]
-    x,y= col:norm(x), col:norm(y)
-    s1 = s1 - 2.71828^(col.w * (x-y)/#ys)
-    s2 = s2 - 2.71828^(col.w * (y-x)/#ys) end
-  return s1/#ys < s2/#ys end
-
 -- ----------------------------------------------------------------------------
 Data=obj"Data"
 function Data:new(src)
@@ -124,11 +102,30 @@ function Data:add(row,    id, what)
          local col = push(self.cols.all, what(c,x)) 
          if not x:find":$" then
            push(x:find"[!+-]" and self.cols.y or self.cols.x, col) end end
-  else row = row.cells and row or Row(self,row)
-       row._data = self
-       push(self.rows, row) 
+  else push(self.rows, row) 
        for _,cols in pairs{self.cols.x, self.cols.y} do
-         for _,col in pairs(cols) do col:add(row.cells[col.at]) end end end end 
+         for _,col in pairs(cols) do 
+           col:add(row[col.at]) end end end end 
+
+function Data:around(r1,rows)
+  return sort(map(rows, 
+                function(r2) return {r=r2,d=self:dist(r1,r2)} end),lt"d") end
+
+function Data:dist(row1,row2,    d,n,d1)
+  d,n = 0,0; for i,col in pairs(self.cols.x) do 
+               d1   = col:dist(row1[col.at], row2[col.at])
+               n, d = n + 1,  d + d1^the.p end
+  return (d/n)^(1/the.p) end
+
+function Data:better(row1,row2)
+  local s1,s2,d,n,x,y=0,0,0,0
+  local ys = self.cols.y
+  for _,col in pairs(ys) do
+    x,y= row1[col.at], row2[col.at]
+    x,y= col:norm(x), col:norm(y)
+    s1 = s1 - 2.71828^(col.w * (x-y)/#ys)
+    s2 = s2 - 2.71828^(col.w * (y-x)/#ys) end
+  return s1/#ys < s2/#ys end
 
 function Data:cheat()
   ranks={}
@@ -137,7 +134,7 @@ function Data:cheat()
   self.rows = shuffle(self.rows) end
 
 function Data:half(rows,  above,     some,x,y,c,rxs,xs,ys)
-  local function far(r,rs) return per(data.around(r,rs),the.far).row end
+  local function far(r,rs) return per(data.around(r,rs),the.far).r end
   rows = rows or self.rows
   some = many(rows, the.Sample)
      x = above or far(any(some),some)
