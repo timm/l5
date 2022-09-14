@@ -155,23 +155,28 @@ function Egs:best(  above,stop,evals) --recursively divide, looking 4 best leaf
        then  return node.xs:best(node.x, stop, evals+1)
        else  return node.ys:best(node.y, stop, evals+1) end end end
 
-function Egs:four( stop,evals,above)
-  function loop(rows,stop,pop,evals,   four,bests)
-    if #rows < stop then return rows,evals end
-    rows = shuffle(rows)
-    four = self:betters({above or pop(rows), pop(rows), pop(rows), pop(rows)})
-    for _,row in pairs(four) do evals[row[1]] = true end
-    bests ={}
-    for _,row in pairs(rows) do
-      local tmp={}
-      for i,fourth in pairs(four) do push(tmp,{d=self:dist(row,fourth),n=i}) end 
-      if 1 == sort(tmp,lt"d")[1].n then push(bests, row) end 
-    end 
-    if   #bests < #rows 
-    then return loop(bests,stop,pop,evals,four[1]) 
-    else return rows,evals end   end
-  return loop(self.rows, the.min >=1 and the.min or (#self.rows)^the.min,
-              table.remove, {}) end
+function Egs:four( rows,stop,evals,above)
+  local rows,pop,bests
+  rows = rows or self.rows
+  stop = stop or the.min >=1 and the.min or (#self.rows)^the.min
+  evals= evals or {}
+  pop  = table.remove
+  if #rows < stop then return rows,evals end
+  rows = shuffle(rows)
+  four = self:betters({above or pop(rows), pop(rows), pop(rows), pop(rows)})
+  for _,row in pairs(four) do evals[row[1]] = true end
+  bests ={}
+  map(four,oo)
+  for _,row in pairs(rows) do
+    local tmp={}
+    for i,fourth in pairs(four) do push(tmp,{d=self:dist(row,fourth),n=i}) end 
+    tmp = sort(tmp, lt"d")
+    if 1 == tmp[1].n then push(bests, row) end 
+  end 
+  return print(#bests) end
+  -- if   #bests < #rows 
+  -- then return self:four(bests,stop,evals,four[1]) 
+  -- else return rows,evals end   end
 
 -- ----------------------------------------------------------------------------
 local go = {}
@@ -255,11 +260,13 @@ function go.discretize(   d)
   d=Egs(the.file)
   print(d:xentropy()); return true end
 
-function go.four(    d)
+function go.four(    d,ranks,rows)
   d=Egs(the.file)
   _,ranks= d:cheat()
-  shuffle(d.rows)
+  d.rows = shuffle(d.rows)
   rows,evals=d:four() 
-  oo(map(rows,function(row) io.write(ranks[row[1]] ," ") end)) end
+  print(#rows)
+--oo(map(rows,function(row) io.write(ranks[row[1]] ," ") end)) end
+end
 
 goes()
