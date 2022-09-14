@@ -164,19 +164,16 @@ function Egs:four( rows,stop,evals,above)
   if #rows < stop then return rows,evals end
   rows = shuffle(rows)
   four = self:betters({above or pop(rows), pop(rows), pop(rows), pop(rows)})
-  for _,row in pairs(four) do evals[row[1]] = true end
-  bests ={}
-  map(four,oo)
+  --for _,row in pairs(four) do evals[row[1]] = true end
+  bests ={} 
+  best=four[1][1]
   for _,row in pairs(rows) do
-    local tmp={}
-    for i,fourth in pairs(four) do push(tmp,{d=self:dist(row,fourth),n=i}) end 
-    tmp = sort(tmp, lt"d")
-    if 1 == tmp[1].n then push(bests, row) end 
+    if best == self:around(row,four)[1].r[1] then push(bests,row) end
   end 
-  return print(#bests) end
-  -- if   #bests < #rows 
-  -- then return self:four(bests,stop,evals,four[1]) 
-  -- else return rows,evals end   end
+  print(stop,#bests,#rows)
+  if   #bests < #rows 
+  then return self:four(bests,stop,evals,four[1]) 
+  else return rows,evals end   end
 
 -- ----------------------------------------------------------------------------
 local go = {}
@@ -262,7 +259,7 @@ function go.discretize(   d)
 
 function go.four(    d,ranks,rows)
   d=Egs(the.file)
-  _,ranks= d:cheat()
+  --_,ranks= d:cheat()
   d.rows = shuffle(d.rows)
   rows,evals=d:four() 
   print(#rows)
