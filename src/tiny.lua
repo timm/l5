@@ -154,6 +154,25 @@ function Egs:best(  above,stop,evals) --recursively divide, looking 4 best leaf
        if    self:better(node.x,node.y) 
        then  return node.xs:best(node.x, stop, evals+1)
        else  return node.ys:best(node.y, stop, evals+1) end end end
+
+function Egs:four( stop,evals,above)
+  function loop(rows,stop,pop,evals,   four,bests)
+    if #rows < stop then return rows,evals end
+    rows = shuffle(rows)
+    four = self:betters({above or pop(rows), pop(rows), pop(rows), pop(rows)})
+    for _,row in pairs(four) do evals[row[1]] = true end
+    bests ={}
+    for _,row in pairs(rows) do
+      local tmp={}
+      for i,fourth in pairs(four) do push(tmp,{d=self:dist(row,fourth),n=i}) end 
+      if 1 == sort(tmp,lt"d")[1].n then push(bests, row) end 
+    end 
+    if   #bests < #rows 
+    then return loop(bests,stop,pop,evals,four[1]) 
+    else return rows,evals end   end
+  return loop(self.rows, the.min >=1 and the.min or (#self.rows)^the.min,
+              table.remove, {}) end
+
 -- ----------------------------------------------------------------------------
 local go = {}
 local function goes(    fails,old)
@@ -226,6 +245,7 @@ function go.bests(     num,tmp)
   for i=1,20 do
     local d = Egs(the.file)
     d:cheat()
+    shuffle(d.rows)
     tmp=d:best()
     map(tmp,function(row) num:add(row.rank) end) end
   print(#tmp,o(num:pers{.1,.3,.5,.7,.9}))
@@ -235,8 +255,11 @@ function go.discretize(   d)
   d=Egs(the.file)
   print(d:xentropy()); return true end
 
-function go.fours(    d)
+function go.four(    d)
   d=Egs(the.file)
-  d:fours() end
+  _,ranks= d:cheat()
+  shuffle(d.rows)
+  rows,evals=d:four() 
+  oo(map(rows,function(row) io.write(ranks[row[1]] ," ") end)) end
 
 goes()
