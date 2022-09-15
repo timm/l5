@@ -25,24 +25,23 @@ local rnd,rogues                   = _.rnd,_.rogues
 local shallowCopy,shuffle,sort     = _.shallowCopy,_.shuffle,_.sort
 local Data,Num,Row,Some,Sym = obj"Data",obj"Num",obj"Row",obj"Some",obj"Sym"
 
--- Type hints conventions (for function arguments):
---   
--- | What            | Notes                                       |
--- |:---------------:|---------------------------------------------|
--- | 2 blanks        | 2 blanks denote optional arguments          |
--- | 4 blanks        | 4 blanks denote local arguments             |
--- | n               | prefix for numerics                         |
--- | s               | prefix for strings                          |
--- | is              | prefix for booleans                         |
--- | fun             | prefix for functions                        |
--- | suffix s        | list of thing (so names is list of strings) |
--- | xy,row,col,data | for Xys, Rows, Num or Syms, Data objects    |
---
--- Another convention is that my code starts with a  help string (at top
--- of file) that is parsed to find the settings. Also my code ends with
--- lots of `go.x()` functions that describe various demos. To run
--- these, use `lua tiny2.lua -go x`.
+--[[ Type hints conventions:
+| Function args   | Notes                                       |
+|:---------------:|---------------------------------------------|
+| 2 blanks        | 2 blanks denote optional arguments          |
+| 4 blanks        | 4 blanks denote local arguments             |
+| n               | prefix for numerics                         |
+| s               | prefix for strings                          |
+| is              | prefix for booleans                         |
+| fun             | prefix for functions                        |
+| suffix s        | list of thing (so names is list of strings) |
+| xy,row,col,data | for Xys, Rows, Num or Syms, Data objects    | 
 
+Another convention is that my code starts with a  help string (at top
+of file) that is parsed to find the settings. Also my code ends with
+lots of `go.x()` functions that describe various demos. To run
+these, use `lua tiny2.lua -go x`. --]]
+---------------------------------------------------------------- 
 function Row:new(t) --- Hold one record
   return {evaled=false,
           cells=t,
@@ -71,36 +70,31 @@ function Data:new(src) --- Store rows of data. Summarize the rows in `self.cols`
   else map(src or {}, function(row) self:add(row) end) end  end
 -- ## Row     ----- ----- ------------------------------------------------------
 -- ### sort
-function Row:better(row2,data) --- order two rows
-  local row1= self
-  row1.evaled, row2.evaled = true,true
+function Row:better(row,data) --- order two rows
+  self.evaled, row.evaled = true,true
   local s1,s2,d,n,x,y,ys=0,0,0,0
   ys = data.cols.y
   for _,col in pairs(ys) do
-    x,y= row1.cells[col.at], row2.cells[col.at]
+    x,y= self.cells[col.at], row.cells[col.at]
     x,y= col:norm(x), col:norm(y)
     s1 = s1 - 2.71828^(col.w * (x-y)/#ys)
     s2 = s2 - 2.71828^(col.w * (y-x)/#ys) end
   return s1/#ys < s2/#ys end
 
-function Row:betters(rows,data) --- order a whole list of rows
-  return sort(rows or self.rows,
-              function(r1,r2) return r1:better(r2,data) end) end
-
--- #### dist
-function Row:dist(row2,data,   tmp,n,d1) -- distance between rows
-  local row1=self
-  tmp,n = 0,0; for i,col in pairs(data.cols.x) do
-                 d1     = col:dist(row1[col.at], row2[col.at],data)
-                 n, tmp = n + 1,  tmp + d1^the.p end
+-- ### dist
+function Row:dist(row,data,   tmp,n,d1) -- distance between rows
+  tmp,n = 0,0
+  for _,col in pairs(data.cols.x) do
+    d1     = col:dist(self.cells[col.at], row.cells[col.at])
+    n, tmp = n + 1,  tmp + d1^the.p end
   return (tmp/n)^(1/the.p) end
 
-function Row:dists(r1,rows,data) --- sort `rows` by distance to `r11.
+function Row:dists(rows,data) --- sort `rows` by distance to `r11.
   return sort(map(rows,
-           function(r2) return {r=r2,d=self:dist(r1,r2,data)} end),lt"d") end
+           function(row) return {r=row,d=self:dist(row,data)} end),lt"d") end
 
-function Row:far(row,rows,data) -- Find an item in `rows`, far from `row1.
-  return per(self:dists(row,rows,data),the.far).r end
+function Row:far(rows,data) -- Find an item in `rows`, far from `row1.
+  return per(self:dists(rows,data),the.far).r end
 
 -- ## Sym     ----- ----- -----------------------------------------------------
 -- ### update
@@ -188,7 +182,12 @@ function Data:cheat(   ranks) --- return percentile ranks for rows
   self.rows = shuffle(self.rows)
   return self.rows end
 
--- ### cluster
+--- ### dist
+function Data:betters(rows,data) --- order a whole list of rows
+  return sort(rows or self.rows,
+              function(r1,r2) return r1:better(r2,self) end) end
+
+--- ### cluster
 function Data:half(  above, --- split data by distance to two distant points
                   some,x,y,c,rxs,xs,ys)
   some= many(self.rows, the.Sample)
@@ -232,8 +231,8 @@ function go.dist(    num,d,r1,r2,r3)
     r1= any(d.rows)
     r2= any(d.rows)
     r3= r1:far(d.rows,d)
-    io.write(rnd(r1:dist(r1,r3,d))," ")
-    num:add(rnd(r1:dist( r1,r2,d))) end
+    io.write(rnd(r1:dist(r3,d))," ")
+    num:add(rnd(r1:dist( r2,d))) end
   oo(sort(num.has:nums()))
   print(#d.rows)
   return true end
