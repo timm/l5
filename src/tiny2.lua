@@ -24,9 +24,32 @@ local o,obj,oo,per,pop,push        =  _.o,_.obj,_.oo,_.per,_.pop,_.push
 local rnd,rogues                   = _.rnd,_.rogues
 local shallowCopy,shuffle,sort     = _.shallowCopy,_.shuffle,_.sort
 local Egs,Num,Row,Some,Sym = obj"Egs",obj"Num",obj"Row",obj"Some",obj"Sym"
+
 -- ----------------------------------------------------------------------------
-function Row:new(t) return {evaled=false, cells=t, cooled=shallowCopy(t)} end
-function Row:better(row1,row2,data) -- is row1 better than row2
+function Row:new(t) -- Hold one recoerd
+  return {evaled=false, 
+          cells=t, 
+          cooled=shallowCopy(t)} end
+
+function Sym:new(n,s) -- Summarize stream of symbols.
+    return {at=n or 0,
+            txt=s or "",
+            n=0,
+            has={}} end
+
+function Some:new(n,s)  -- Keep at most the.Sample numbers
+  return {at=n or 0, txt=s or "",n=0, _has={},
+          isSorted=true } end
+
+function Sym:add(x) -- Update.
+  if x~="?" then self.n=1+self.n; self.has[x] = 1 + (self.has[x] or 0) end end
+
+-- ----------------------------------------------------------------------------
+function Row:around(r1,rows,data) -- sort `rows` by distance to `r11.
+  return sort(map(rows,
+           function(r2) return {r=r2,d=self:dist(r1,r2,data)} end),lt"d") end
+
+function Row:better(row1,row2,data) -- order two rows
   row1.evaled, row2.evaled = true,true
   local s1,s2,d,n,x,y,ys=0,0,0,0
   ys = data.cols.y
@@ -37,7 +60,7 @@ function Row:better(row1,row2,data) -- is row1 better than row2
     s2 = s2 - 2.71828^(col.w * (y-x)/#ys) end
   return s1/#ys < s2/#ys end
 
-function Row:betters(rows,data) -- sort a set of rows
+function Row:betters(rows,data) -- order a whole list of rows
   return sort(rows or self.rows, 
               function(r1,r2) return self:better(r1,r2,data) end) end
 
@@ -47,29 +70,23 @@ function Row:dist(row1,row2,data,   d,n,d1) -- distance between rows
                n, d = n + 1,  d + d1^the.p end
   return (d/n)^(1/the.p) end
 
-function Row:around(r1,rows,data) -- sort `rows` by distance to `r11.
-  return sort(map(rows,
-           function(r2) return {r=r2,d=self:dist(r1,r2,data)} end),lt"d") end
-
-function Row:far(row,rows,data) 
+function Row:far(row,rows,data) -- Find an item in `rows` that is far from `row1.
   return per(self:around(row,rows,data),the.far).r end
 
 -- ----------------------------------------------------------------------------
-function Sym:new(c,x) return {at=c or 0,txt=x or "",n=0,has={}} end
-function Sym:add(x)   
+function Sym:add(x) -- Update.
   if x~="?" then self.n =1+self.n;self.has[x]=1+(self.has[x] or 0) end end
-function Sym:dist(v1,v2) 
+
+function Sym:dist(v1,v2) -- Gap between two symbols.
   return  v1=="?" and v2=="?" and 1 or v1==v2 and 0 or 1 end
 
-function Sym:entropy(     e,fun)
+function Sym:entropy(     e,fun) -- Entropy
   function fun(p) return p*math.log(p,2) end
   e=0; for _,n in pairs(self.has) do if n>0 then e=e-fun(n/self.n) end end
   return e end
 
 -- ----------------------------------------------------------------------------
-function Some:new(c,x) 
-  return {at=c or 0, txt=x or "",n=0,isSorted=true, _has={}} end
-function Some:nums()
+  function Some:nums()
   if not self.isSorted then table.sort(self._has) end
   self.isSorted=true
   return self._has end
