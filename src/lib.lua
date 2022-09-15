@@ -80,6 +80,9 @@ function l.per(t,p)
 -- Add to `t`, return `x`.
 function l.push(t,x) t[1+#t]=x; return x end
 
+-- Pop last item from `t`
+function l.pop(t) return table.remove(t) end
+
 -- Function, return a sorted list.
 function l.sort(t,f) table.sort(t,f); return t end
 

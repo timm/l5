@@ -1,6 +1,5 @@
 local _=require("lib")
 local the=_.settings[[   
-
 TINY: a lean little learning library, in LUA
 (c) 2022 Tim Menzies <timm@ieee.org> BSD-2 license
 
@@ -18,13 +17,13 @@ OPTIONS:
  -p  --p       distance calculation coefficient       = 2
  -r  --rest    size of "rest" set                     = 3
  -s  --seed    random number seed                     = 10019
- -S  --Sample  how many numbers to keep               = 10000 ]]
+ -S  --Sample  how many numbers to keep               = 10000]]
 
-local any,cli,copy,csv,lt,many,map= _.any,_.cli,_.copy,_.csv,_.lt,_.many,_.map
-local o,obj,oo,per,push,rnd,rogues= _.o,_.obj,_.oo,_.per,_.push,_.rnd,_.rogues
-local shallowCopy,shuffle,sort  = _.shallowCopy,_.shuffle,_.sort
+local any,cli,copy,csv,lt,many,map = _.any,_.cli,_.copy,_.csv,_.lt,_.many,_.map
+local o,obj,oo,per,pop,push        =  _.o,_.obj,_.oo,_.per,_.pop,_.push
+local rnd,rogues                   = _.rnd,_.rogues
+local shallowCopy,shuffle,sort     = _.shallowCopy,_.shuffle,_.sort
 local Egs,Num,Row,Some,Sym = obj"Egs",obj"Num",obj"Row",obj"Some",obj"Sym"
-
 -- ----------------------------------------------------------------------------
 function Sym:new(c,x) return {at=c or 0,txt=x or "",n=0,has={}} end
 function Sym:add(x)   
@@ -77,28 +76,30 @@ function Num:dist(v1,v2)
   return math.abs(v1-v2) end
 -- ----------------------------------------------------------------------------
 function Egs:new(src) -- constructor
-  self.rows, self.cols = {}, {names=nil,all={},x={},y={}}
+  self.rows, self.cols = {}, {all={},x={},y={}}
   if   type(src)=="string" 
   then csv(src,       function(row) self:add(row) end) 
   else map(src or {}, function(row) self:add(row) end) end  end
 
 function Egs:clone(  src,    out) -- copy structure
-  out= Egs({self.cols.names})
+  out= Egs( {map(self.all, function(col) return col.txt end)} )
   map(src or {}, function (row) out:add(row) end)
   return out end
 
-function Egs:add(row,    what) -- add  row. update summaries
-  what = function(c,x) return (x:find"^[A-Z]" and Num or Sym)(c,x) end
-  if   #self.cols.all==0  -- special case. reading row1
-  then self.cols.names=row
-       for c,x in pairs(row) do 
-         local col = push(self.cols.all, what(c,x)) 
-         if not x:find":$" then
-           push(x:find"[!+-]" and self.cols.y or self.cols.x, col) end end
-  else push(self.rows, row) 
-       for _,cols in pairs{self.cols.x, self.cols.y} do
-         for _,col in pairs(cols) do 
-           col:add(row[col.at]) end end end end 
+function Egs:add(row) -- the new row is either a header, or a data row
+  if #self.cols.all==0 then self:header(row) else self:body(row) end end
+
+function Egs:header(row) -- build the column headers
+  for c,x in pairs(row) do 
+    local col = push(self.cols.all, (x:find"^[A-Z]" and Num or Sym)(c,x))
+    if not x:find":$" then
+      push(x:find"[!+-]" and self.cols.y or self.cols.x, col) end end end
+
+function Egs:body(row)
+  push(self.rows, row) 
+  for _,cols in pairs{self.cols.x, self.cols.y} do
+    for _,col in pairs(cols) do 
+      col:add(row[col.at]) end end end 
 
 function Egs:better(row1,row2) -- is row1 better than row2
   local s1,s2,d,n,x,y,ys=0,0,0,0
@@ -153,27 +154,20 @@ function Egs:best(  above,stop,evals) --recursively divide, looking 4 best leaf
   else local node = self:half(above)
        if    self:better(node.x,node.y) 
        then  return node.xs:best(node.x, stop, evals+1)
-       else  return node.ys:best(node.y, stop, evals+1) end end end
+       else  return node.ys:best(node.y, stop, evals+1) end end end
 
-function Egs:fours( rows,stop,evals,above, four)
-  local pop,bests
-  stop = stop or the.min >=1 and the.min or (#self.rows)^the.min
-  evals= evals or {}
-  pop  = table.remove
-  print(#rows)
-  four = self:betters{above or pop(rows), pop(rows), pop(rows), pop(rows)}
-  map(four,oo)
-  --for _,row in pairs(four) do evals[row[1]] = true end
-  bests ={} 
-  for _,row in pairs(rows) do
-    if four[1][1] == self:around(row,four)[1].r[1] then push(bests,row) end
-  end 
-  print("::",four[1][1],stop,#bests,#rows)
-  if   #bests >= stop and #bests < #rows 
-  then return self:fours(bests,stop,evals,four[1]) 
-  else return bests,evals end   end
-
--- ----------------------------------------------------------------------------
+function Egs:fours()
+  local function loop(rows1,evals,stop,  above,      four,rows2)
+    if #rows1 > stop then 
+      four= self:betters{above or pop(rows1),  pop(rows1), pop(rows1), pop(rows1)}
+      for _,row in pairs(four) do evals[ row[1] ] = true end
+      rows2= map(rows1, function(r)
+               if four[1][1]==self:around(r,four)[1].r[1] then return r end end)
+      if #rows2 < #rows1 then return loop(rows2,evals,stop,above) end end 
+    return rows1,evals end 
+  return loop(shuffle(self.rows), {}, 
+              the.min >=1 and the.min or (#self.rows)^the.min) end 
+-- -----------------------------------------------------------------------------
 local go = {}
 local function goes(    fails,old)
   the = cli(the)
@@ -255,12 +249,16 @@ function go.discretize(   d)
   d=Egs(the.file)
   print(d:xentropy()); return true end
 
-function go.four(    d,ranks,rows,evals)
-  d=Egs(the.file)
-  --_,ranks= d:cheat()
-  rows,evals=d:fours(shuffle(d.rows)) 
-  --print(#rows)
---oo(map(rows,function(row) io.write(ranks[row[1]] ," ") end)) end
+function go.four(    num,d,some,evals,ranks)
+  num=Num()
+  for i=1,20 do
+    d=Egs(the.file)
+    --_,ranks= d:cheat()
+    some,evals = d:fours() 
+    _,ranks = d:cheat()
+    print(#some)
+    for _,row in pairs(some) do num:add(ranks[row[1]]) end end 
+  oo(num:pers{.1,.3,.5,.7,.9})
 end
 
 goes()
