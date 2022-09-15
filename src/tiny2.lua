@@ -89,7 +89,7 @@ function Row:betters(rows,data) --- order a whole list of rows
 
 -- #### dist
 function Row:dist(row2,data,   tmp,n,d1) -- distance between rows
-  row1-self
+  local row1=self
   tmp,n = 0,0; for i,col in pairs(data.cols.x) do
                  d1     = col:dist(row1[col.at], row2[col.at],data)
                  n, tmp = n + 1,  tmp + d1^the.p end
