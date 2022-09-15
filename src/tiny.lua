@@ -159,11 +159,11 @@ function Egs:best(  above,stop,evals) --recursively divide, looking 4 best leaf
 function Egs:fours()
   local function loop(rows1,evals,stop,  above,      four,rows2)
     if #rows1 > stop then 
-      four= self:betters{above or pop(rows1),  pop(rows1), pop(rows1), pop(rows1)}
+      four= self:betters{above or pop(rows1),   pop(rows1), pop(rows1), pop(rows1)}
       for _,row in pairs(four) do evals[ row[1] ] = true end
       rows2= map(rows1, function(r)
                if four[1][1]==self:around(r,four)[1].r[1] then return r end end)
-      if #rows2 < #rows1 then return loop(rows2,evals,stop,above) end end 
+      if #rows2 < #rows1 then return loop(rows2,evals,stop,four[1]) end end 
     return rows1,evals end 
   return loop(shuffle(self.rows), {}, 
               the.min >=1 and the.min or (#self.rows)^the.min) end 
