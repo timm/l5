@@ -25,17 +25,18 @@ local rnd,rogues                   = _.rnd,_.rogues
 local shallowCopy,shuffle,sort     = _.shallowCopy,_.shuffle,_.sort
 local Data,Num,Row,Some,Sym = obj"Data",obj"Num",obj"Row",obj"Some",obj"Sym"
 
--- This code uses the following type hints for function arguments:
+-- Type hints conventions (for function arguments):
 --   
--- |What          | Notes                                             |
--- |:------------:|---------------------------------------------------|
--- | 2 blanks     | 2 blanks denote optional arguments                |
--- | 4 blanks     | 4 blanks denote local arguments                   |
--- | n            | prefix for numerics                               |
--- | s            | prefix for strings                                |
--- | is           | prefix for booleans                               |
--- | fun          | prefix for functions                              |
--- | suffix s     | list of thing (so names is list of strings)       |
+-- | What            | Notes                                       |
+-- |:---------------:|---------------------------------------------|
+-- | 2 blanks        | 2 blanks denote optional arguments          |
+-- | 4 blanks        | 4 blanks denote local arguments             |
+-- | n               | prefix for numerics                         |
+-- | s               | prefix for strings                          |
+-- | is              | prefix for booleans                         |
+-- | fun             | prefix for functions                        |
+-- | suffix s        | list of thing (so names is list of strings) |
+-- | xy,row,col,data | for Xys, Rows, Num or Syms, Data objects    |
 --
 -- Another convention is that my code starts with a  help string (at top
 -- of file) that is parsed to find the settings. Also my code ends with
@@ -70,7 +71,8 @@ function Data:new(src) --- Store rows of data. Summarize the rows in `self.cols`
   else map(src or {}, function(row) self:add(row) end) end  end
 -- ## Row     ----- ----- ------------------------------------------------------
 -- ### sort
-function Row:better(row1,row2,data) --- order two rows
+function Row:better(row2,data) --- order two rows
+  local row1= self
   row1.evaled, row2.evaled = true,true
   local s1,s2,d,n,x,y,ys=0,0,0,0
   ys = data.cols.y
@@ -83,10 +85,11 @@ function Row:better(row1,row2,data) --- order two rows
 
 function Row:betters(rows,data) --- order a whole list of rows
   return sort(rows or self.rows,
-              function(r1,r2) return self:better(r1,r2,data) end) end
+              function(r1,r2) return r1:better(r2,data) end) end
 
 -- #### dist
-function Row:dist(row1,row2,data,   tmp,n,d1) -- distance between rows
+function Row:dist(row2,data,   tmp,n,d1) -- distance between rows
+  row1-self
   tmp,n = 0,0; for i,col in pairs(data.cols.x) do
                  d1     = col:dist(row1[col.at], row2[col.at],data)
                  n, tmp = n + 1,  tmp + d1^the.p end
@@ -170,7 +173,7 @@ function Data:clone(  src,    data) --- Copy structure. Optionally, add in data.
 
 function Data:header(row) --- Create the `Num`s and `Sym`s for the column headers
   for n,s in pairs(row) do
-    local col = push(self.cols.all, (x:find"^[A-Z]" and Num or Sym)(n,s))
+    local col = push(self.cols.all, (s:find"^[A-Z]" and Num or Sym)(n,s))
     if not s:find":$" then
       push(s:find"[!+-]" and self.cols.y or self.cols.x, col) end end end
 
@@ -228,9 +231,9 @@ function go.dist(    num,d,r1,r2,r3)
   for i=1,20 do
     r1= any(d.rows)
     r2= any(d.rows)
-    r3= d:far(r1,d.rows,d)
-    io.write(rnd(d:dist(r1,r3,d))," ")
-    num:add(rnd(d:dist( r1,r2,d))) end
+    r3= r1:far(d.rows,d)
+    io.write(rnd(r1:dist(r1,r3,d))," ")
+    num:add(rnd(r1:dist( r1,r2,d))) end
   oo(sort(num.has:nums()))
   print(#d.rows)
   return true end
