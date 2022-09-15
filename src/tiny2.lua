@@ -19,7 +19,7 @@ OPTIONS:
  -s  --seed    random number seed                     = 10019
  -S  --Sample  how many numbers to keep               = 10000]]
 
-local any,cli,copy,csv,lt,many,map = _.any,_.cli,_.copy,_.csv,_.lt,_.many,_.map
+local any,cli,copy,csv,lt,many,map = _.any,_.cli,_.copy,_.csv,_.lt,_.many,_.map  
 local o,obj,oo,per,pop,push        =  _.o,_.obj,_.oo,_.per,_.pop,_.push
 local rnd,rogues                   = _.rnd,_.rogues
 local shallowCopy,shuffle,sort     = _.shallowCopy,_.shuffle,_.sort
@@ -171,16 +171,18 @@ function Data:header(row) --- Create the `Num`s and `Sym`s for the column header
     if not s:find":$" then
       push(s:find"[!+-]" and self.cols.y or self.cols.x, col) end end end
 
--- ### udpate
-function Data:add(row) --- the new row is either a header, or a data row
+
+-- ### update
+function Data:add(row) --- the new row is either a header, or a data row  
   if #self.cols.all==0 then self:header(row) else self:body(row) end end
 
 -- ### query
 function Data:cheat(   ranks) --- return percentile ranks for rows
-  for i,row in pairs(self:betters()) do
+  ranks = shallowCopy(self:betters())
+  for i,row in pairs(ranks) do
     row.rank = math.floor(.5+ 100*i/#self.rows) end
   self.rows = shuffle(self.rows)
-  return self.rows end
+  return ranks end
 
 --- ### dist
 function Data:betters(rows,data) --- order a whole list of rows
@@ -201,7 +203,7 @@ function Data:half(  above, --- split data by distance to two distant points
     if j<=#self.rows/2 then xs:add(rx.r) else ys:add(rx.r) end end
   return {xs=xs, ys=ys, x=x, y=y, c=c} end
 
-function Data:best(  above,stop,evals) --- recursively divide, looking 4 best leaf
+function Data:best(  above,stop,evals) ---recursively divide, seeking 4 best leaf
   stop = stop or (the.min >=1 and the.min or (#self.rows)^the.min)
   evals= evals or 2
   if   #self.rows < stop
@@ -239,8 +241,8 @@ function go.dist(    num,d,r1,r2,r3)
 
 function go.sort(     d,rows,ranks)
   d = Data(the.file)
-  rows,ranks = d:cheat()
-  for i=1,#d.rows,32 do print(i,ranks[rows[i][1]],o(rows[i])) end end
+  ranks = d:cheat()
+  for i=1,#d.rows,32 do print(o(ranks[i].cells), "\t",o(d.rows[i].cells)) end end
 
 function go.clone(    d1,d2)
   d1 = Data(the.file)
