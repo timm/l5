@@ -42,7 +42,7 @@ pdfs:
 		--pro=color               \
 		--columns 3                \
 		--pretty-print=$R/etc/lua.ssh \
-		--footer=""                    \
+		--footer="%p"                    \
 		-M letter                       \
 		-o $@.ps $<
 	@ps2pdf $@.ps $@; rm $@.ps
