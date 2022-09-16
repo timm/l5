@@ -3,11 +3,10 @@ SHELL=/bin/bash
 R=$(shell git rev-parse --show-toplevel)
 
 D=auto2 auto93 nasa93dem china coc1000 healthCloseIsses12mths0011-easy \
-  healthCloseIsses12mths0001-hard pom SSN SSM#
+   healthCloseIsses12mths0001-hard pom SSN SSM#
 
-greedyBest:; $(foreach d,$D, lua l5.lua -s ${RANDOM} -f ../data/$d.csv -e greedyBest; )
+best:; echo 1; $(foreach d,$D, lua tiny2.lua -f ../data/$d.csv -g best; )
 bestLeaf:;   $(foreach d,$D, lua l5.lua -s ${RANDOM} -S 2000 -m 10 -f ../data/$d.csv -e bestLeaf; )
-
 
 TWOPLUS=cat $@ | awk 'BEGIN {FS="\n";RS=""} NR==1 { print("\n\n"); next} {print $$0 "\n\n"}'
 
