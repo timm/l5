@@ -154,6 +154,7 @@ function xys(col,rowss) --- return ranges that distinguish between a list of row
         xys[bin]  = xys[bin] or XY(col.at,col.name,x)
         xys[bin]:add(x,label) end end end
   local xys1={}; for _,xy in pairs(xys) do push(xys1,xy) end 
+  map(xys1,oo)
   xys1 = col:xys(sort(xys1, lt"xlo"), the.min >= 1 and the.min or n^the.min) 
   if #xys1 > 1 then return xys1 end end  -- if size==1, nothing found
 
@@ -161,8 +162,8 @@ function xys(col,rowss) --- return ranges that distinguish between a list of row
 -- ### Create
 function Sym:merge(sym,     out) --- merge two sysms
   out = Sym(self.at, self.txt)
-  for x,n in pairs(self.has) do new:add(x,n) end
-  for x,n in pairs(sym.has)  do new:add(x,n) end
+  for x,n in pairs(self.has) do out:add(x,n) end
+  for x,n in pairs(sym.has)  do out:add(x,n) end
   return out end
 
 -- ### update
@@ -248,16 +249,16 @@ function Num:xys(xys,nMin,    tryMerging) --- Can we combine any adjacent ranges
         mergedSym = a.y:simpler(b.y, nMin)
         if mergedSym then
           a = XY(self.at, self.txt, a.xlo, b.xhi, mergedSym)
-          j = j+1 end -- skip over the merged item 
+          n = n+1 end -- skip over the merged item 
       end
       push(xys1, a)
-      j = j + 1 
+      n = n + 1 
     end
-    return #xys1 == #xys0 and xys0 or loop_until_no_merges(xys1)
+    return #xys1 == #xys0 and xys0 or tryMerging(xys1)
   end -----------
   xys = tryMerging(xys)
   for n = 2,#xys do xys[n].xlo = xys[n-1].xhi end    -- fill in any gaps
-  xys[1].xlo, xys[#xys].xhi = -math.huge, math.huge  -- extend to +/- infinity
+  xys[1].xlo, xys[#xys].xhi    = -math.huge, math.huge  -- extend to +/- infinity
   return xys end
 
 -- ## Data    ----- ----- ------------------------------------------------------
@@ -482,14 +483,12 @@ function go.best(    num1,num2,num3,num4)
   print(the.file,o(num1:pers(t)), o(num2:pers(t)),
                  o(num3:pers(t)), o(num4:pers(t))) end
 
-function go.xys(     d,best,best)
+function go.xys(     d,best,_,rest)
   d = Data(the.file)
   best,_,rest = d:best()
-  xys(d.cols.x[1],{best=rest,rest=rest}) end
-  
-  
-
-
+  print(#best.rows)
+  print(#rest.rows)
+  xys(d.cols.x[1],{best=best.rows,rest=rest.rows}) end
 -- ## Start  ----- ----- -------------------------------------------------------
 local function on(settings,funs,   fails,old)
   fails=0
