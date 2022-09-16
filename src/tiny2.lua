@@ -168,8 +168,8 @@ function Sym:entropy(     e,fun) -- Entropy
   return e end
 
 -- ### Discretize
-function Sym:discretize(x) return x end --- discretize `Sym`s (just returning x)
 function Sym:merges(xys)   return xys end --- Sym columns do not need merging
+function Sym:discretize(x) return x end --- discretize `Sym`s (just returning x)
 
 -- ## Some   ----- ----- -------------------------------------------------------
 -- ### update
@@ -306,14 +306,14 @@ function Data:half(  above, --- split data by distance to two distant points
     if j<=#self.rows/2 then xs:add(rx.r) else ys:add(rx.r) end end
   return {xs=xs, ys=ys, x=x, y=y, c=c} end
 
-function Data:best(  above,stop) ---recursively hunt  for best leaf
+function Data:best(  above,stop,rest) ---recursively hunt  for best leaf
   stop = stop or (the.min >=1 and the.min or (#self.rows)^the.min)
   if   #self.rows < stop
-  then return self,above
+  then return self, above, Data:clone(rest)
   else local node = self:half(above)
        if    node.x:better(node.y,self)
-       then  return node.xs:best(node.x, stop)
-       else  return node.ys:best(node.y, stop) end end end 
+       then  return node.xs:best(node.x, stop, rest or node.ys)
+       else  return node.ys:best(node.y, stop, rest or node.xs) end end end 
 -- ## Lib    ----- ----- -------------------------------------------------------
 -- ### Sampling
 function any(t) return t[math.random(#t)] end --- select one, at random
@@ -472,34 +472,14 @@ function go.best(    num1,num2,num3,num4)
   print(the.file,o(num1:pers(t)), o(num2:pers(t)),
                  o(num3:pers(t)), o(num4:pers(t))) end
 
-function go.bests(     num,tmp)
-  num=Num()
-  for i=1,20 do
-    local d = Data(the.file)
-    d:cheat()
-    shuffle(d.rows)
-    tmp=d:best()
-    map(tmp,function(row) num:add(row.rank) end) 
-    map(tmp.rows,function(row) num:add(row.rank) end) 
-  end
-  print(#tmp,o(num:pers{.1,.3,.5,.7,.9}))
-  return end
+function go.xys(     d,best,best)
+  d = Data(the.file)
+  best,_,rest = d:best()
+  xys(d.cols.x[1],{best=rest,rest=rest}) end
+  
+  
 
-function go.discretize(   d)
-  d=Data(the.file)
-  print(d:xentropy()); return true end
-
-function go.four(    num,d,some,evals,ranks)
-  num=Num()
-  for i=1,20 do
-    d=Data(the.file)
-    --_,ranks= d:cheat()
-    some,evals = d:fours()
-    _,ranks = d:cheat()
-    print(#some)
-    for _,row in pairs(some) do num:add(ranks[row[1]]) end end
-  oo(num:pers{.1,.3,.5,.7,.9})
-end
+
 -- ## Start  ----- ----- -------------------------------------------------------
 local function on(settings,funs,   fails,old)
   fails=0

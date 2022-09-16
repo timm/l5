@@ -33,17 +33,19 @@ pdfs:
 	@echo 1
 	@mkdir -p $R/docs
 	@echo "pdf-ing $@ ... "
-	@a2ps               \
-		-qBr               \
-		-L 150 \
-	  --file-align=fill      \
-		--line-numbers=1        \
-		--borders=no             \
-		--pro=color               \
-		--columns 3                \
+	@a2ps                   \
+		-r                     \
+		-L 125                  \
+		--file-align=fill        \
+		--line-numbers=1          \
+		--borders=no               \
+		--pro=color                 \
+		--columns 3                  \
 		--pretty-print=$R/etc/lua.ssh \
-		--footer="%p"                    \
-		-M letter                       \
-		-o $@.ps $<
-	@ps2pdf $@.ps $@; rm $@.ps
+		-M letter                      \
+		-P pdf                          \
+		-o $@.pdf $<
 	@open $@
+
+
+#		--footer='Page %p. or #p.'  \
