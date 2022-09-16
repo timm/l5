@@ -79,7 +79,8 @@ function Num:new(c,x) --- Summarize stream of numbers
           w=(x or ""):find"-$" and -1 or 1} end
 
 function Data:new(src) --- Store rows of data. Summarize rows in `self.cols`.
-  self.rows, self.cols = {}, {names={},all={},x={},y={}}
+  self.rows = {}
+  self.cols = {names={},all={},x={},y={}}
   if   type(src)=="string"
   then csv(src,       function(row) self:add(row) end)
   else map(src or {}, function(row) self:add(row) end) end  end
@@ -261,28 +262,27 @@ function Num:xys(xys,nMin,    tryMerging) --- Can we combine any adjacent ranges
 
 -- ## Data    ----- ----- ------------------------------------------------------
 -- ### create
-function Data:body(row) --- Crete new row. Store in `rows`. Update cols.
-  row = row.cells and row or Row(row) -- Ensure `row` is a `Row`.
-  push(self.rows, row)
-  for _,cols in pairs{self.cols.x, self.cols.y} do
-    for _,col in pairs(cols) do
-      col:add(row.cells[col.at]) end end end
-
 function Data:clone(  src,    data) --- Copy structure. Optionally, add in data.
-  data= Data{self.names}
+  data= Data{self.cols.names}
   map(src or {}, function (row) data:add(row) end)
   return data end
 
-function Data:header(row) --- Create `Num`s and `Sym`s for the column headers
-  self.names = row
-  for n,s in pairs(row) do
-    local col = push(self.cols.all, (s:find"^[A-Z]" and Num or Sym)(n,s))
-    if not s:find":$" then
-      push(s:find"[!+-]" and self.cols.y or self.cols.x, col) end end end
-
 -- ### update
 function Data:add(row) --- the new row is either a header, or a data row  
-  if #self.cols.all==0 then self:header(row) else self:body(row) end end
+  local function header(row) --- Create `Num`s and `Sym`s for the column headers
+    self.cols.names = row
+    for n,s in pairs(row) do
+      local col = push(self.cols.all, (s:find"^[A-Z]" and Num or Sym)(n,s))
+      if not s:find":$" then
+        push(s:find"[!+-]" and self.cols.y or self.cols.x, col) end end end
+  local function body(row) --- Crete new row. Store in `rows`. Update cols.
+    row = row.cells and row or Row(row) -- Ensure `row` is a `Row`.
+    push(self.rows, row)
+    for _,cols in pairs{self.cols.x, self.cols.y} do
+      for _,col in pairs(cols) do
+        col:add(row.cells[col.at]) end end 
+  end ------------------------------------
+  if #self.cols.all==0 then header(row) else body(row) end end
 
 -- ### query
 function Data:cheat(   ranks) --- return percentile ranks for rows
@@ -315,12 +315,15 @@ function Data:half(  above, --- split data by distance to two distant points
 
 function Data:best(  above,stop,rest) ---recursively hunt  for best leaf
   stop = stop or (the.min >=1 and the.min or (#self.rows)^the.min)
+  rest = rest or self:clone()
   if   #self.rows < stop
-  then return self, above, Data:clone(rest)
+  then return self, above ,rest
   else local node = self:half(above)
        if    node.x:better(node.y,self)
-       then  return node.xs:best(node.x, stop, rest or node.ys)
-       else  return node.ys:best(node.y, stop, rest or node.xs) end end end 
+       then  for _,row in pairs(node.ys.rows) do rest:add(row) end
+             return node.xs:best(node.x, stop, rest)
+       else  for _,row in pairs(node.xs.rows) do rest:add(row) end
+             return node.ys:best(node.y, stop, rest) end end end 
 -- ## Lib    ----- ----- -------------------------------------------------------
 -- ### Sampling
 function any(t) return t[math.random(#t)] end --- select one, at random

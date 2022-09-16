@@ -35,16 +35,17 @@ pdfs:
 	@echo "pdf-ing $@ ... "
 	@a2ps                   \
 		-r                     \
-		-L 125                  \
+		-L 150                  \
 		--file-align=fill        \
 		--line-numbers=1          \
 		--borders=no               \
 		--pro=color                 \
-		--columns 3                  \
+		--columns 4                  \
 		--pretty-print=$R/etc/lua.ssh \
 		-M letter                      \
-		-P pdf                          \
-		-o $@.pdf $<
+		-P pd                         \
+	  -o	 $@.ps $<
+	@ps2pdf $@.ps $@; rm $@.ps
 	@open $@
 
 
