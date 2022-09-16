@@ -463,7 +463,7 @@ function go.clone(    d1,d2)
 function go.half( d,node)
   d=Data(the.file)
   node = d:half()
-  print(#node.xs.rows, #node.ys.rows, node.x:dist(node.y,d))end
+  print(#node.xs.rows, #node.ys.rows, node.x:dist(node.y,d)) end
 
 function go.best(    num1,num2,num3,num4)
   num1,num2,num3,num4 = Num(),Num(),Num(),Num()
