@@ -35,7 +35,7 @@ pdfs:
 	@echo "pdf-ing $@ ... "
 	@a2ps               \
 		-qBr               \
-	  --chars-per-line=80   \
+		-L 125 \
 	  --file-align=fill      \
 		--line-numbers=1        \
 		--borders=no             \
