@@ -142,6 +142,20 @@ end
 function XY:selects(rows) --- Return subset of `rows` selected by `self`
   return map(rows,function(row) if self:select(row) then return row end end) end
 
+function xys(col,rowss) --- return ranges that distinguish between a list of rows
+  local n,xys = 0,{} 
+  for label, rows in pairs(rowss) do
+    for _,row in pairs(rows) do
+      local x = row.cells[col.at]
+      if x ~= "?" then
+        n = n + 1
+        local bin = col:discretize(x)
+        xys[bin]  = xys[bin] or XY(col.at,col.name,x)
+        xys[bin]:add(x,label) end end end
+  local xys1={}; for _,xy in pairs(xys) do push(xys1,xy) end 
+  xys1 = col:xys(sort(xys1, lt"xlo"), the.min >= 1 and the.min or n^the.min) 
+  if #xys1 > 1 then return xys1 end end  -- if size==1, nothing found
+
 -- ## Sym     ----- ----- -----------------------------------------------------
 -- ### Create
 function Sym:merge(sym,     out) --- merge two sysms
@@ -168,8 +182,14 @@ function Sym:entropy(     e,fun) -- Entropy
   return e end
 
 -- ### Discretize
-function Sym:merges(xys)   return xys end --- Sym columns do not need merging
-function Sym:discretize(x) return x end --- discretize `Sym`s (just returning x)
+function Sym:xys(xys)      return xys end --- Sym columns do nothing to xys
+function Sym:discretize(x) return x end --- Discretize `Sym`s (just returning x)
+
+ function Sym:simpler(sym,tiny) --- returns self+sym if whole better than parts
+    local whole = self:merge(sym)
+    local e1, e2, e12 = self:entropy(), sym:entropy(), whole:entropy()
+    if self.n< tiny or sym.n< tiny or e12 <= (self.n*e1 + sym.n*e2)/whole.n then 
+      return whole end end
 
 -- ## Some   ----- ----- -------------------------------------------------------
 -- ### update
@@ -217,40 +237,27 @@ function Num:discretize(x,    tmp) --- discretize `Num`s,rounded to (hi-lo)/bins
   tmp = (self.hi - self.lo)/(the.bins - 1)
   return self.hi==self.lo and 1 or math.floor(x/tmp+.5)*tmp end 
 
-function Num:merges(xys0,nMin,      merge,fillInAnyGaps,loop)
-  function merge(xy1,xy2,    xy12,e1,e2,e12)
-    xy12 = xy1.y:merge(xy2.y)
-    e1, e2, e12 = xy1:entropy(), xy2:entropy(), x12:entropy()
-    if xy1.n<nMin or xy2.n<nMin or e12 <= (xy1.n*e1 + xy2.n*e2)/xy12.n then 
-      return XY(self.at, self.txt, self.xlo, xy1.xhi, xy12) end end
-  function fillInAnyGaps(xys) -- extend across whole number line
-     for n = 2,#xys do xys[n].xlo = xys[n-1].xhi end 
-     xys[  1  ].xlo = -math.huge
-     xys1[#xys].xhi =  math.huge
-     return xys  end
-  function loop(xys0,    n,xys1)
+function Num:xys(xys,nMin,    tryMerging) --- Can we combine any adjacent ranges?
+  function tryMerging(xys0,    n,xys1,a,b,mergedSym)
     n,xys1 = 1,{}
     while n <= #xys0 do
-      local xymerged  = n<#xys0 and merge(xys0[n],xys0[n+1]) --skip last bin 
-      xys1[1 + #xys1] = xymerged or xys0[n]       -- push something to xys1      
-      n               = n + (xymerged and 2 or 1) -- if merged, skip next bin
+      a = xys0[n]
+      if n < #xys0 then
+        b = xys0[n+1] -- try and merge two adjacent bins
+        mergedSym = a.y:simpler(b.y, nMin)
+        if mergedSym then
+          a = XY(self.at, self.txt, a.xlo, b.xhi, mergedSym)
+          j = j+1 end -- skip over the merged item 
       end
-      return #xys1 == #xys0 and xys0 or loop(xys1)
-  end --------------------------------
-  return fillInAnyGaps(loop(xys0)) end
-
-function xys(col,listOfRows)
-  local n,xys = 0,{} 
-  for label, rows in pairs(listOfRows) do
-    for _,row in pairs(rows) do
-      local x = row.cells[col.at]
-      if x ~= "?" then
-        n = n+ 1
-        local bin = col:discretize(x)
-        xys[bin]  = xys[bin] or XY(col.at,col.name,x)
-        xys[bin]:add(x,label) end end end
-  local xys1={}; for _,xy in pairs(xys) do push(xys1,xy) end 
-  return col:merges(sort(xys1,lt"xlo"),the.min >= 1 and the.min or n^the.min) end 
+      push(xys1, a)
+      j = j + 1 
+    end
+    return #xys1 == #xys0 and xys0 or loop_until_no_merges(xys1)
+  end -----------
+  xys = tryMerging(xys)
+  for n = 2,#xys do xys[n].xlo = xys[n-1].xhi end    -- fill in any gaps
+  xys[1].xlo, xys[#xys].xhi = -math.huge, math.huge  -- extend to +/- infinity
+  return xys end
 
 -- ## Data    ----- ----- ------------------------------------------------------
 -- ### create
