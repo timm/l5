@@ -6,6 +6,7 @@ D=auto2 auto93 nasa93dem china coc1000 healthCloseIsses12mths0011-easy \
    healthCloseIsses12mths0001-hard pom SSN SSM#
 
 best:; echo 1; $(foreach d,$D, lua tiny2.lua -f ../data/$d.csv -g best; )
+xys:; echo 1; $(foreach d,$D, lua tiny2.lua -f ../data/$d.csv -g xys; )
 bestLeaf:;   $(foreach d,$D, lua l5.lua -s ${RANDOM} -S 2000 -m 10 -f ../data/$d.csv -e bestLeaf; )
 
 TWOPLUS=cat $@ | awk 'BEGIN {FS="\n";RS=""} NR==1 { print("\n\n"); next} {print $$0 "\n\n"}'
@@ -34,18 +35,20 @@ pdfs:
 	@mkdir -p $R/docs
 	@echo "pdf-ing $@ ... "
 	@a2ps                   \
-		-r                     \
+		-r                    \
 		-L 150                  \
 		--file-align=fill        \
 		--line-numbers=1          \
 		--borders=no               \
 		--pro=color                 \
+		--left-title="" \
 		--columns 4                  \
 		--pretty-print=$R/etc/lua.ssh \
 		-M letter                      \
-		-P pd                         \
+		--footer="" \
+		--right-footer="" \
 	  -o	 $@.ps $<
-	@ps2pdf $@.ps $@; rm $@.ps
+	ps2pdf $@.ps $@; rm $@.ps
 	@open $@
 
 

@@ -1,0 +1,214 @@
+
+
+
+
+
+
+
+
+
+
+#	{:best 100 :rest 101}
+#	{:best 100 :rest 101}
+#	{:best 100 :rest 101}
+#	{:best 19 :rest 21}
+#	{:best 22 :rest 24}
+#	{:best 231 :rest 233}
+#	{:best 31 :rest 33}
+#	{:best 489 :rest 491}
+#	{:best 9 :rest 11}
+#	{:best 9 :rest 11}
+#----	../data/SSM.csv	---------------------------
+#----	../data/SSN.csv	---------------------------
+#----	../data/auto2.csv	---------------------------
+#----	../data/auto93.csv	---------------------------
+#----	../data/china.csv	---------------------------
+#----	../data/coc1000.csv	---------------------------
+#----	../data/healthCloseIsses12mths0001-hard.csv	---------------------------
+#----	../data/healthCloseIsses12mths0011-easy.csv	---------------------------
+#----	../data/nasa93dem.csv	---------------------------
+#----	../data/pom.csv	---------------------------
+#>>>>>	xys
+#>>>>>	xys
+#>>>>>	xys
+#>>>>>	xys
+#>>>>>	xys
+#>>>>>	xys
+#>>>>>	xys
+#>>>>>	xys
+#>>>>>	xys
+#>>>>>	xys
+../data/SSM.csv, JACOBI <= 0, 1.0, {:best 489}
+../data/SSM.csv, F <= 0, 0.74, {:best 364 :rest 4}
+../data/SSM.csv, V >  0, 0.74, {:best 364 :rest 4}
+../data/SSM.csv, LINE >  0, 0.57, {:best 277}
+../data/SSM.csv, POSTSMOOTHING <= 0, 0.55, {:best 270}
+../data/SSM.csv, COLORGS <= 0, 0.42, {:best 436 :rest 491}
+../data/SSM.csv, RELAXPARAMETER >  0, 0.35, {:best 170}
+../data/SSM.csv, ZEBRALINE >  0, 0.33, {:best 159}
+../data/SSM.csv, 3 <  PRESMOOTHING <= 5, 0.29, {:best 181 :rest 47}
+../data/SSM.csv, ZEBRALINE <= 0, 0.27, {:best 330 :rest 491}
+../data/SSM.csv, BETA >  75, 0.26, {:best 229 :rest 178}
+../data/SSM.csv, RELAXPARAMETER <= 0, 0.26, {:best 319 :rest 491}
+../data/SSM.csv, ALPHA >  75, 0.24, {:best 230 :rest 225}
+../data/SSM.csv, ALPHA <= 5, 0.23, {:best 126 :rest 18}
+../data/SSM.csv, BETA <= 5, 0.18, {:best 105 :rest 23}
+../data/SSM.csv, PRESMOOTHING <= 3, 0.16, {:best 80}
+../data/SSM.csv, 0 <  POSTSMOOTHING <= 1, 0.15, {:best 74 :rest 1}
+../data/SSM.csv, 1 <  POSTSMOOTHING <= 3, 0.15, {:best 72}
+../data/SSM.csv, LINE <= 0, 0.13, {:best 212 :rest 491}
+../data/SSM.csv, COLORGS >  0, 0.11, {:best 53}
+../data/SSN.csv, Ipratio <= 1.3, 0.73, {:best 208 :rest 50}
+../data/SSN.csv, No_asm <= 0, 0.69, {:best 202 :rest 56}
+../data/SSN.csv, Crf <= 241000000000000, 0.49, {:best 226 :rest 224}
+../data/SSN.csv, Qcomp <= 0.7, 0.44, {:best 191 :rest 168}
+../data/SSN.csv, No_mbtree <= 0, 0.38, {:best 175 :rest 172}
+../data/SSN.csv, Seek <= 253, 0.36, {:best 167 :rest 167}
+../data/SSN.csv, Aq_strength <= 1.3, 0.3, {:best 155 :rest 194}
+../data/SSN.csv, No_scenecut >  0, 0.28, {:best 92 :rest 40}
+../data/SSN.csv, Keyint <= 70, 0.27, {:best 67 :rest 5}
+../data/SSN.csv, No_cabac <= 0, 0.27, {:best 143 :rest 192}
+../data/SSN.csv, No_cabac >  0, 0.26, {:best 88 :rest 41}
+../data/SSN.csv, No_scenecut <= 0, 0.25, {:best 139 :rest 193}
+../data/SSN.csv, 20 <  Scenecut <= 34, 0.23, {:best 60 :rest 9}
+../data/SSN.csv, Aq_strength >  1.3, 0.22, {:best 76 :rest 39}
+../data/SSN.csv, 52 <  Rc_lookahead <= 88, 0.21, {:best 59 :rest 14}
+../data/SSN.csv, Ref <= 0, 0.2, {:best 53 :rest 8}
+../data/SSN.csv, 0 <  Ref <= 2, 0.17, {:best 50 :rest 15}
+../data/SSN.csv, 27 <  Threads <= 43, 0.17, {:best 50 :rest 12}
+../data/SSN.csv, 11 <  Bframes <= 15, 0.16, {:best 53 :rest 21}
+../data/SSN.csv, 49 <  Scenecut <= 63, 0.16, {:best 54 :rest 23}
+../data/SSN.csv, 63 <  Scenecut <= 77, 0.16, {:best 43 :rest 6}
+../data/SSN.csv, 75 <  Threads <= 100, 0.16, {:best 52 :rest 20}
+../data/SSN.csv, -72 <  B_bias <= -48, 0.15, {:best 46 :rest 16}
+../data/SSN.csv, 111 <  Rc_lookahead <= 141, 0.15, {:best 46 :rest 14}
+../data/SSN.csv, 3 <  Ref <= 4, 0.15, {:best 43 :rest 9}
+../data/SSN.csv, B_bias >  99, 0.13, {:best 38 :rest 9}
+../data/SSN.csv, Qp >  47, 0.13, {:best 43 :rest 21}
+../data/SSN.csv, 32 <  Qp <= 40, 0.12, {:best 38 :rest 15}
+../data/SSN.csv, 41 <  B_bias <= 67, 0.12, {:best 40 :rest 16}
+../data/SSN.csv, No_mbtree >  0, 0.12, {:best 56 :rest 61}
+../data/SSN.csv, Qp <= 3, 0.12, {:best 38 :rest 15}
+../data/SSN.csv, Rc_lookahead >  227, 0.12, {:best 42 :rest 22}
+../data/SSN.csv, 100 <  Threads <= 113, 0.11, {:best 29 :rest 4}
+../data/SSN.csv, 4 <  Ref <= 6, 0.11, {:best 41 :rest 27}
+../data/SSN.csv, 5 <  Bframes <= 8, 0.11, {:best 37 :rest 17}
+../data/SSN.csv, 558 <  Seek <= 913, 0.11, {:best 26 :rest 1}
+../data/auto2.csv, Width <= 68, 0.92, {:best 9 :rest 1}
+../data/auto2.csv, type == Small, 0.89, {:best 8}
+../data/auto2.csv, manual_transmission_available == 1, 0.65, {:best 9 :rest 6}
+../data/auto2.csv, domestic == 0, 0.32, {:best 6 :rest 8}
+../data/auto2.csv, maker == Geo, 0.22, {:best 2}
+../data/auto2.csv, domestic == 1, 0.18, {:best 3 :rest 3}
+../data/auto2.csv, maker == Ford, 0.11, {:best 1}
+../data/auto2.csv, maker == Honda, 0.11, {:best 1}
+../data/auto2.csv, maker == Pontiac, 0.11, {:best 1}
+../data/auto2.csv, maker == Saturn, 0.11, {:best 1}
+../data/auto2.csv, maker == Subaru, 0.11, {:best 1}
+../data/auto2.csv, maker == Suzuki, 0.11, {:best 1}
+../data/auto2.csv, maker == Toyota, 0.11, {:best 1}
+../data/auto93.csv, Clndrs <= 4, 1.0, {:best 19}
+../data/auto93.csv, Volume <= 97, 1.0, {:best 19}
+../data/auto93.csv, Model >  78, 0.58, {:best 11}
+../data/auto93.csv, origin == 3, 0.58, {:best 11}
+../data/auto93.csv, origin == 2, 0.37, {:best 7}
+../data/auto93.csv, 72 <  Model <= 78, 0.13, {:best 6 :rest 9}
+../data/china.csv, AFP <= 1108, 0.8, {:best 22 :rest 6}
+../data/china.csv, NPDU_UFP <= 7.6, 0.78, {:best 21 :rest 5}
+../data/china.csv, Added <= 962, 0.77, {:best 22 :rest 7}
+../data/china.csv, NPDR_AFP <= 5.8, 0.74, {:best 20 :rest 5}
+../data/china.csv, PDR_AFP <= 5.8, 0.74, {:best 20 :rest 5}
+../data/china.csv, PDR_UFP <= 6.7, 0.74, {:best 20 :rest 5}
+../data/china.csv, Enquiry <= 187, 0.71, {:best 22 :rest 10}
+../data/china.csv, Duration <= 5, 0.64, {:best 14}
+../data/china.csv, Resource <= 1, 0.45, {:best 16 :rest 11}
+../data/coc1000.csv, TIME <= 4, 0.5, {:best 22 :rest 10}
+../data/coc1000.csv, LTEX >  3, 0.43, {:best 18 :rest 7}
+../data/coc1000.csv, PMAT <= 4, 0.4, {:best 24 :rest 24}
+../data/coc1000.csv, TOOL >  3, 0.4, {:best 17 :rest 7}
+../data/coc1000.csv, SCED >  3, 0.34, {:best 14 :rest 5}
+../data/coc1000.csv, STOR <= 4, 0.33, {:best 18 :rest 15}
+../data/coc1000.csv, ARCH >  4, 0.3, {:best 15 :rest 10}
+../data/coc1000.csv, PVOL <= 3, 0.3, {:best 17 :rest 15}
+../data/coc1000.csv, 3 <  ACAP <= 4, 0.29, {:best 12 :rest 4}
+../data/coc1000.csv, 2 <  DATA <= 3, 0.27, {:best 14 :rest 10}
+../data/coc1000.csv, 3 <  TEAM <= 5, 0.27, {:best 14 :rest 10}
+../data/coc1000.csv, PREC >  4, 0.27, {:best 14 :rest 10}
+../data/coc1000.csv, PCAP >  4, 0.26, {:best 9 :rest 1}
+../data/coc1000.csv, RELY <= 2, 0.26, {:best 14 :rest 11}
+../data/coc1000.csv, RUSE >  3, 0.25, {:best 16 :rest 18}
+../data/coc1000.csv, DATA >  3, 0.22, {:best 14 :rest 16}
+../data/coc1000.csv, 2 <  ARCH <= 4, 0.21, {:best 11 :rest 8}
+../data/coc1000.csv, PCON <= 2, 0.21, {:best 14 :rest 17}
+../data/coc1000.csv, 3 <  CPLX <= 5, 0.2, {:best 12 :rest 12}
+../data/coc1000.csv, DOCU <= 2, 0.2, {:best 11 :rest 9}
+../data/coc1000.csv, 2 <  DOCU <= 3, 0.18, {:best 9 :rest 6}
+../data/coc1000.csv, 2 <  PCON <= 3, 0.18, {:best 9 :rest 6}
+../data/coc1000.csv, CPLX <= 2, 0.18, {:best 10 :rest 8}
+../data/coc1000.csv, TEAM <= 2, 0.18, {:best 10 :rest 8}
+../data/coc1000.csv, 2 <  PCAP <= 3, 0.17, {:best 10 :rest 9}
+../data/coc1000.csv, SITE <= 2, 0.16, {:best 10 :rest 11}
+../data/coc1000.csv, 2 <  ACAP <= 3, 0.15, {:best 7 :rest 4}
+../data/coc1000.csv, 2 <  CPLX <= 3, 0.15, {:best 7 :rest 4}
+../data/coc1000.csv, 2 <  FLEX <= 3, 0.15, {:best 8 :rest 6}
+../data/coc1000.csv, FLEX >  4, 0.15, {:best 9 :rest 9}
+../data/coc1000.csv, RUSE <= 2, 0.15, {:best 7 :rest 4}
+../data/coc1000.csv, 2 <  PREC <= 4, 0.14, {:best 8 :rest 7}
+../data/coc1000.csv, 2 <  RELY <= 3, 0.14, {:best 9 :rest 10}
+../data/coc1000.csv, 2 <  SCED <= 3, 0.14, {:best 9 :rest 10}
+../data/coc1000.csv, 2 <  SITE <= 3, 0.14, {:best 7 :rest 5}
+../data/coc1000.csv, PVOL >  4, 0.14, {:best 8 :rest 7}
+../data/coc1000.csv, SITE >  4, 0.14, {:best 7 :rest 5}
+../data/coc1000.csv, 2 <  TOOL <= 3, 0.13, {:best 8 :rest 9}
+../data/coc1000.csv, 3 <  FLEX <= 4, 0.13, {:best 7 :rest 6}
+../data/coc1000.csv, 3 <  PCAP <= 4, 0.12, {:best 6 :rest 4}
+../data/coc1000.csv, PCON >  3, 0.12, {:best 8 :rest 10}
+../data/coc1000.csv, 1 <  SCED <= 2, 0.11, {:best 7 :rest 8}
+../data/coc1000.csv, 2 <  RUSE <= 3, 0.11, {:best 8 :rest 11}
+../data/coc1000.csv, 4 <  STOR <= 5, 0.11, {:best 8 :rest 12}
+../data/coc1000.csv, PREC <= 2, 0.11, {:best 9 :rest 16}
+../data/coc1000.csv, RELY >  3, 0.11, {:best 8 :rest 12}
+../data/healthCloseIsses12mths0001-hard.csv, N_estimators <= 140, 0.93, {:best 93}
+../data/healthCloseIsses12mths0001-hard.csv, criterion == squared_error, 0.66, {:best 66}
+../data/healthCloseIsses12mths0001-hard.csv, criterion == poisson, 0.32, {:best 32}
+../data/healthCloseIsses12mths0001-hard.csv, 1 <  Min_sample_leaves <= 4, 0.22, {:best 32 :rest 15}
+../data/healthCloseIsses12mths0001-hard.csv, Min_impurity_decrease <= 0.5, 0.22, {:best 25 :rest 4}
+../data/healthCloseIsses12mths0001-hard.csv, 0.5 <  Min_impurity_decrease <= 2, 0.16, {:best 24 :rest 12}
+../data/healthCloseIsses12mths0001-hard.csv, Min_sample_leaves <= 1, 0.14, {:best 19 :rest 6}
+../data/healthCloseIsses12mths0011-easy.csv, criterion == absolute_error, 1.0, {:best 100}
+../data/healthCloseIsses12mths0011-easy.csv, 120 <  N_estimators <= 170, 0.18, {:best 22 :rest 5}
+../data/healthCloseIsses12mths0011-easy.csv, 4.75 <  Min_impurity_decrease <= 6.25, 0.16, {:best 21 :rest 6}
+../data/healthCloseIsses12mths0011-easy.csv, 90 <  N_estimators <= 120, 0.14, {:best 18 :rest 5}
+../data/healthCloseIsses12mths0011-easy.csv, Max_depth <= 4, 0.13, {:best 22 :rest 16}
+../data/healthCloseIsses12mths0011-easy.csv, 6 <  Max_depth <= 9, 0.12, {:best 19 :rest 10}
+../data/healthCloseIsses12mths0011-easy.csv, 7.75 <  Min_impurity_decrease <= 9.25, 0.12, {:best 21 :rest 15}
+../data/healthCloseIsses12mths0011-easy.csv, 40 <  N_estimators <= 60, 0.11, {:best 14 :rest 4}
+../data/nasa93dem.csv, cplx == h, 0.85, {:best 9 :rest 2}
+../data/nasa93dem.csv, data == l, 0.85, {:best 9 :rest 2}
+../data/nasa93dem.csv, stor == n, 0.85, {:best 9 :rest 2}
+../data/nasa93dem.csv, sced == l, 0.81, {:best 8 :rest 1}
+../data/nasa93dem.csv, plex == n, 0.79, {:best 9 :rest 3}
+../data/nasa93dem.csv, time == n, 0.79, {:best 9 :rest 3}
+../data/nasa93dem.csv, acap == n, 0.74, {:best 8 :rest 2}
+../data/nasa93dem.csv, apex == n, 0.74, {:best 8 :rest 2}
+../data/nasa93dem.csv, pcap == n, 0.74, {:best 8 :rest 2}
+../data/nasa93dem.csv, pvol == l, 0.65, {:best 9 :rest 6}
+../data/nasa93dem.csv, rely == h, 0.63, {:best 8 :rest 4}
+../data/nasa93dem.csv, ltex == h, 0.55, {:best 9 :rest 9}
+../data/nasa93dem.csv, pmat == h, 0.52, {:best 8 :rest 7}
+../data/nasa93dem.csv, tool == n, 0.52, {:best 9 :rest 10}
+../data/nasa93dem.csv, pmat == n, 0.11, {:best 1}
+../data/nasa93dem.csv, rely == n, 0.11, {:best 1}
+../data/pom.csv, Criticality Modifier <= 2, 0.84, {:best 84}
+../data/pom.csv, Size <= 0, 0.7, {:best 100 :rest 44}
+../data/pom.csv, 0.906024422 <  Criticality <= 0.971722002, 0.21, {:best 23 :rest 2}
+../data/pom.csv, Criticality <= 0.906024422, 0.21, {:best 27 :rest 8}
+../data/pom.csv, Plan >  3, 0.17, {:best 28 :rest 19}
+../data/pom.csv, 2 <  Plan <= 3, 0.14, {:best 25 :rest 21}
+../data/pom.csv, 80 <  InterDependency <= 82, 0.14, {:best 19 :rest 6}
+../data/pom.csv, 0.971722002 <  Criticality <= 1.034859125, 0.12, {:best 18 :rest 9}
+../data/pom.csv, 2 <  Criticality Modifier <= 4, 0.12, {:best 16 :rest 6}
+../data/pom.csv, 0.872686506 <  Initial Known <= 0.923256423, 0.11, {:best 22 :rest 21}
+../data/pom.csv, 93 <  InterDependency <= 96, 0.11, {:best 18 :rest 12}
+../data/pom.csv, Dynamism <= 1, 0.11, {:best 13 :rest 3}
+1

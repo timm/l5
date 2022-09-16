@@ -25,17 +25,18 @@ OPTIONS:
  -m  --min     min size. If<1 then t^min else min.    = 10
  -n  --nums    number of nums to keep                 = 512
  -p  --p       distance calculation coefficient       = 2
- -r  --rest    size of "rest" set                     = 3
+ -r  --rest    size of "rest" set                     = 5
  -s  --seed    random number seed                     = 10019
  -S  --Sample  how many numbers to keep               = 10000]]
 
 local any,cli,coerce,copy,csv,fmt,gt,lt,many,map,o,obj,oo,per,pop 
-local push,red,rnd,rogues,settings,shallowCopy,shuffle,sort,the,xys,yellow
+local push,red,rnd,rogues,settings,shallowCopy,shuffle
+local slice,sort,the,xys,yellow
+local isa=setmetatable
 function obj(s,    t,i,new) 
+  function new(k,...) i=isa({},k); return isa(t.new(i,...) or i,k) end
   t={__tostring = function(x) return s..o(x) end}
-  function new(k,...) 
-    i=setmetatable({},k); return setmetatable(t.new(i,...) or i,k) end
-  t.__index = t;return setmetatable(t,{__call=new}) end
+  t.__index = t;return isa(t,{__call=new}) end
 
 local Data,Num,Row = obj"Data", obj"Num", obj"Row"
 local Some,Sym,XY  = obj"Some", obj"Sym", obj"XY"
@@ -121,11 +122,11 @@ function Row:far(rows,data) -- Find an item in `rows`, far from `row1.
   return per(self:dists(rows,data),the.far).r end
 -- ## XY    ----- ----- ------------------------------------------------------
 function XY:__tostring() --- print
-  local x,lo,hi,big = self.name, self.xlo, self.xhi, math.huge
-  if     lo ==  hi  then return string.format("%s == %s", x, lo)
-  elseif hi ==  big then return string.format("%s >  %s", x, lo)
-  elseif lo == -big then return string.format("%s <= %s", x, hi)
-  else                   return string.format("%s <  %s <= %s", lo,x,hi) end end
+  local x,lo,hi,big = self.txt, self.xlo, self.xhi, math.huge
+  if     lo ==  hi  then return fmt("%s == %s", x, lo)
+  elseif hi ==  big then return fmt("%s >  %s", x, lo)
+  elseif lo == -big then return fmt("%s <= %s", x, hi)
+  else                   return fmt("%s <  %s <= %s", lo,x,hi) end end
 
 function XY:add(x,y) --- Update `xlo`,`xhi` to cover `x`. And add `y` to `self.y`
   if x~="?" then
@@ -143,18 +144,18 @@ end
 function XY:selects(rows) --- Return subset of `rows` selected by `self`
   return map(rows,function(row) if self:select(row) then return row end end) end
 
-function xys(col,rowss) --- return ranges that distinguish between a list of rows
+-- ### Class methods
+function XY.deltas(col,datas) --- find ranges the most separate datas
   local n,xys = 0,{} 
-  for label, rows in pairs(rowss) do
-    for _,row in pairs(rows) do
+  for label, data in pairs(datas) do
+    for _,row in pairs(data.rows) do
       local x = row.cells[col.at]
       if x ~= "?" then
         n = n + 1
         local bin = col:discretize(x)
-        xys[bin]  = xys[bin] or XY(col.at,col.name,x)
+        xys[bin]  = xys[bin] or XY(col.at,col.txt,x)
         xys[bin]:add(x,label) end end end
   local xys1={}; for _,xy in pairs(xys) do push(xys1,xy) end 
-  map(xys1,oo)
   xys1 = col:xys(sort(xys1, lt"xlo"), the.min >= 1 and the.min or n^the.min) 
   if #xys1 > 1 then return xys1 end end  -- if size==1, nothing found
 
@@ -182,6 +183,13 @@ function Sym:entropy(     e,fun) -- Entropy
   function fun(p) return p*math.log(p,2) end
   e=0; for _,n in pairs(self.has) do if n>0 then e=e-fun(n/self.n) end end
   return e end
+
+function Sym:score(goal,B,R) --- how well does self select for goal?
+  local b,r,epsilon = 0,0,1E-30
+  for x,n in pairs(self.has) do
+    if x == goal then b=b+n else r=r+n end end
+  b,r = b/(B+epsilon), r/(R+epsilon) -- B,R are the total bests and rests
+  return b^2/(b+r+epsilon) end
 
 -- ### Discretize
 function Sym:xys(xys)      return xys end --- Sym columns do nothing to xys
@@ -325,11 +333,36 @@ function Data:best(  above,stop,rest) ---recursively hunt  for best leaf
              return node.xs:best(node.x, stop, rest)
        else  for _,row in pairs(node.xs.rows) do rest:add(row) end
              return node.ys:best(node.y, stop, rest) end end end 
+
+--- ### Decision tree
+function Data:rule(rest,  out,stop)
+  function splitter()
+    local most,best,tmp = -1
+    for _,col in pairs(self.cols.x) do
+       for i,xy in pairs(XY.deltas(col,{best=self, rest=rest})) do
+         if i< 10 then
+           local tmp = xy.y:score("best",#self.rows, #rest.rows)
+           if tmp > most then best,most=xy,tmp end end end end
+    return best end
+  if not stop then -- first time through. initialize the space
+    rest = self:clone(many(rest.rows, the.rest*#self.rows))
+    return self:rule(rest,{},the.min >=1 and the.min or (#self.rows)^the.min) 
+  elseif #self.rows + #rest.rows > stop then 
+    local cut,best1,rest1 = splitter()
+    if cut then 
+      best1 = cut:selects(self.rows)
+      rest1 = cut:selects(rest.rows)
+      if (#best1 + #rest1 < #self.rows + #rest.rows) then
+        push(out,cut)
+        return self:clone(best1):rule(self:clone(rest1), stop,out) end end end 
+  return out,self,rest end
+      
 -- ## Lib    ----- ----- -------------------------------------------------------
 -- ### Sampling
 function any(t) return t[math.random(#t)] end --- select one, at random
 
 function many(t1,n,  t2) --- select `n`
+  n = math.floor(.5 + n)
   if n >= #t1 then return shuffle(t1) end
   t2={}; for i=1,n do push(t2, any(t1)) end; return t2 end
 
@@ -373,6 +406,11 @@ function per(t,p) --- return the pth (0..1) item of `t`.
 
 function push(t,x) t[1+#t]=x; return x end --- at `x` to `t`, return `x`
 function pop(t)    return table.remove(t) end --- remove(and return) last item
+
+function slice(t,  nGo,nStop,nStep,    u) --- return t[go..stop] by step
+  u={}
+  for j=(nGo or 1)//1,(nStop or #t)//1,(nStep or 1)//1 do u[1+#u]=t[j] end
+  return u end
 
 function shallowCopy(t)  return copy(t,true) end --- shallow copy of list
 function copy(t,  shallow, u) --- copy list
@@ -483,12 +521,29 @@ function go.best(    num1,num2,num3,num4)
   print(the.file,o(num1:pers(t)), o(num2:pers(t)),
                  o(num3:pers(t)), o(num4:pers(t))) end
 
-function go.xys(     d,best,_,rest)
+function go.xys(     d,all,few,best,ranks,rest)
+  print("\n#----",the.file,"---------------------------")
   d = Data(the.file)
+  ranks=d:cheat()
+  all=#d.rows
+  few=all^.5
+  best = d:clone(slice(ranks, 1, few))
+  rest = d:clone(slice(ranks, all-few))
+  print("#",o{best=#best.rows, rest=#rest.rows})
+  for _,col in pairs(d.cols.x) do
+    map(XY.deltas(col,{best=best,rest=rest}) or {},
+        function(xy,  tmp) 
+          local tmp= rnd(xy.y:score("best",#best.rows, #rest.rows))
+          if tmp > .1 then
+            print(table.concat({the.file, tostring(xy),tmp, o(xy.y.has)},", ")) end end ) end end
+
+function go.rule(     d,all,few,best,ranks,rest)
+  print("\n#----",the.file,"---------------------------")
+  d = Data(the.file)
+  ranks=d:cheat()
   best,_,rest = d:best()
-  print(#best.rows)
-  print(#rest.rows)
-  xys(d.cols.x[1],{best=best.rows,rest=rest.rows}) end
+  best:rule(rest) end
+  --
 -- ## Start  ----- ----- -------------------------------------------------------
 local function on(settings,funs,   fails,old)
   fails=0
@@ -497,9 +552,9 @@ local function on(settings,funs,   fails,old)
     if settings.go == "all" or settings.go == k then
       for k,v in pairs(old) do settings[k]=v end
       math.randomseed(settings.seed or 10019)
-      print(">>>>>",k)
-      if fun()==false then fails = fails+1;print("FAIL!!!!!",k); end end end
-  for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end 
+      print("#>>>>>",k)
+      if fun()==false then fails = fails+1;print("F#AIL!!!!!",k); end end end
+  for k,v in pairs(_ENV) do if not b4[k] then print("#?",k,type(v)) end end 
   os.exit(fails) end
 
 the = cli(settings(help))
