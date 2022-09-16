@@ -29,15 +29,16 @@ OPTIONS:
  -s  --seed    random number seed                     = 10019
  -S  --Sample  how many numbers to keep               = 10000]]
 
-local any, cli, coerce, copy, csv, fmt, gt, lt, many, map, o, obj, oo, per, pop 
-local push, red, rnd, rogues, settings, shallowCopy, shuffle, sort, the, yellow
+local any,cli,coerce,copy,csv,fmt,gt,lt,many,map,o,obj,oo,per,pop 
+local push,red,rnd,rogues,settings,shallowCopy,shuffle,sort,the,xys,yellow
 function obj(s,    t,i,new) 
   t={__tostring = function(x) return s..o(x) end}
   function new(k,...) 
     i=setmetatable({},k); return setmetatable(t.new(i,...) or i,k) end
   t.__index = t;return setmetatable(t,{__call=new}) end
 
-local Data,Num,Row,Some,Sym = obj"Data", obj"Num", obj"Row", obj"Some", obj"Sym"
+local Data,Num,Row = obj"Data", obj"Num", obj"Row"
+local Some,Sym,XY  = obj"Some", obj"Sym", obj"XY"
 
 --[[ Type hints conventions:
 | Function args   | Notes                                       |
@@ -59,7 +60,7 @@ these, use `lua tiny2.lua -go x`. --]]
 function Row:new(t) --- Hold one record
   return {evaled=false,
           cells=t,
-          cooled=shallowCopy(t)} end
+          cooked=shallowCopy(t)} end
 
 function Sym:new(n,s) --- Summarize stream of symbols.
     return {at=n or 0,
@@ -81,7 +82,15 @@ function Data:new(src) --- Store rows of data. Summarize rows in `self.cols`.
   self.rows, self.cols = {}, {names={},all={},x={},y={}}
   if   type(src)=="string"
   then csv(src,       function(row) self:add(row) end)
-  else map(src or {}, function(row) self:add(row) end) end  end
+  else map(src or {}, function(row) self:add(row) end) end  end
+
+function XY:new(n,s,nlo,nhi,nom) --- Keep the `y` values from `xlo` to `xhi`
+  return {txt= s,                    -- name of this column
+          at  = n,                   -- offset for this column
+          xlo = nlo,                 -- min x seen so far
+          xhi = nhi or nlo,          -- max x seen so far
+          y   = nom or Sym(n,s)} end -- y symbols see so far
+
 -- ## Row     ----- ----- ------------------------------------------------------
 -- ### sort
 function Row:better(row,data) --- order two rows
@@ -108,12 +117,45 @@ function Row:dists(rows,data) --- sort `rows` by distance to `r11.
            function(row) return {r=row,d=self:dist(row,data)} end),lt"d") end
 
 function Row:far(rows,data) -- Find an item in `rows`, far from `row1.
-  return per(self:dists(rows,data),the.far).r end
+  return per(self:dists(rows,data),the.far).r end
+-- ## XY    ----- ----- ------------------------------------------------------
+function XY:__tostring() --- print
+  local x,lo,hi,big = self.name, self.xlo, self.xhi, math.huge
+  if     lo ==  hi  then return string.format("%s == %s", x, lo)
+  elseif hi ==  big then return string.format("%s >  %s", x, lo)
+  elseif lo == -big then return string.format("%s <= %s", x, hi)
+  else                   return string.format("%s <  %s <= %s", lo,x,hi) end end
+
+function XY:add(x,y) --- Update `xlo`,`xhi` to cover `x`. And add `y` to `self.y`
+  if x~="?" then
+    if x < self.xlo then self.xlo=x end
+    if x > self.xhi then self.xhi=x end
+    self.y:add(y) end end
+
+function XY:select(row,     v) --- Return true if `row` selected by `self`
+  v = row.cells[self.at]
+  if v =="?" then return true end ------------------ assume yes for unknowns
+  if self.xlo==self.xhi and v==self.xlo then return true end -- for symbols
+  if self.xlo < v and v <= self.xhi     then return true end -- for numerics
+end
+
+function XY:selects(rows) --- Return subset of `rows` selected by `self`
+  return map(rows,function(row) if self:select(row) then return row end end) end
 
 -- ## Sym     ----- ----- -----------------------------------------------------
+-- ### Create
+function Sym:merge(sym,     out) --- merge two sysms
+  out = Sym(self.at, self.txt)
+  for x,n in pairs(self.has) do new:add(x,n) end
+  for x,n in pairs(sym.has)  do new:add(x,n) end
+  return out end
+
 -- ### update
-function Sym:add(s) --- Update.
-  if s~="?" then self.n =1+self.n;self.has[s]=1+(self.has[s] or 0) end end
+function Sym:add(s,  n) --- Update.
+  if s~="?" then 
+    n = n or 1
+    self.n      = n+self.n
+    self.has[s] = n+(self.has[s] or 0) end end
 
 -- ### dist
 function Sym:dist(s1,s2) -- Gap between two symbols.
@@ -125,7 +167,11 @@ function Sym:entropy(     e,fun) -- Entropy
   e=0; for _,n in pairs(self.has) do if n>0 then e=e-fun(n/self.n) end end
   return e end
 
--- ## Some   ----- ----- -----------------------------------------------------
+-- ### Discretize
+function Sym:discretize(x) return x end --- discretize `Sym`s (just returning x)
+function Sym:merges(xys)   return xys end --- Sym columns do not need merging
+
+-- ## Some   ----- ----- -------------------------------------------------------
 -- ### update
 function Some:add(x,    pos) --- update
   if x~="?" then
@@ -164,7 +210,48 @@ function Num:dist(n1,n2) --- return 0..1. If unknowns, assume max distance.
   n1,n2 = self:norm(n1), self:norm(n2)
   if n1=="?" then n1 = n2<.5 and 1 or 0 end
   if n2=="?" then n2 = n1<.5 and 1 or 0 end
-  return math.abs(n1-n2) end
+  return math.abs(n1-n2) end
+
+-- ### Discretize
+function Num:discretize(x,    tmp) --- discretize `Num`s,rounded to (hi-lo)/bins
+  tmp = (self.hi - self.lo)/(the.bins - 1)
+  return self.hi==self.lo and 1 or math.floor(x/tmp+.5)*tmp end 
+
+function Num:merges(xys0,nMin,      merge,fillInAnyGaps,loop)
+  function merge(xy1,xy2,    xy12,e1,e2,e12)
+    xy12 = xy1.y:merge(xy2.y)
+    e1, e2, e12 = xy1:entropy(), xy2:entropy(), x12:entropy()
+    if xy1.n<nMin or xy2.n<nMin or e12 <= (xy1.n*e1 + xy2.n*e2)/xy12.n then 
+      return XY(self.at, self.txt, self.xlo, xy1.xhi, xy12) end end
+  function fillInAnyGaps(xys) -- extend across whole number line
+     for n = 2,#xys do xys[n].xlo = xys[n-1].xhi end 
+     xys[  1  ].xlo = -math.huge
+     xys1[#xys].xhi =  math.huge
+     return xys  end
+  function loop(xys0,    n,xys1)
+    n,xys1 = 1,{}
+    while n <= #xys0 do
+      local xymerged  = n<#xys0 and merge(xys0[n],xys0[n+1]) --skip last bin 
+      xys1[1 + #xys1] = xymerged or xys0[n]       -- push something to xys1      
+      n               = n + (xymerged and 2 or 1) -- if merged, skip next bin
+      end
+      return #xys1 == #xys0 and xys0 or loop(xys1)
+  end --------------------------------
+  return fillInAnyGaps(loop(xys0)) end
+
+function xys(col,listOfRows)
+  local n,xys = 0,{} 
+  for label, rows in pairs(listOfRows) do
+    for _,row in pairs(rows) do
+      local x = row.cells[col.at]
+      if x ~= "?" then
+        n = n+ 1
+        local bin = col:discretize(x)
+        xys[bin]  = xys[bin] or XY(col.at,col.name,x)
+        xys[bin]:add(x,label) end end end
+  local xys1={}; for _,xy in pairs(xys) do push(xys1,xy) end 
+  return col:merges(sort(xys1,lt"xlo"),the.min >= 1 and the.min or n^the.min) end 
+
 -- ## Data    ----- ----- ------------------------------------------------------
 -- ### create
 function Data:body(row) --- Crete new row. Store in `rows`. Update cols.

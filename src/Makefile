@@ -29,12 +29,13 @@ pdfs:
 	@a2ps -o ~/tmp/all.ps -qBr -f 5 --columns 3-M letter --pro=color --line-numbers=1 --pretty-print=$R/etc/lua.ssh  -A virtual$g
 	ps2pdf ~/tmp/all.ps ~/tmp/all.pdf
 
-../docs/%.pdf: %.lua  ## .lua ==> .pdf
+~/tmp/%.pdf: %.lua  ## .lua ==> .pdf
+	@echo 1
 	@mkdir -p $R/docs
 	@echo "pdf-ing $@ ... "
 	@a2ps               \
 		-qBr               \
-		-L 125 \
+		-L 150 \
 	  --file-align=fill      \
 		--line-numbers=1        \
 		--borders=no             \
@@ -44,5 +45,5 @@ pdfs:
 		--footer=""                    \
 		-M letter                       \
 		-o $@.ps $<
-	@ps2pdf $@.ps $@; rm $@.ps; git add $@
+	@ps2pdf $@.ps $@; rm $@.ps
 	@open $@
