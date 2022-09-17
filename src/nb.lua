@@ -23,7 +23,7 @@ function obj(s,    t,i,new)
   t={__tostring = function(x) return s..o(x) end}
   t.__index = t;return isa(t,{__call=new}) end
 
-local Data,Nb,Num,Row,Sym =obj"Data",obj"Num",obj"Row",obj"Sym",obj"Nb"
+local Data,NB,Num,Row,Sym =obj"Data",obj"Num",obj"Row",obj"Sym",obj"NB"
 
 function Row:new(t) --- Hold one record
   return {cells =t} end
@@ -55,7 +55,7 @@ function NB:add(row)
   self.datas[row.klass()].add(row) end 
 
 
--- -----------------------------------------------------------------------------
+-- ## Num     ----- ----- -----------------------------------------------------
 function Num:add(x)
   if x ~= "?" then
     self.n  = self.n + 1
@@ -65,6 +65,7 @@ function Num:add(x)
     if x > self.hi then self.hi = x end
     if x < self.lo then self.lo = x end end end
 
+-- ## Sym     ----- ----- -----------------------------------------------------
 function Sym:add(s,  n) --- Update.
   if s~="?" then 
     self.n  = self.n + 1
@@ -72,8 +73,13 @@ function Sym:add(s,  n) --- Update.
     if self.has[s] > self.most then
       self.most,self.mode = self.has[s], s end end end
 
+-- ## Data     ----- ----- -----------------------------------------------------
+-- ### Create
+function Data:clone(src) return load(Data({self.cols.names}),src) end
+
+-- ### Update
 function Data:add(row) --- the new row is either a header, or a data row  
-  if #self.cols.all==0 then self._head(row) else self._body(row) end 
+  if #self.cols.all==0 then self._head(row) else self._body(row) end  end
 
 function Data:_head(row)--- Create `Num`s and `Sym`s for the column headers
   self.cols.names = row
@@ -89,8 +95,6 @@ function Data:_body(row) --- Crete new row. Store in `rows`. Update cols.
     for _,col in pairs(cols) do
       col:add(row.cells[col.at]) end end end
 
-..-- -----------------------------------------------------------------------------
-function Data:clone(src) return load(Data({self.cols.names}),src) end
 -- -----------------------------------------------------------------------------
 fmt=string.format
 
@@ -100,7 +104,7 @@ function load(data,src)
   else map(src or {}, function(row) data:add(row) end) end  end
 
 function push(t,x) t[1+#t]=x; return x end --- at `x` to `t`, return `x`
-f
+
 function map(t1,fun,    t2)  --- apply `fun` to all of `t1` (skip nil results)
   t2={}; for _,v in pairs(t1) do t2[1+#t2] = fun(v) end; return t2 end
 
@@ -154,8 +158,10 @@ function o(t,   seen,show,u) ---  coerce to string (skip loops, sort slots)
   if #t==0 then table.sort(u) end
   return "{"..table.concat(u," ").."}" end
 
-v-- ## Demo  ----- ----- -------------------------------------------------------
+-- ## Demo  ----- ----- -------------------------------------------------------
 local eg={}
+function eg.the() oo(the); return 1 end
+
 -- ## Start  ----- ----- -------------------------------------------------------
 local function on(settings,funs,   fails,old)
   fails=0
