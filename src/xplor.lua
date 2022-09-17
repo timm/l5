@@ -1,9 +1,9 @@
 local b4={}; for k,v in pairs(_ENV) do b4[k]=v end;
 local help=[[
-TINY2: a lean little learning library, in LUA
+XPLOR: Bayesian active learning
 (c) 2022 Tim Menzies <timm@ieee.org> BSD-2 license
 
-USAGE: lua nb.lua [OPTIONS]
+USAGE: lua XPLOR.lua [OPTIONS]
 
 OPTIONS:
  -f  --file  file with csv data                     = ../data/auto93.csv
@@ -13,7 +13,7 @@ OPTIONS:
  -m  --m     Bayes hack: low class frequency        =  1
  -s  --seed  random number seed                     = 10019]]
 
-local adds,cli,coerce,copy,csv,fmt,o,obj,oo,map,push,rnd,run,settings,the
+local adds,cdf,cli,coerce,copy,csv,fmt,o,obj,oo,map,pdf,push,rnd,run,settings,the
 function obj(s,    isa,new,t)
   isa=setmetatable
   function new(k,...) local i=isa({},k); return isa(t.new(i,...) or i,k) end
@@ -37,14 +37,26 @@ function Num:new(c,x) --- Summarize stream of numbers
           w=(x or ""):find"-$" and -1 or 1} end
 
 function Data:new(src) --- Store rows of data. Summarize rows in `self.cols`.
-  self.rows = {}
-  self.cols = {names={},all={},x={},y={}}
+  self.rows, self.cols = {}, {names={},all={},x={},y={}}
   adds(self,src) end
 
 function NB:new(src)
   self.all, self.nh, self.datas = Data(), 0, {}
   adds(self,src) end
 
+-- The help string at top of file is parsed to create the settings.
+-- Also, my `go.x` functions can be run with `lua xplor.lua -g x`.
+-- Further, this code's function arguments have some type hints:
+--   
+-- | What         | Notes                                       |
+-- |:------------:|---------------------------------------------|
+-- | 2 blanks     | 2 blanks denote optional arguments          |
+-- | 4 blanks     | 4 blanks denote local arguments             |
+-- | n            | prefix for numerics                         |
+-- | s            | prefix for strings                          |
+-- | is           | prefix for booleans                         |
+-- | fun          | prefix for functions                        |
+-- | suffix s     | list of thing (so names is list of strings) |
 --              ,   .           .     
 -- ._ _    _   -+-  |_    _    _|   __
 -- [ | )  (/,   |   [ )  (_)  (_]  _) 
@@ -61,11 +73,12 @@ function Num:add(x)
     if x < self.lo then self.lo = x end end end
 
 function Num:like(x,...)
-  local sd,mu=self.self, self.mu
-  if sd==0 then return x==mu and 1 or 1/big end
-  return math.exp(-.5*((x - mu)/sd)^2) / (sd*((2*math.pi)^0.5)) end  
+  return self.sd>0 and pdf(x,self.mu,self.sd) or (x==self.mu and 1 or 1/big) end
 
--- ## Sym     ----- ----- -----------------------------------------------------
+function Num:mid() return self.mu end
+function Num:div() return self.sd end
+
+-- ## Sym     ----- ----- ------------------------------------------------------
 function Sym:add(s,  n) --- Update.
   if s~="?" then 
     self.n  = self.n + 1
@@ -75,6 +88,13 @@ function Sym:add(s,  n) --- Update.
 
 function Sym:like(x,prior)
   return ((self.kept[x] or 0)+the.m*prior) / (self.n+the.m) end
+
+function Sym:mid() return self.mode end
+
+function Sym:div(     e)
+  local function fun(p) return -p*math.log(p,2) end
+  e=0; for x,n in pairs(self.has) do if n>0 then e = e - fun(n/self.n) end end
+  return e end
 
 -- ## Data     ----- ----- -----------------------------------------------------
 -- ### Create
@@ -114,6 +134,14 @@ function Data:like(row, nklasses, nrows)
 function Data:klass(row) 
  return row.cells[self.cols.klass.at] end
 
+function Data:stats(  places,showCols,todo,    t,v)
+    showCols, todo = showCols or self.cols.y, todo or "mid"
+    t={}; for _,col in pairs(showCols) do 
+            v=getmetatable(col)[todo](col)
+            print("v",v)
+            v=type(v)=="number" and rnd(v,places) or v
+            t[col.txt]=v end; return t end
+
 -- ## NB     ----- ----- -----------------------------------------------------
 -- ### Update
 function NB:add(row,   k)
@@ -124,12 +152,11 @@ function NB:add(row,   k)
   self.datas[k].add(row) end 
 
 function NB:classify(row) --- which klass likes `row` the most?
-  most,klass = -math.huge
+  local most,klass = -math.huge
   for k,data in pairs(self.datas) do
     like = data:like(row,self.nh, #self.all.rows)
     if like > most then most,klass=like,k end end
   return klass end
-
 -- .     .  
 -- |  *  |_ 
 -- |  |  [_)
@@ -138,6 +165,17 @@ function NB:classify(row) --- which klass likes `row` the most?
 function rnd(x, places) 
   local mult = 10^(places or 2)
   return math.floor(x * mult + 0.5) / mult end
+
+function pdf(x,mu,sd)
+  return math.exp(-.5*((x - mu)/sd)^2) / (sd*((2*math.pi)^0.5)) end  
+
+function cdf (x,    _cdf) 
+  function _cdf(x,    p,t) --- Abramowitz and Stegun cdf approximation
+    p = pdf(x,0,1)         -- Handbook Mathematical Functions, 1988
+    t = 1 / (1+0.2316419*x)
+    return (1 - p*(0.319381530*t - 0.356563782*t^2 + 1.781477937*t^3 
+                   - 1.821255978*t^4 + 1.330274429*t^5)) end
+  return (x==0 and .5) or (x>0 and _cdf(x)) or 1-_cdf(-x) end
 
 -- ## Lists     ----- ----- ----------------------------------------------------
 function push(t,x) t[1+#t]=x; return x end --- at `x` to `t`, return `x`
@@ -217,13 +255,16 @@ function run(settings,funs,   fails,old)
       if fun()==false then fails = fails+1;print("# FAIL!!!!!",k); end end end
   for k,v in pairs(_ENV)do if not b4[k] then print("# rogue?",k,type(v)) end end 
   os.exit(fails) end
-
 --   .                      
 --  _|   _   ._ _    _    __
 -- (_]  (/,  [ | )  (_)  _) 
 
 local go={}
 function go.the() oo(the); return  1 end
+
+function go.cdf()
+  for x=-2,2.5,.3 do print(rnd(cdf(x),4), ("-"):rep(cdf(x)*50//1)..".") end end
+
 function go.sym(  sym) 
   sym = Sym()
   for _,x in pairs{"a","a","a","a","b","b","c"} do sym:add(x) end
@@ -237,12 +278,23 @@ function go.num(  num)
 function go.csv()
   csv(the.file, oo); return 1 end
 
-function go.data(  d)
+function go.data(   d)
   d=Data(the.file) 
   map(d.cols.x,oo); print""
   map(d.cols.y,oo) end 
 
-function go.nb
+function go.data(    d)
+  d=Data(the.file) 
+  oo(d:stats(2, d.cols.x,"mid"))
+  map(d.cols.x,oo); print""
+  map(d.cols.y,oo) end 
+
+function go.nb(   d)
+  d=NB("../data/diabetes.csv") 
+  for _,data in pairs(d.all.cols.x) do 
+    oo(data.cols.x) 
+    oo(data:stats(2, data.cols.x,"mid")) end  end
+
 -- ## Start  ----- ----- -------------------------------------------------------
 the = cli(settings(help))
 run(the,go)

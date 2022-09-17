@@ -1,3 +1,5 @@
+dialog indepndence: strings on the creen in tests, not in the core classes
+
 lambda bodies, set operations, 
 
 data independence
