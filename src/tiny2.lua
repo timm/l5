@@ -27,7 +27,7 @@ OPTIONS:
  -p  --p       distance calculation coefficient       = 2
  -r  --rest    size of "rest" set                     = 5
  -s  --seed    random number seed                     = 10019
- -S  --Sample  how many numbers to keep               = 10000]]
+ -S  --Sample  how many numbers to keep               = 512]]
 
 local any,cli,coerce,copy,csv,fmt,gt,lt,many,map,o,obj,oo,per,pop 
 local push,red,rnd,rogues,settings,shallowCopy,shuffle
