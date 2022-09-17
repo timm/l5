@@ -3,27 +3,24 @@ local help=[[
 TINY2: a lean little learning library, in LUA
 (c) 2022 Tim Menzies <timm@ieee.org> BSD-2 license
 
-USAGE: lua l5.lua [OPTIONS]
+USAGE: lua nb.lua [OPTIONS]
 
 OPTIONS:
- -b  --bins  max number of bins                     = 16
- -d  --dump  on test failure, exit with stack dump  = false
  -f  --file  file with csv data                     = ../data/auto93.csv
  -g  --go    start-up example                       = nothing
  -h  --help  show help                              = false
- -k  --k     low frequency attribute hack           = 2
- -m  --m     low frequency class hack               = 1
- -p  --p     distance calculation coefficient       = 2
+ -k  --k     Bayes hack: low attribute frequency    =  2
+ -m  --m     Bayes hack: low class frequency        =  1
  -s  --seed  random number seed                     = 10019]]
 
-local o,map,coerce,csv,settings,cli
-local isa=setmetatable
-function obj(s,    t,i,new) 
-  function new(k,...) i=isa({},k); return isa(t.new(i,...) or i,k) end
+local cli,coerce,copy,csv,fmt,o,obj,oo,map,push,rnd,run,settings,the
+function obj(s,    isa,new,t)
+  isa=setmetatable
+  function new(k,...) local i=isa({},k); return isa(t.new(i,...) or i,k) end
   t={__tostring = function(x) return s..o(x) end}
   t.__index = t;return isa(t,{__call=new}) end
 
-local Data,NB,Num,Row,Sym =obj"Data",obj"Num",obj"Row",obj"Sym",obj"NB"
+local Data,NB,Num,Row,Sym=obj"Data",obj"Num",obj"Row",obj"Sym",obj"NB"
 
 function Row:new(t) --- Hold one record
   return {cells =t} end
@@ -48,32 +45,38 @@ function NB:new(src)
   self.all, self.nh, self.datas = Data(), 0, {}
   load(self,src) end
 
-function NB:add(row)
-  local function new() self.nh = self.nh+1; return self.all:clone() end
-  self.all:add(row)
-  self.datas[row.klass()] = self.datas[row.klass()] or new()
-  self.datas[row.klass()].add(row) end 
+
 
 --              ,   .           .     
 -- ._ _    _   -+-  |_    _    _|   __
 -- [ | )  (/,   |   [ )  (_)  (_]  _) 
+
 -- ## Num     ----- ----- -----------------------------------------------------
 function Num:add(x)
   if x ~= "?" then
     self.n  = self.n + 1
+    local d = x - self.mu
     self.mu = self.mu + d/self.n
     self.m2 = self.m2 + d*(x - self.mu)
-    self.sd = self.n<0 and 0 or (self.m2<0 and 0 or (self.m2/(i.n-1))^.5)
+    self.sd = self.n<0 and 0 or (self.m2<0 and 0 or (self.m2/(self.n-1))^.5)
     if x > self.hi then self.hi = x end
     if x < self.lo then self.lo = x end end end
+
+function Num:like(x,...)
+  local sd,mu=self.self, self.mu
+  if sd==0 then return x==mu and 1 or 1/big end
+  return math.exp(-.5*((x - mu)/sd)^2) / (sd*((2*math.pi)^0.5)) end  
 
 -- ## Sym     ----- ----- -----------------------------------------------------
 function Sym:add(s,  n) --- Update.
   if s~="?" then 
     self.n  = self.n + 1
-    self.has[s] = n+(self.has[s] or 0) 
+    self.has[s] = 1 + (self.has[s] or 0) 
     if self.has[s] > self.most then
       self.most,self.mode = self.has[s], s end end end
+
+function Sym:ike(x,prior)
+  return ((self.kept[x] or 0)+the.m*prior) / (self.n+the.m) end
 
 -- ## Data     ----- ----- -----------------------------------------------------
 -- ### Create
@@ -97,17 +100,43 @@ function Data:_body(row) --- Crete new row. Store in `rows`. Update cols.
     for _,col in pairs(cols) do
       col:add(row.cells[col.at]) end end end
 
+function Data:like(row, nklasses, nrows)
+  local prior,like,inc,x
+  prior = (#self.rows + the.k) / (nrows + the.k * nklasses)
+  like  = math.log(prior)
+  row = row.cells and row.cells or row
+  for _,col in pairs(self.cols.x) do
+    x = row[col.at]
+    if x ~= nil and x ~= "?" then
+      inc  = col:like(x,prior)
+      like = like + math.log(inc) end end
+  return like end
+
+-- ## NB     ----- ----- -----------------------------------------------------
+-- ### Update
+function NB:add(row)
+  local function new() self.nh = self.nh+1; return self.all:clone() end
+  self.all:add(row)
+  self.datas[row.klass()] = self.datas[row.klass()] or new()
+  self.datas[row.klass()].add(row) end 
+
+function NB:classify(row) --- which klass likes `row` the most?
+  most,klass = -math.huge
+  for k,data in pairs(self.datas) do
+    like = data:like(row,self.nh, #self.all.rows)
+    if like > most then most,klass=like,k end end
+  return klass end
+    
 -- .     .  
 -- |  *  |_ 
 -- |  |  [_)
 
-fmt=string.format
+-- ## Math     ----- ----- -----------------------------------------------------
+function rnd(x, places) 
+  local mult = 10^(places or 2)
+  return math.floor(x * mult + 0.5) / mult end
 
-function load(data,src)
-  if   type(src)=="string"
-  then csv(src,       function(row) data:add(row) end)
-  else map(src or {}, function(row) data:add(row) end) end  end
-
+-- ## Lists     ----- ----- ----------------------------------------------------
 function push(t,x) t[1+#t]=x; return x end --- at `x` to `t`, return `x`
 
 function map(t1,fun,    t2)  --- apply `fun` to all of `t1` (skip nil results)
@@ -118,6 +147,7 @@ function copy(t,  shallow, u) --- copy list
   u={}; for k,v in pairs(t) do u[k] = shallow and v or copy(v,shallow) end
   return setmetatable(u,getmetatable(t))  end
 
+-- ## Strings to Things    ----- ----- -----------------------------------------
 function coerce(s,    fun) --- Parse `the` config settings from `help`.
   function fun(s1)
     if s1=="true"  then return true end 
@@ -134,20 +164,13 @@ function csv(sFilename, fun,      src,s,t) --- call `fun` cells in each CSV line
          fun(t) 
     else return io.close(src) end end end
 
-function settings(s) --- create a `the` variable
-  local t,pat = {_help=s}, "\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)"
-  s:gsub(pat, function(k,x) t[k]=coerce(x) end)
-  return t end
+function load(data,src)
+  if   type(src)=="string"
+  then csv(src,       function(row) data:add(row) end)
+  else map(src or {}, function(row) data:add(row) end) end  end
 
-function cli(t) -- Updates from command-line. Bool need no values (just flip)
-  for slot,v in pairs(t) do
-    v = tostring(v)
-    for n,x in ipairs(arg) do
-      if x=="-"..(slot:sub(1,1)) or x=="--"..slot then
-        v = v=="false" and "true" or v=="true" and "false" or arg[n+1] end end
-    t[slot] = coerce(v) end
-  if t.help then os.exit(print("\n"..t._help.."\n")) end
-  return t end
+-- ## Thing to string   ----- ----- -------------------------------------------
+fmt=string.format
 
 function oo(t) print(o(t)) return t end --- print nested lists
 function o(t,   seen,show,u) ---  coerce to string (skip loops, sort slots)
@@ -163,27 +186,52 @@ function o(t,   seen,show,u) ---  coerce to string (skip loops, sort slots)
   if #t==0 then table.sort(u) end
   return "{"..table.concat(u," ").."}" end
 
--- ## Demo  ----- ----- -------------------------------------------------------
---   .                      
---  _|   _   ._ _    _    __
--- (_]  (/,  [ | )  (_)  _) 
+-- ## Settings     ----- ----- -------------------------------------------------
+function settings(s) --- create a `the` variable
+  local t,pat = {_help=s}, "\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)"
+  s:gsub(pat, function(k,x) t[k]=coerce(x) end)
+  return t end
 
-local go={}
-function go.the() oo(the); return 1 end
+function cli(t) -- Updates from command-line. Bool need no values (just flip)
+  for slot,v in pairs(t) do
+    v = tostring(v)
+    for n,x in ipairs(arg) do
+      if x=="-"..(slot:sub(1,1)) or x=="--"..slot then
+        v = v=="false" and "true" or v=="true" and "false" or arg[n+1] end end
+    t[slot] = coerce(v) end
+  if t.help then os.exit(print("\n"..t._help.."\n")) end
+  return t end
 
--- ## Start  ----- ----- -------------------------------------------------------
-local function on(settings,funs,   fails,old)
+-- ## Start up     ----- ----- -------------------------------------------------
+function run(settings,funs,   fails,old)
   fails=0
   old = copy(settings)
   for k,fun in pairs(funs) do
     if settings.go == "all" or settings.go == k then
       for k,v in pairs(old) do settings[k]=v end
       math.randomseed(settings.seed or 10019)
-      print("#>>>>>",k)
-      if fun()==false then fails = fails+1;print("F#AIL!!!!!",k); end end end
-  for k,v in pairs(_ENV) do if not b4[k] then print("#?",k,type(v)) end end 
+      print("# >>>>>",k)
+      if fun()==false then fails = fails+1;print("# FAIL!!!!!",k); end end end
+  for k,v in pairs(_ENV)do if not b4[k] then print("# rogue?",k,type(v)) end end 
   os.exit(fails) end
 
+--   .                      
+--  _|   _   ._ _    _    __
+-- (_]  (/,  [ | )  (_)  _) 
+
+local go={}
+function go.the() oo(the); return  1 end
+function go.sym(  sym) 
+  sym = Sym()
+  for _,x in pairs{"a","a","a","a","b","b","c"} do sym:add(x) end
+  print(sym.mode,o(sym.has)) end
+
+function go.num(  num) 
+  num = Num()
+  for x=1,100 do num:add(x) end
+  return 51==rnd(num.mu,0) and 29== rnd(num.sd,0) end
+
+-- ## Start  ----- ----- -------------------------------------------------------
 the = cli(settings(help))
-on(the,go)
+run(the,go)
 
