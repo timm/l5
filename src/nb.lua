@@ -31,7 +31,7 @@ function Row:new(t) --- Hold one record
 function Sym:new(n,s) --- Summarize stream of symbols.
     return {at=n or 0,
             txt=s or "",
-            n=0,
+            n=0, mode=nil,most=-1,
             has={}} end
 
 function Num:new(c,x) --- Summarize stream of numbers
@@ -45,7 +45,15 @@ function Data:new(src) --- Store rows of data. Summarize rows in `self.cols`.
   load(self,src) end
 
 function NB:new(src)
-  return {all=Data(), nh=0, datas={}} end
+  self.all, self.nh, self.datas = Data(), 0, {}
+  load(self,src) end
+
+function NB:add(row)
+  local function new() self.nh = self.nh+1; return self.all:clone() end
+  self.all:add(row)
+  self.datas[row.klass()] = self.datas[row.klass()] or new()
+  self.datas[row.klass()].add(row) end 
+
 
 -- -----------------------------------------------------------------------------
 function Num:add(x)
@@ -55,8 +63,34 @@ function Num:add(x)
     self.m2 = self.m2 + d*(x - self.mu)
     self.sd = self.n<0 and 0 or (self.m2<0 and 0 or (self.m2/(i.n-1))^.5)
     if x > self.hi then self.hi = x end
-    if x < self.lo then self.lo = x end end
+    if x < self.lo then self.lo = x end end end
 
+function Sym:add(s,  n) --- Update.
+  if s~="?" then 
+    self.n  = self.n + 1
+    self.has[s] = n+(self.has[s] or 0) 
+    if self.has[s] > self.most then
+      self.most,self.mode = self.has[s], s end end end
+
+function Data:add(row) --- the new row is either a header, or a data row  
+  if #self.cols.all==0 then self._head(row) else self._body(row) end 
+
+function Data:_head(row)--- Create `Num`s and `Sym`s for the column headers
+  self.cols.names = row
+  for n,s in pairs(row) do
+    local col = push(self.cols.all, (s:find"^[A-Z]" and Num or Sym)(n,s))
+    if not s:find":$" then
+      push(s:find"[!+-]" and self.cols.y or self.cols.x, col) end end end
+ 
+function Data:_body(row) --- Crete new row. Store in `rows`. Update cols.
+  row = row.cells and row or Row(row) -- Ensure `row` is a `Row`.
+  push(self.rows, row)
+  for _,cols in pairs{self.cols.x, self.cols.y} do
+    for _,col in pairs(cols) do
+      col:add(row.cells[col.at]) end end end
+
+..-- -----------------------------------------------------------------------------
+function Data:clone(src) return load(Data({self.cols.names}),src) end
 -- -----------------------------------------------------------------------------
 fmt=string.format
 
@@ -65,7 +99,8 @@ function load(data,src)
   then csv(src,       function(row) data:add(row) end)
   else map(src or {}, function(row) data:add(row) end) end  end
 
-
+function push(t,x) t[1+#t]=x; return x end --- at `x` to `t`, return `x`
+f
 function map(t1,fun,    t2)  --- apply `fun` to all of `t1` (skip nil results)
   t2={}; for _,v in pairs(t1) do t2[1+#t2] = fun(v) end; return t2 end
 
