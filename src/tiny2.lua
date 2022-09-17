@@ -16,13 +16,13 @@ TINY2: a lean little learning library, in LUA
 USAGE: lua l5.lua [OPTIONS]
 
 OPTIONS:
- -b  --bins    max number of bins                     = 8
+ -b  --bins    max number of bins                     = 16
  -d  --dump    on test failure, exit with stack dump  = false
  -f  --file    file with csv data                     = ../data/auto93.csv
  -F  --Far     how far to look for poles (max=1)      = .95
  -g  --go      start-up example                       = nothing
  -h  --help    show help                              = false
- -m  --min     min size. If<1 then t^min else min.    = 10
+ -m  --min     min size. If<1 then t^min else min.    = .5
  -n  --nums    number of nums to keep                 = 512
  -p  --p       distance calculation coefficient       = 2
  -r  --rest    size of "rest" set                     = 5
@@ -336,25 +336,26 @@ function Data:best(  above,stop,rest) ---recursively hunt  for best leaf
 
 --- ### Decision tree
 function Data:rule(rest,  out,stop)
-  function splitter()
-    local most,best,tmp = -1
-    for _,col in pairs(self.cols.x) do
-       for i,xy in pairs(XY.deltas(col,{best=self, rest=rest})) do
-         if i< 10 then
-           local tmp = xy.y:score("best",#self.rows, #rest.rows)
-           if tmp > most then best,most=xy,tmp end end end end
-    return best end
   if not stop then -- first time through. initialize the space
     rest = self:clone(many(rest.rows, the.rest*#self.rows))
     return self:rule(rest,{},the.min >=1 and the.min or (#self.rows)^the.min) 
-  elseif #self.rows + #rest.rows > stop then 
-    local cut,best1,rest1 = splitter()
-    if cut then 
-      best1 = cut:selects(self.rows)
-      rest1 = cut:selects(rest.rows)
-      if (#best1 + #rest1 < #self.rows + #rest.rows) then
-        push(out,cut)
-        return self:clone(best1):rule(self:clone(rest1), stop,out) end end end 
+  end
+  local function cuts(out)
+    for _,col in pairs(self.cols.x) do
+      for _,xy in pairs(XY.deltas(col,{yes=self,no=rest}) or {}) do
+        push(out, {xy=xy,z=xy.y:score("yes",#self.rows,#rest.rows)}) end end
+    return out 
+  end ------- 
+  local xy,best1,rest1
+  if (#self.rows + #rest.rows) > stop then 
+    for i,cut in pairs(sort(cuts({}),gt"z")) do 
+      if i <= 10 then
+        xy=cut.xy
+        best1 = xy:selects(self.rows)
+        rest1 = xy:selects(rest.rows)
+        if (#best1 + #rest1 < #self.rows + #rest.rows) then
+           push(out,xy)
+           return self:clone(best1):rule(self:clone(rest1), out,stop) end end end end 
   return out,self,rest end
       
 -- ## Lib    ----- ----- -------------------------------------------------------
@@ -537,13 +538,17 @@ function go.xys(     d,all,few,best,ranks,rest)
           if tmp > .1 then
             print(table.concat({the.file, tostring(xy),tmp, o(xy.y.has)},", ")) end end ) end end
 
-function go.rule(     d,all,few,best,ranks,rest)
+function go.rule(     d,all,few,best,ranks,rest,_,selected,num,rule,best1,rest1)
   print("\n#----",the.file,"---------------------------")
+  num={}
   d = Data(the.file)
   ranks=d:cheat()
   best,_,rest = d:best()
-  best:rule(rest) end
-  --
+  rule,best1,rest1 = best:rule(rest)
+  for _,row in pairs(best1.rows) do push(num,row.rank)end
+  for _,row in pairs(rest1.rows) do push(num,row.rank)end
+  local t={0,.25,.5,.75,1}; oo(sort(num)) end
+
 -- ## Start  ----- ----- -------------------------------------------------------
 local function on(settings,funs,   fails,old)
   fails=0
