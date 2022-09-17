@@ -13,7 +13,7 @@ OPTIONS:
  -m  --m     Bayes hack: low class frequency        =  1
  -s  --seed  random number seed                     = 10019]]
 
-local cli,coerce,copy,csv,fmt,o,obj,oo,map,push,rnd,run,settings,the
+local adds,cli,coerce,copy,csv,fmt,o,obj,oo,map,push,rnd,run,settings,the
 function obj(s,    isa,new,t)
   isa=setmetatable
   function new(k,...) local i=isa({},k); return isa(t.new(i,...) or i,k) end
@@ -39,13 +39,11 @@ function Num:new(c,x) --- Summarize stream of numbers
 function Data:new(src) --- Store rows of data. Summarize rows in `self.cols`.
   self.rows = {}
   self.cols = {names={},all={},x={},y={}}
-  load(self,src) end
+  adds(self,src) end
 
 function NB:new(src)
   self.all, self.nh, self.datas = Data(), 0, {}
-  load(self,src) end
-
-
+  adds(self,src) end
 
 --              ,   .           .     
 -- ._ _    _   -+-  |_    _    _|   __
@@ -75,22 +73,23 @@ function Sym:add(s,  n) --- Update.
     if self.has[s] > self.most then
       self.most,self.mode = self.has[s], s end end end
 
-function Sym:ike(x,prior)
+function Sym:like(x,prior)
   return ((self.kept[x] or 0)+the.m*prior) / (self.n+the.m) end
 
 -- ## Data     ----- ----- -----------------------------------------------------
 -- ### Create
-function Data:clone(src) return load(Data({self.cols.names}),src) end
+function Data:clone(src) return adds(Data({self.cols.names}),src) end
 
 -- ### Update
 function Data:add(row) --- the new row is either a header, or a data row  
-  if #self.cols.all==0 then self._head(row) else self._body(row) end  end
+  if #self.cols.all==0 then self:_head(row) else self:_body(row) end  end
 
 function Data:_head(row)--- Create `Num`s and `Sym`s for the column headers
   self.cols.names = row
   for n,s in pairs(row) do
     local col = push(self.cols.all, (s:find"^[A-Z]" and Num or Sym)(n,s))
     if not s:find":$" then
+      if s:find"!$" then self.cols.klass= col end
       push(s:find"[!+-]" and self.cols.y or self.cols.x, col) end end end
  
 function Data:_body(row) --- Crete new row. Store in `rows`. Update cols.
@@ -112,13 +111,17 @@ function Data:like(row, nklasses, nrows)
       like = like + math.log(inc) end end
   return like end
 
+function Data:klass(row) 
+ return row.cells[self.cols.klass.at] end
+
 -- ## NB     ----- ----- -----------------------------------------------------
 -- ### Update
-function NB:add(row)
+function NB:add(row,   k)
   local function new() self.nh = self.nh+1; return self.all:clone() end
   self.all:add(row)
-  self.datas[row.klass()] = self.datas[row.klass()] or new()
-  self.datas[row.klass()].add(row) end 
+  k = self.all:klass(row)
+  self.datas[k] = self.datas[k] or new()
+  self.datas[k].add(row) end 
 
 function NB:classify(row) --- which klass likes `row` the most?
   most,klass = -math.huge
@@ -126,7 +129,7 @@ function NB:classify(row) --- which klass likes `row` the most?
     like = data:like(row,self.nh, #self.all.rows)
     if like > most then most,klass=like,k end end
   return klass end
-    
+
 -- .     .  
 -- |  *  |_ 
 -- |  |  [_)
@@ -164,7 +167,7 @@ function csv(sFilename, fun,      src,s,t) --- call `fun` cells in each CSV line
          fun(t) 
     else return io.close(src) end end end
 
-function load(data,src)
+function adds(data,src)
   if   type(src)=="string"
   then csv(src,       function(row) data:add(row) end)
   else map(src or {}, function(row) data:add(row) end) end  end
@@ -224,13 +227,22 @@ function go.the() oo(the); return  1 end
 function go.sym(  sym) 
   sym = Sym()
   for _,x in pairs{"a","a","a","a","b","b","c"} do sym:add(x) end
-  print(sym.mode,o(sym.has)) end
+  return sym.mode =="a" and sym.most==4 end
 
 function go.num(  num) 
   num = Num()
   for x=1,100 do num:add(x) end
   return 51==rnd(num.mu,0) and 29== rnd(num.sd,0) end
 
+function go.csv()
+  csv(the.file, oo); return 1 end
+
+function go.data(  d)
+  d=Data(the.file) 
+  map(d.cols.x,oo); print""
+  map(d.cols.y,oo) end 
+
+function go.nb
 -- ## Start  ----- ----- -------------------------------------------------------
 the = cli(settings(help))
 run(the,go)
