@@ -54,8 +54,10 @@ function NB:add(row)
   self.datas[row.klass()] = self.datas[row.klass()] or new()
   self.datas[row.klass()].add(row) end 
 
-
--- ## Num     ----- ----- -----------------------------------------------------
+--              ,   .           .     
+-- ._ _    _   -+-  |_    _    _|   __
+-- [ | )  (/,   |   [ )  (_)  (_]  _) 
+-- ## Num     ----- ----- -----------------------------------------------------
 function Num:add(x)
   if x ~= "?" then
     self.n  = self.n + 1
@@ -95,7 +97,10 @@ function Data:_body(row) --- Crete new row. Store in `rows`. Update cols.
     for _,col in pairs(cols) do
       col:add(row.cells[col.at]) end end end
 
--- -----------------------------------------------------------------------------
+-- .     .  
+-- |  *  |_ 
+-- |  |  [_)
+
 fmt=string.format
 
 function load(data,src)
@@ -159,8 +164,12 @@ function o(t,   seen,show,u) ---  coerce to string (skip loops, sort slots)
   return "{"..table.concat(u," ").."}" end
 
 -- ## Demo  ----- ----- -------------------------------------------------------
-local eg={}
-function eg.the() oo(the); return 1 end
+--   .                      
+--  _|   _   ._ _    _    __
+-- (_]  (/,  [ | )  (_)  _) 
+
+local go={}
+function go.the() oo(the); return 1 end
 
 -- ## Start  ----- ----- -------------------------------------------------------
 local function on(settings,funs,   fails,old)
