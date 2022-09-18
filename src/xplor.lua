@@ -24,27 +24,27 @@ OPTIONS:
  -s  --seed  random number seed                     = 10019]]
 
 --[[
-| What                        | Notes                                     |
-|:----------------------------|-------------------------------------------|
-| DATA(src)                   | Store ROWs, summarize in `self.cols`      |
-| DATA:add(row)               | new row is a header, or a data row        |
-| DATA:clone(src)             | compy structure                           |
-| DATA:klass(row)             | return `row`'s class symbol.              |
-| DATA:like(row,nh,nrows)     | how much DATA likes `row`?                |
-| DATA:stats(  nDec,cols,todo)| get `todo` of `cols` (round to 'nDec`)    |
-| NB:add(row)                 | update the `datas` about `row`'s klass    |
-| NB:classify(row)            | which klass likes `row` the most?         |
-| NUM(c,x)                    | Summarize stream of numbers               |
-| NUM:add(x)                  | Update                                    |
-| NUM:div()                   | spread                                    |
-| NUM:like(x,...)             | how much does NUM like `x`?               |
-| NUM:mid()                   | central tendency                          |
-| ROW(t)                      | Hold one record                           |
-| SYM(n,s)                    | Summarize stream of symbols.              |
-| SYM:add(s)                  | Update.                                   |
-| SYM:div()                   | spread                                    |
-| SYM:like(x,prior)           | how much does SYM like `x`?               |
-| SYM:mid()                   | central tendancy                          |
+| What                       | Notes                                     |
+|:---------------------------|-------------------------------------------|
+| DATA(src)                  | Store ROWs, summarize in `self.cols`      |
+| DATA:add(row)              | new row is a header, or a data row        |
+| DATA:clone(src)            | compy structure                           |
+| DATA:klass(row)            | return `row`'s class symbol.              |
+| DATA:like(row,nh,nrows)    | how much DATA likes `row`?                |
+| DATA:stats(  nDec,cols,sDo)| get `sDo` of `cols` (round to 'nDec`)     |
+| NB:add(row)                | update the `datas` about `row`'s klass    |
+| NB:classify(row)           | which klass likes `row` the most?         |
+| NUM(nPos,sName)            | Summarize stream of numbers               |
+| NUM:add(x)                 | Update                                    |
+| NUM:div()                  | spread                                    |
+| NUM:like(x,...)            | how much does NUM like `x`?               |
+| NUM:mid()                  | central tendency                          |
+| ROW(t)                     | Hold one record                           |
+| SYM(nPos,sName)            | Summarize stream of symbols.              |
+| SYM:add(s)                 | Update.                                   |
+| SYM:div()                  | spread                                    |
+| SYM:like(s,nPrior)         | how much does SYM like `n`?               |
+| SYM:mid()                  | central tendancy                          |
 
 CONVENTIONS: (1) The help string at top of file is parsed to create
 the settings.  (2) Also, all the `go.x` functions can be run with
@@ -77,23 +77,25 @@ local DATA,NB,NUM,ROW,SYM=obj"DATA",obj"NUM",obj"ROW",obj"SYM",obj"NB"
 function ROW:new(t) --- Hold one record
   return {cells =t} end
 
-function SYM:new(n,s) --- Summarize stream of symbols.
-    return {at=n or 0,
-            txt=s or "",
+function SYM:new(nPos,sName) --- Summarize stream of symbols.
+    return {at=nPos or 0,
+            txt=sName or "",
             n=0, mode=nil,most=-1,
             has={}} end
 
-function NUM:new(c,x) --- Summarize stream of numbers
-  return {at=c or 0,txt=x or "",n=0,
+function NUM:new(nPos,sName) --- Summarize stream of numbers
+  nPos, sName=nPos or 0, sName or ""
+  return {at=nPos or 0,txt=sName,n=0,
           lo= 1E32,  hi= -1E32, mu=0, m2=0, sd=0,
-          w=(x or ""):find"-$" and -1 or 1} end
+          w=sName:find"-$" and -1 or 1} end
 
 function DATA:new(src) --- Store ROWs, summarize in `self.cols`
   self.rows, self.cols = {}, {names={},all={},x={},y={}}
   adds(self,src) end
 
-function NB:new(src)
+function NB:new(src,reportFun)
   self.all, self.nh, self.datas = nil, 0, {}
+  self.report = reportFun or function(got,want) print(got,want) end
   adds(self, src) end
 -- ._ _    _   -+-  |_    _    _|   __
 -- [ | )  (/,   |   [ )  (_)  (_]  _) 
@@ -125,13 +127,13 @@ function SYM:add(s) --- Update.
     if self.has[s] > self.most then
       self.most,self.mode = self.has[s], s end end end
 
-function SYM:like(x,prior) --- how much does SYM like `x`?
-  return ((self.kept[x] or 0)+the.m*prior) / (self.n+the.m) end
+function SYM:like(s,nPrior) --- how much does SYM like `n`?
+  return ((self.has[s] or 0)+the.m*nPrior) / (self.n+the.m) end
 
 function SYM:mid()  --- central tendancy
   return self.mode end
 
-function SYM:div(     e) --- spread
+function SYM:div(     n) --- spread
   local function fun(p) return -p*math.log(p,2) end
   e=0; for x,n in pairs(self.has) do if n>0 then e = e - fun(n/self.n) end end
   return e end
@@ -169,17 +171,18 @@ function DATA:like(row,nh,nrows) --- how much DATA likes `row`?
     x = row[col.at]
     if x ~= nil and x ~= "?" then
       inc  = col:like(x,prior)
+      print(inc)
       like = like + math.log(inc) end end
   return like end
 
 function DATA:klass(row) --- return `row`'s class symbol.
   return (row.cells or row.cells or row)[self.cols.klass.at] end
 
-function DATA:stats(  nDec,cols,todo) --- get `todo` of `cols` (round to 'nDec`)
+function DATA:stats(  nDec,cols,sDo) --- get `sDo` of `cols` (round to 'nDec`)
     local t,v
-    cols, todo = cols or self.cols.y, todo or "mid"
+    cols, sDo = cols or self.cols.y, sDo or "mid"
     t={}; for _,col in pairs(cols) do 
-            v=getmetatable(col)[todo](col)
+            v=getmetatable(col)[sDo](col)
             v=type(v)=="number" and rnd(v,nDec) or v
             t[col.txt]=v end; return t end
 
@@ -190,13 +193,13 @@ function NB:add(row) --- update the `datas` about `row`'s klass
   if   self.all 
   then self.all:add(row)
        local k = self.all:klass(row)
-       if #self.all.rows > 10 then print(self:classify(row),k) end 
+       if #self.all.rows > 10 then self.report(self:classify(row),k) end 
        self.datas[k] = self.datas[k] or new()
        self.datas[k]:add(row) 
   else self.all=DATA{row} end end
 
 function NB:classify(row) --- which klass likes `row` the most?
-  local most,klass = -math.huge
+  local most,klass,like = -math.huge
   for k,data in pairs(self.datas) do
     like = data:like(row, self.nh, #self.all.rows)
     if like > most then most,klass=like,k end end
@@ -205,21 +208,21 @@ function NB:classify(row) --- which klass likes `row` the most?
 -- |  *  |_ 
 -- |  |  [_)
 --[[
-| What                        | Notes                                     |
-|:----------------------------|-------------------------------------------|
-| adds(data,src)              | add list `src` or filename `src` to `data`|
-| cdf (x,)                    | Gaussian cumulative distribution          |
-| coerce(s,)                  | Parse `the` config settings from `help`.  |
-| copy(t,  isShallow, u)      | copy `t` (recursive if If not `isShallaw`)|
-| csv(sFilename, fun,)        | call `fun` cells in each CSV line         |
-| fmt(str,...)                | emulate printf                            |
-| map(t1,fun)                 | apply `fun` across `t1` (skip nil results)|
-| o(t,   seen,show,u)         |  coerce to string (skip loops, sort slots)|
-| oo(t)                       | print nested lists                        |
-| push(t,x)                   | Push `x` to end of `t`, return `x`        |
-| rnd(n, nPlaces)             | round `n` to `nPlaces`.                   |
-| run(settings,funs)          | run one `funs`, controlled by `settings`  |
-| settings(s)                 | create a `the` variable                   |
+| What                       | Notes                                     |
+|:---------------------------|-------------------------------------------|
+| adds(data,src)             | add list `src` or filename `src` to `data`|
+| cdf (x)                    | Gaussian cumulative distribution          |
+| coerce(s)                  | Parse `the` config settings from `help`.  |
+| copy(t,  isShallow, u)     | copy `t` (recursive if If not `isShallaw`)|
+| csv(sFilename, fun)        | call `fun` cells in each CSV line         |
+| fmt(str,...)               | emulate printf                            |
+| map(t1,fun)                | apply `fun` across `t1` (skip nil results)|
+| o(t,   seen,show,u)        |  coerce to string (skip loops, sort slots)|
+| oo(t)                      | print nested lists                        |
+| push(t,x)                  | Push `x` to end of `t`, return `x`        |
+| rnd(n, nPlaces)            | round `n` to `nPlaces`.                   |
+| run(settings,funs)         | run one `funs`, controlled by `settings`  |
+| settings(s)                | create a `the` variable                   |
 --]]
 -- ## Math     ----- ----- -----------------------------------------------------
 function rnd(n, nPlaces)  --- round `n` to `nPlaces`. 
@@ -310,7 +313,7 @@ function cli(t) -- Updates from command-line. Bool need no values (just flip)
 
 -- ## Start up     ----- ----- -------------------------------------------------
 function run(settings,funs) --- run one `funs`, controlled by `settings`
-  local fails,old = 0 copy(settings)
+  local fails,old = 0,copy(settings)
   for k,fun in pairs(funs) do
     if settings.go == "all" or settings.go == k then
       for k,v in pairs(old) do settings[k]=v end
@@ -358,13 +361,15 @@ function go.clone(     data1,data2)
   print("mid", o(data1:stats(2, data1.cols.x,"mid"))); 
   print("mid", o(data2:stats(2, data2.cols.x,"mid"))) end
 
-function go.nb(   nb)
-  nb=NB("../data/diabetes.csv") 
-  for k,data in pairs(nb.datas) do 
-    print(k) 
-    print("",o(data:stats(2, data.cols.x,"mid"))) 
-    print("",o(data:stats(2, data.cols.x,"div"))) end 
-end 
+local function _classify(f,nb)
+  local all,correct = 0,0
+  nb=NB(f,function(got,want)
+         all=all+1; correct = correct + (got==want and 1 or 0) end) 
+  print(correct/all) end
+
+function go.diabetes() _classify("../data/diabetes.csv") end
+function go.soybean() _classify("../data/soybean.csv") end
+
 
 -- ## Start  ----- ----- -------------------------------------------------------
 the = settings(help)
