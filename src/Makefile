@@ -31,20 +31,24 @@ pdfs:
 	@a2ps -o ~/tmp/all.ps -qBr -f 5 --columns 3-M letter --pro=color --line-numbers=1 --pretty-print=$R/etc/lua.ssh  -A virtual$g
 	ps2pdf ~/tmp/all.ps ~/tmp/all.pdf
 
+~/tmp/%.txt: %.lua
+	@gawk -f ../etc/comments.awk $<  |sort > $@
+	@cat $@
+
 ~/tmp/%.pdf: %.lua  ## .lua ==> .pdf
 	@echo 1
 	@mkdir -p $R/docs
 	@echo "pdf-ing $@ ... "
 	@a2ps                   \
-		-BR                    \
+		-Br                    \
 		-L 150                  \
-		-l 80                   \
+		-l 82                   \
 		--file-align=fill        \
 		--line-numbers=1          \
 		--borders=no               \
 		--pro=color                 \
 		--left-title="" \
-		--columns 2                  \
+		--columns 4                  \
 		--pretty-print=$R/etc/lua.ssh \
 		-M letter                      \
 		--footer="" \

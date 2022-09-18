@@ -23,7 +23,49 @@ OPTIONS:
  -m  --m     Bayes hack: low class frequency        = 1
  -s  --seed  random number seed                     = 10019]]
 
-local adds,cdf,cli,coerce,copy,csv,fmt,o,obj,oo,map,pdf,push,rnd,run,settings,the
+--[[
+| What                        | Notes                                     |
+|:----------------------------|-------------------------------------------|
+| DATA(src)                   | Store ROWs, summarize in `self.cols`      |
+| DATA:add(row)               | new row is a header, or a data row        |
+| DATA:clone(src)             | compy structure                           |
+| DATA:klass(row)             | return `row`'s class symbol.              |
+| DATA:like(row,nh,nrows)     | how much DATA likes `row`?                |
+| DATA:stats(  nDec,cols,todo)| get `todo` of `cols` (round to 'nDec`)    |
+| NB:add(row)                 | update the `datas` about `row`'s klass    |
+| NB:classify(row)            | which klass likes `row` the most?         |
+| NUM(c,x)                    | Summarize stream of numbers               |
+| NUM:add(x)                  | Update                                    |
+| NUM:div()                   | spread                                    |
+| NUM:like(x,...)             | how much does NUM like `x`?               |
+| NUM:mid()                   | central tendency                          |
+| ROW(t)                      | Hold one record                           |
+| SYM(n,s)                    | Summarize stream of symbols.              |
+| SYM:add(s)                  | Update.                                   |
+| SYM:div()                   | spread                                    |
+| SYM:like(x,prior)           | how much does SYM like `x`?               |
+| SYM:mid()                   | central tendancy                          |
+
+CONVENTIONS: (1) The help string at top of file is parsed to create
+the settings.  (2) Also, all the `go.x` functions can be run with
+`lua xplor.lua -g x`.  (3) Lastly, this code's function arguments
+have some type hints:
+
+| What               | Notes                                       |
+|:------------------:|---------------------------------------------|
+| 2 blanks           | 2 blanks denote optional arguments          |
+| 4 blanks           | 4 blanks denote local arguments             |
+| n                  | prefix for numerics                         |
+| s                  | prefix for strings                          |
+| is                 | prefix for booleans                         |
+| fun                | prefix for functions                        |
+| suffix s           | list of thing (so names is list of strings) |
+| function SYM:new() | constructor for class e.g. SYM              |
+| e.g. sym           | denotes an instance of class constructor    |
+--]]
+
+local adds,cdf,cli,coerce,copy,csv,fmt,map
+local o,obj,oo,pdf,push,rnd,run,settings,the
 function obj(s,    isa,new,t)
   isa=setmetatable
   function new(k,...) local i=isa({},k); return isa(t.new(i,...) or i,k) end
@@ -46,36 +88,18 @@ function NUM:new(c,x) --- Summarize stream of numbers
           lo= 1E32,  hi= -1E32, mu=0, m2=0, sd=0,
           w=(x or ""):find"-$" and -1 or 1} end
 
-function DATA:new(src) --- Store rows of data. Summarize rows in `self.cols`.
+function DATA:new(src) --- Store ROWs, summarize in `self.cols`
   self.rows, self.cols = {}, {names={},all={},x={},y={}}
   adds(self,src) end
 
 function NB:new(src)
   self.all, self.nh, self.datas = nil, 0, {}
-  adds(self, src) end
-
--- CONVENTIONS: (1) The help string at top of file is parsed to create
--- the settings.  (2) Also, all the `go.x` functions can be run with
--- `lua xplor.lua -g x`.  (3) Lastly, this code's function arguments
--- have some type hints:
---
--- | What               | Notes                                       |
--- |:------------------:|---------------------------------------------|
--- | 2 blanks           | 2 blanks denote optional arguments          |
--- | 4 blanks           | 4 blanks denote local arguments             |
--- | n                  | prefix for numerics                         |
--- | s                  | prefix for strings                          |
--- | is                 | prefix for booleans                         |
--- | fun                | prefix for functions                        |
--- | suffix s           | list of thing (so names is list of strings) |
--- | function SYM:new() | constructor for class e.g. SYM              |
--- | e.g. sym           | denotes an instance of class constructor    |
---              ,   .           .     
+  adds(self, src) end
 -- ._ _    _   -+-  |_    _    _|   __
 -- [ | )  (/,   |   [ )  (_)  (_]  _) 
 
 -- ## NUM     ----- ----- -----------------------------------------------------
-function NUM:add(x)
+function NUM:add(x) --- Update 
   if x ~= "?" then
     self.n  = self.n + 1
     local d = x - self.mu
@@ -85,39 +109,43 @@ function NUM:add(x)
     if x > self.hi then self.hi = x end
     if x < self.lo then self.lo = x end end end
 
-function NUM:like(x,...)
+function NUM:like(x,...) --- how much does NUM like `x`?
   return self.sd>0 and pdf(x,self.mu,self.sd) or (x==self.mu and 1 or 1/big) end
 
-function NUM:mid() return self.mu end
-function NUM:div() return self.sd end
+function NUM:mid()  --- central tendency
+  return self.mu end 
+function NUM:div()  --- spread
+  return self.sd end
 
 -- ## SYM     ----- ----- ------------------------------------------------------
-function SYM:add(s,  n) --- Update.
+function SYM:add(s) --- Update.
   if s~="?" then 
     self.n  = self.n + 1
     self.has[s] = 1 + (self.has[s] or 0) 
     if self.has[s] > self.most then
       self.most,self.mode = self.has[s], s end end end
 
-function SYM:like(x,prior)
+function SYM:like(x,prior) --- how much does SYM like `x`?
   return ((self.kept[x] or 0)+the.m*prior) / (self.n+the.m) end
 
-function SYM:mid() return self.mode end
+function SYM:mid()  --- central tendancy
+  return self.mode end
 
-function SYM:div(     e)
+function SYM:div(     e) --- spread
   local function fun(p) return -p*math.log(p,2) end
   e=0; for x,n in pairs(self.has) do if n>0 then e = e - fun(n/self.n) end end
   return e end
 
 -- ## DATA     ----- ----- -----------------------------------------------------
 -- ### Create
-function DATA:clone(src) return adds(DATA({self.cols.names}),src) end
+function DATA:clone(src) --- compy structure
+  return adds(DATA({self.cols.names}),src) end
 
 -- ### Update
-function DATA:add(row) --- the new row is either a header, or a data row  
+function DATA:add(row) --- new row is a header, or a data row  
   if #self.cols.all==0 then self:_head(row) else self:_body(row) end end
 
-function DATA:_head(row)--- Create `NUM`s and `SYM`s for the column headers
+function DATA:_head(row) --- Create `NUM`s and `SYM`s for the column headers
   self.cols.names = row
   for n,s in pairs(row) do
     local col = push(self.cols.all, (s:find"^[A-Z]" and NUM or SYM)(n,s))
@@ -132,9 +160,9 @@ function DATA:_body(row) --- Crete new row. Store in `rows`. Update cols.
     for _,col in pairs(cols) do
       col:add(row.cells[col.at]) end end end
 
-function DATA:like(row, nklasses, nrows)
+function DATA:like(row,nh,nrows) --- how much DATA likes `row`?
   local prior,like,inc,x
-  prior = (#self.rows + the.k) / (nrows + the.k * nklasses)
+  prior = (#self.rows + the.k) / (nrows + the.k * nh)
   like  = math.log(prior)
   row = row.cells and row.cells or row
   for _,col in pairs(self.cols.x) do
@@ -144,23 +172,24 @@ function DATA:like(row, nklasses, nrows)
       like = like + math.log(inc) end end
   return like end
 
-function DATA:klass(row) 
+function DATA:klass(row) --- return `row`'s class symbol.
   return (row.cells or row.cells or row)[self.cols.klass.at] end
 
-function DATA:stats(  places,showCols,todo,    t,v)
-    showCols, todo = showCols or self.cols.y, todo or "mid"
-    t={}; for _,col in pairs(showCols) do 
+function DATA:stats(  nDec,cols,todo) --- get `todo` of `cols` (round to 'nDec`)
+    local t,v
+    cols, todo = cols or self.cols.y, todo or "mid"
+    t={}; for _,col in pairs(cols) do 
             v=getmetatable(col)[todo](col)
-            v=type(v)=="number" and rnd(v,places) or v
+            v=type(v)=="number" and rnd(v,nDec) or v
             t[col.txt]=v end; return t end
 
 -- ## NB     ----- ----- -----------------------------------------------------
 -- ### Update
-function NB:add(row,   k)
+function NB:add(row) --- update the `datas` about `row`'s klass
   local function new() self.nh = self.nh+1; return self.all:clone() end
   if   self.all 
   then self.all:add(row)
-       k = self.all:klass(row)
+       local k = self.all:klass(row)
        if #self.all.rows > 10 then print(self:classify(row),k) end 
        self.datas[k] = self.datas[k] or new()
        self.datas[k]:add(row) 
@@ -175,17 +204,33 @@ function NB:classify(row) --- which klass likes `row` the most?
 -- .     .  
 -- |  *  |_ 
 -- |  |  [_)
-
+--[[
+| What                        | Notes                                     |
+|:----------------------------|-------------------------------------------|
+| adds(data,src)              | add list `src` or filename `src` to `data`|
+| cdf (x,)                    | Gaussian cumulative distribution          |
+| coerce(s,)                  | Parse `the` config settings from `help`.  |
+| copy(t,  isShallow, u)      | copy `t` (recursive if If not `isShallaw`)|
+| csv(sFilename, fun,)        | call `fun` cells in each CSV line         |
+| fmt(str,...)                | emulate printf                            |
+| map(t1,fun)                 | apply `fun` across `t1` (skip nil results)|
+| o(t,   seen,show,u)         |  coerce to string (skip loops, sort slots)|
+| oo(t)                       | print nested lists                        |
+| push(t,x)                   | Push `x` to end of `t`, return `x`        |
+| rnd(n, nPlaces)             | round `n` to `nPlaces`.                   |
+| run(settings,funs)          | run one `funs`, controlled by `settings`  |
+| settings(s)                 | create a `the` variable                   |
+--]]
 -- ## Math     ----- ----- -----------------------------------------------------
-function rnd(x, places) 
-  local mult = 10^(places or 2)
-  return math.floor(x * mult + 0.5) / mult end
+function rnd(n, nPlaces)  --- round `n` to `nPlaces`. 
+  local mult = 10^(nPlaces or 2)
+  return math.floor(n * mult + 0.5) / mult end
 
-function pdf(x,mu,sd)
+function pdf(x,mu,sd) -- Gaussian probability distribution
   return math.exp(-.5*((x - mu)/sd)^2) / (sd*((2*math.pi)^0.5)) end  
 
-function cdf (x,    _cdf) 
-  function _cdf(x,    p,t) --- Abramowitz and Stegun cdf approximation
+function cdf (x,    _cdf)  --- Gaussian cumulative distribution
+  function _cdf(x,    p,t) -- Abramowitz and Stegun cdf approximation
     p = pdf(x,0,1)         -- Handbook Mathematical Functions, 1988
     t = 1 / (1+0.2316419*x)
     return (1 - p*(0.319381530*t - 0.356563782*t^2 + 1.781477937*t^3 
@@ -193,14 +238,15 @@ function cdf (x,    _cdf)
   return (x==0 and .5) or (x>0 and _cdf(x)) or 1-_cdf(-x) end
 
 -- ## Lists     ----- ----- ----------------------------------------------------
-function push(t,x) t[1+#t]=x; return x end --- at `x` to `t`, return `x`
+function push(t,x)  --- Push `x` to end of `t`, return `x`
+  t[1+#t]=x; return x end 
 
-function map(t1,fun,    t2)  --- apply `fun` to all of `t1` (skip nil results)
-  t2={}; for _,v in pairs(t1) do t2[1+#t2] = fun(v) end; return t2 end
+function map(t1,fun)  --- apply `fun` across `t1` (skip nil results)
+  local t2={}; for _,v in pairs(t1) do t2[1+#t2] = fun(v) end; return t2 end
 
-function copy(t,  shallow, u) --- copy list
+function copy(t,  isShallow, u) --- copy `t` (recursive if If not `isShallaw`)
   if type(t) ~= "table" then return t end
-  u={}; for k,v in pairs(t) do u[k] = shallow and v or copy(v,shallow) end
+  u={}; for k,v in pairs(t) do u[k] = isShallow and v or copy(v,isShallow) end
   return setmetatable(u,getmetatable(t))  end
 
 -- ## Strings to Things    ----- ----- -----------------------------------------
@@ -220,16 +266,19 @@ function csv(sFilename, fun,      src,s,t) --- call `fun` cells in each CSV line
          fun(t) 
     else return io.close(src) end end end
 
-function adds(data,src)
+function adds(data,src)  --- add list `src` or filename `src` to `data`
   if   type(src)=="string"
   then csv(src,       function(row) data:add(row) end)
   else map(src or {}, function(row) data:add(row) end) end
   return data end
 
 -- ## Thing to string   ----- ----- -------------------------------------------
-fmt=string.format
+function fmt(str,...) --- emulate printf
+  return string.format(str,...) end
 
-function oo(t) print(o(t)) return t end --- print nested lists
+function oo(t) --- print nested lists
+   print(o(t)) return t end 
+
 function o(t,   seen,show,u) ---  coerce to string (skip loops, sort slots)
   if type(t) ~=  "table" then return tostring(t) end
   seen=seen or {}
@@ -260,9 +309,8 @@ function cli(t) -- Updates from command-line. Bool need no values (just flip)
   return t end
 
 -- ## Start up     ----- ----- -------------------------------------------------
-function run(settings,funs,   fails,old)
-  fails=0
-  old = copy(settings)
+function run(settings,funs) --- run one `funs`, controlled by `settings`
+  local fails,old = 0 copy(settings)
   for k,fun in pairs(funs) do
     if settings.go == "all" or settings.go == k then
       for k,v in pairs(old) do settings[k]=v end
@@ -319,6 +367,8 @@ function go.nb(   nb)
 end 
 
 -- ## Start  ----- ----- -------------------------------------------------------
-the = cli(settings(help))
-run(the,go)
-
+the = settings(help)
+if    pcall(debug.getlocal,4,1) 
+then return {the=the, NUM=NUM, SYM=SYM, DATA=DATA, ROW=ROW, NB=NB}
+else  the=cli(the)
+      run(the,go) end
