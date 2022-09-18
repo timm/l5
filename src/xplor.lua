@@ -1,3 +1,13 @@
+--                     ___                     
+--                    /\_ \                    
+--    __  _   _____   \//\ \      ___    _ __  
+--   /\ \/'\ /\ '__`\   \ \ \    / __`\ /\`'__\
+--   \/>  </ \ \ \L\ \   \_\ \_ /\ \L\ \\ \ \/ 
+--    /\_/\_\ \ \ ,__/   /\____\\ \____/ \ \_\ 
+--    \//\/_/  \ \ \/    \/____/ \/___/   \/_/ 
+--              \ \_\                          
+--               \/_/                          
+
 local b4={}; for k,v in pairs(_ENV) do b4[k]=v end;
 local help=[[
 XPLOR: Bayesian active learning
@@ -9,8 +19,8 @@ OPTIONS:
  -f  --file  file with csv data                     = ../data/auto93.csv
  -g  --go    start-up example                       = nothing
  -h  --help  show help                              = false
- -k  --k     Bayes hack: low attribute frequency    =  2
- -m  --m     Bayes hack: low class frequency        =  1
+ -k  --k     Bayes hack: low attribute frequency    = 2
+ -m  --m     Bayes hack: low class frequency        = 1
  -s  --seed  random number seed                     = 10019]]
 
 local adds,cdf,cli,coerce,copy,csv,fmt,o,obj,oo,map,pdf,push,rnd,run,settings,the
@@ -20,49 +30,52 @@ function obj(s,    isa,new,t)
   t={__tostring = function(x) return s..o(x) end}
   t.__index = t;return isa(t,{__call=new}) end
 
-local Data,NB,Num,Row,Sym=obj"Data",obj"Num",obj"Row",obj"Sym",obj"NB"
+local DATA,NB,NUM,ROW,SYM=obj"DATA",obj"NUM",obj"ROW",obj"SYM",obj"NB"
 
-function Row:new(t) --- Hold one record
+function ROW:new(t) --- Hold one record
   return {cells =t} end
 
-function Sym:new(n,s) --- Summarize stream of symbols.
+function SYM:new(n,s) --- Summarize stream of symbols.
     return {at=n or 0,
             txt=s or "",
             n=0, mode=nil,most=-1,
             has={}} end
 
-function Num:new(c,x) --- Summarize stream of numbers
+function NUM:new(c,x) --- Summarize stream of numbers
   return {at=c or 0,txt=x or "",n=0,
           lo= 1E32,  hi= -1E32, mu=0, m2=0, sd=0,
           w=(x or ""):find"-$" and -1 or 1} end
 
-function Data:new(src) --- Store rows of data. Summarize rows in `self.cols`.
+function DATA:new(src) --- Store rows of data. Summarize rows in `self.cols`.
   self.rows, self.cols = {}, {names={},all={},x={},y={}}
   adds(self,src) end
 
 function NB:new(src)
-  self.all, self.nh, self.datas = Data(), 0, {}
-  adds(self,src) end
+  self.all, self.nh, self.datas = nil, 0, {}
+  adds(self, src) end
 
--- The help string at top of file is parsed to create the settings.
--- Also, my `go.x` functions can be run with `lua xplor.lua -g x`.
--- Further, this code's function arguments have some type hints:
---   
--- | What         | Notes                                       |
--- |:------------:|---------------------------------------------|
--- | 2 blanks     | 2 blanks denote optional arguments          |
--- | 4 blanks     | 4 blanks denote local arguments             |
--- | n            | prefix for numerics                         |
--- | s            | prefix for strings                          |
--- | is           | prefix for booleans                         |
--- | fun          | prefix for functions                        |
--- | suffix s     | list of thing (so names is list of strings) |
---              ,   .           .     
+-- CONVENTIONS: (1) The help string at top of file is parsed to create
+-- the settings.  (2) Also, all the `go.x` functions can be run with
+-- `lua xplor.lua -g x`.  (3) Lastly, this code's function arguments
+-- have some type hints:
+--
+-- | What               | Notes                                       |
+-- |:------------------:|---------------------------------------------|
+-- | 2 blanks           | 2 blanks denote optional arguments          |
+-- | 4 blanks           | 4 blanks denote local arguments             |
+-- | n                  | prefix for numerics                         |
+-- | s                  | prefix for strings                          |
+-- | is                 | prefix for booleans                         |
+-- | fun                | prefix for functions                        |
+-- | suffix s           | list of thing (so names is list of strings) |
+-- | function SYM:new() | constructor for class e.g. SYM              |
+-- | e.g. sym           | denotes an instance of class constructor    |
+--              ,   .           .     
 -- ._ _    _   -+-  |_    _    _|   __
 -- [ | )  (/,   |   [ )  (_)  (_]  _) 
 
--- ## Num     ----- ----- -----------------------------------------------------
-function Num:add(x)
+-- ## NUM     ----- ----- -----------------------------------------------------
+function NUM:add(x)
   if x ~= "?" then
     self.n  = self.n + 1
     local d = x - self.mu
@@ -72,54 +85,54 @@ function Num:add(x)
     if x > self.hi then self.hi = x end
     if x < self.lo then self.lo = x end end end
 
-function Num:like(x,...)
+function NUM:like(x,...)
   return self.sd>0 and pdf(x,self.mu,self.sd) or (x==self.mu and 1 or 1/big) end
 
-function Num:mid() return self.mu end
-function Num:div() return self.sd end
+function NUM:mid() return self.mu end
+function NUM:div() return self.sd end
 
--- ## Sym     ----- ----- ------------------------------------------------------
-function Sym:add(s,  n) --- Update.
+-- ## SYM     ----- ----- ------------------------------------------------------
+function SYM:add(s,  n) --- Update.
   if s~="?" then 
     self.n  = self.n + 1
     self.has[s] = 1 + (self.has[s] or 0) 
     if self.has[s] > self.most then
       self.most,self.mode = self.has[s], s end end end
 
-function Sym:like(x,prior)
+function SYM:like(x,prior)
   return ((self.kept[x] or 0)+the.m*prior) / (self.n+the.m) end
 
-function Sym:mid() return self.mode end
+function SYM:mid() return self.mode end
 
-function Sym:div(     e)
+function SYM:div(     e)
   local function fun(p) return -p*math.log(p,2) end
   e=0; for x,n in pairs(self.has) do if n>0 then e = e - fun(n/self.n) end end
   return e end
 
--- ## Data     ----- ----- -----------------------------------------------------
+-- ## DATA     ----- ----- -----------------------------------------------------
 -- ### Create
-function Data:clone(src) return adds(Data({self.cols.names}),src) end
+function DATA:clone(src) return adds(DATA({self.cols.names}),src) end
 
 -- ### Update
-function Data:add(row) --- the new row is either a header, or a data row  
-  if #self.cols.all==0 then self:_head(row) else self:_body(row) end  end
+function DATA:add(row) --- the new row is either a header, or a data row  
+  if #self.cols.all==0 then self:_head(row) else self:_body(row) end end
 
-function Data:_head(row)--- Create `Num`s and `Sym`s for the column headers
+function DATA:_head(row)--- Create `NUM`s and `SYM`s for the column headers
   self.cols.names = row
   for n,s in pairs(row) do
-    local col = push(self.cols.all, (s:find"^[A-Z]" and Num or Sym)(n,s))
+    local col = push(self.cols.all, (s:find"^[A-Z]" and NUM or SYM)(n,s))
     if not s:find":$" then
       if s:find"!$" then self.cols.klass= col end
       push(s:find"[!+-]" and self.cols.y or self.cols.x, col) end end end
  
-function Data:_body(row) --- Crete new row. Store in `rows`. Update cols.
-  row = row.cells and row or Row(row) -- Ensure `row` is a `Row`.
+function DATA:_body(row) --- Crete new row. Store in `rows`. Update cols.
+  row = row.cells and row or ROW(row) -- Ensure `row` is a `ROW`.
   push(self.rows, row)
   for _,cols in pairs{self.cols.x, self.cols.y} do
     for _,col in pairs(cols) do
       col:add(row.cells[col.at]) end end end
 
-function Data:like(row, nklasses, nrows)
+function DATA:like(row, nklasses, nrows)
   local prior,like,inc,x
   prior = (#self.rows + the.k) / (nrows + the.k * nklasses)
   like  = math.log(prior)
@@ -131,14 +144,13 @@ function Data:like(row, nklasses, nrows)
       like = like + math.log(inc) end end
   return like end
 
-function Data:klass(row) 
- return row.cells[self.cols.klass.at] end
+function DATA:klass(row) 
+  return (row.cells or row.cells or row)[self.cols.klass.at] end
 
-function Data:stats(  places,showCols,todo,    t,v)
+function DATA:stats(  places,showCols,todo,    t,v)
     showCols, todo = showCols or self.cols.y, todo or "mid"
     t={}; for _,col in pairs(showCols) do 
             v=getmetatable(col)[todo](col)
-            print("v",v)
             v=type(v)=="number" and rnd(v,places) or v
             t[col.txt]=v end; return t end
 
@@ -146,18 +158,21 @@ function Data:stats(  places,showCols,todo,    t,v)
 -- ### Update
 function NB:add(row,   k)
   local function new() self.nh = self.nh+1; return self.all:clone() end
-  self.all:add(row)
-  k = self.all:klass(row)
-  self.datas[k] = self.datas[k] or new()
-  self.datas[k].add(row) end 
+  if   self.all 
+  then self.all:add(row)
+       k = self.all:klass(row)
+       if #self.all.rows > 10 then print(self:classify(row),k) end 
+       self.datas[k] = self.datas[k] or new()
+       self.datas[k]:add(row) 
+  else self.all=DATA{row} end end
 
 function NB:classify(row) --- which klass likes `row` the most?
   local most,klass = -math.huge
   for k,data in pairs(self.datas) do
-    like = data:like(row,self.nh, #self.all.rows)
+    like = data:like(row, self.nh, #self.all.rows)
     if like > most then most,klass=like,k end end
-  return klass end
--- .     .  
+  return klass end
+-- .     .  
 -- |  *  |_ 
 -- |  |  [_)
 
@@ -208,7 +223,8 @@ function csv(sFilename, fun,      src,s,t) --- call `fun` cells in each CSV line
 function adds(data,src)
   if   type(src)=="string"
   then csv(src,       function(row) data:add(row) end)
-  else map(src or {}, function(row) data:add(row) end) end  end
+  else map(src or {}, function(row) data:add(row) end) end
+  return data end
 
 -- ## Thing to string   ----- ----- -------------------------------------------
 fmt=string.format
@@ -254,8 +270,8 @@ function run(settings,funs,   fails,old)
       print("# >>>>>",k)
       if fun()==false then fails = fails+1;print("# FAIL!!!!!",k); end end end
   for k,v in pairs(_ENV)do if not b4[k] then print("# rogue?",k,type(v)) end end 
-  os.exit(fails) end
---   .                      
+  os.exit(fails) end
+--   .                      
 --  _|   _   ._ _    _    __
 -- (_]  (/,  [ | )  (_)  _) 
 
@@ -266,34 +282,41 @@ function go.cdf()
   for x=-2,2.5,.3 do print(rnd(cdf(x),4), ("-"):rep(cdf(x)*50//1)..".") end end
 
 function go.sym(  sym) 
-  sym = Sym()
+  sym = SYM()
   for _,x in pairs{"a","a","a","a","b","b","c"} do sym:add(x) end
   return sym.mode =="a" and sym.most==4 end
 
 function go.num(  num) 
-  num = Num()
+  num = NUM()
   for x=1,100 do num:add(x) end
   return 51==rnd(num.mu,0) and 29== rnd(num.sd,0) end
 
 function go.csv()
   csv(the.file, oo); return 1 end
 
-function go.data(   d)
-  d=Data(the.file) 
-  map(d.cols.x,oo); print""
-  map(d.cols.y,oo) end 
+function go.data(     data)
+  data=DATA(the.file) 
+  map(data.cols.x,oo); print""
+  map(data.cols.y,oo) end 
 
-function go.data(    d)
-  d=Data(the.file) 
-  oo(d:stats(2, d.cols.x,"mid"))
-  map(d.cols.x,oo); print""
-  map(d.cols.y,oo) end 
+function go.data(     data)
+  data = DATA(the.file) 
+  print("mid",o(data:stats(2, data.cols.x,"mid"))); 
+  print("div",o(data:stats(2, data.cols.x,"div"))) end
 
-function go.nb(   d)
-  d=NB("../data/diabetes.csv") 
-  for _,data in pairs(d.all.cols.x) do 
-    oo(data.cols.x) 
-    oo(data:stats(2, data.cols.x,"mid")) end  end
+function go.clone(     data1,data2)
+  data1 = DATA(the.file) 
+  data2 = data1:clone(data1.rows)
+  print("mid", o(data1:stats(2, data1.cols.x,"mid"))); 
+  print("mid", o(data2:stats(2, data2.cols.x,"mid"))) end
+
+function go.nb(   nb)
+  nb=NB("../data/diabetes.csv") 
+  for k,data in pairs(nb.datas) do 
+    print(k) 
+    print("",o(data:stats(2, data.cols.x,"mid"))) 
+    print("",o(data:stats(2, data.cols.x,"div"))) end 
+end 
 
 -- ## Start  ----- ----- -------------------------------------------------------
 the = cli(settings(help))

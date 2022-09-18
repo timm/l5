@@ -36,14 +36,15 @@ pdfs:
 	@mkdir -p $R/docs
 	@echo "pdf-ing $@ ... "
 	@a2ps                   \
-		-r                    \
+		-BR                    \
 		-L 150                  \
+		-l 80                   \
 		--file-align=fill        \
 		--line-numbers=1          \
 		--borders=no               \
 		--pro=color                 \
 		--left-title="" \
-		--columns 4                  \
+		--columns 2                  \
 		--pretty-print=$R/etc/lua.ssh \
 		-M letter                      \
 		--footer="" \
