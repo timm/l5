@@ -97,12 +97,12 @@ function DATA:new(src) --- Store ROWs, summarize in `self.cols`
 function NB:new(src,reportFun)
   self.all, self.nh, self.datas = nil, 0, {}
   self.report = reportFun or function(got,want) print(got,want) end
-  adds(self, src) end
+  adds(self, src) end
 
 function ABCD:new(source,sRx)
   self.source, self.rx = source or "", sRx or ""
   self.yes, self.no = 0,0
-  self.known,self.a,self.b,self.c,self.d = {},{},{},{},{} end
+  self.known,self.a,self.b,self.c,self.d = {},{},{},{},{} end
 -- ._ _    _   -+-  |_    _    _|   __
 -- [ | )  (/,   |   [ )  (_)  (_]  _) 
 
