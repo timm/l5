@@ -19,8 +19,8 @@ OPTIONS:
  -f  --file  file with csv data                     = ../data/auto93.csv
  -g  --go    start-up example                       = nothing
  -h  --help  show help                              = false
- -k  --k     Bayes hack: low attribute frequency    = 2
- -m  --m     Bayes hack: low class frequency        = 1
+ -k  --k     Bayes hack: low attribute frequency    = 1
+ -m  --m     Bayes hack: low class frequency        = 2
  -s  --seed  random number seed                     = 10019]]
 
 --[[
@@ -64,7 +64,7 @@ have some type hints:
 | e.g. sym           | denotes an instance of class constructor    |
 --]]
 
-local adds,cdf,cli,coerce,copy,csv,fmt,map
+local adds,cdf,cli,coerce,copy,csv,fmt,inc,map
 local o,obj,oo,pdf,push,rnd,run,settings,the
 function obj(s,    isa,new,t)
   isa=setmetatable
@@ -72,7 +72,8 @@ function obj(s,    isa,new,t)
   t={__tostring = function(x) return s..o(x) end}
   t.__index = t;return isa(t,{__call=new}) end
 
-local DATA,NB,NUM,ROW,SYM=obj"DATA",obj"NUM",obj"ROW",obj"SYM",obj"NB"
+local ABCD,DATA,NB  = obj"ABCD", obj"DATA", obj"NB"
+local NUM, ROW, SYM = obj"NUM",  obj"ROW",  obj"SYM"
 
 function ROW:new(t) --- Hold one record
   return {cells =t} end
@@ -97,6 +98,11 @@ function NB:new(src,reportFun)
   self.all, self.nh, self.datas = nil, 0, {}
   self.report = reportFun or function(got,want) print(got,want) end
   adds(self, src) end
+
+function ABCD:new(source,sRx)
+  self.source, self.rx = source or "", sRx or ""
+  self.yes, self.no = 0,0
+  self.known,self.a,self.b,self.c,self.d = {},{},{},{},{} end
 -- ._ _    _   -+-  |_    _    _|   __
 -- [ | )  (/,   |   [ )  (_)  (_]  _) 
 
@@ -112,7 +118,8 @@ function NUM:add(x) --- Update
     if x < self.lo then self.lo = x end end end
 
 function NUM:like(x,...) --- how much does NUM like `x`?
-  return self.sd>0 and pdf(x,self.mu,self.sd) or (x==self.mu and 1 or 1/big) end
+  return self.sd>0 and pdf(x,self.mu,self.sd) or (
+         x==self.mu and 1 or 1/math.huge) end
 
 function NUM:mid()  --- central tendency
   return self.mu end 
@@ -130,7 +137,7 @@ function SYM:add(s) --- Update.
 function SYM:like(s,nPrior) --- how much does SYM like `n`?
   return ((self.has[s] or 0)+the.m*nPrior) / (self.n+the.m) end
 
-function SYM:mid()  --- central tendancy
+function SYM:mid()  --- central tendency
   return self.mode end
 
 function SYM:div(     n) --- spread
@@ -140,7 +147,7 @@ function SYM:div(     n) --- spread
 
 -- ## DATA     ----- ----- -----------------------------------------------------
 -- ### Create
-function DATA:clone(src) --- compy structure
+function DATA:clone(src) --- copy structure
   return adds(DATA({self.cols.names}),src) end
 
 -- ### Update
@@ -171,7 +178,6 @@ function DATA:like(row,nh,nrows) --- how much DATA likes `row`?
     x = row[col.at]
     if x ~= nil and x ~= "?" then
       inc  = col:like(x,prior)
-      print(inc)
       like = like + math.log(inc) end end
   return like end
 
@@ -193,7 +199,7 @@ function NB:add(row) --- update the `datas` about `row`'s klass
   if   self.all 
   then self.all:add(row)
        local k = self.all:klass(row)
-       if #self.all.rows > 10 then self.report(self:classify(row),k) end 
+       if #self.all.rows > 5 then self.report(self:classify(row),k) end 
        self.datas[k] = self.datas[k] or new()
        self.datas[k]:add(row) 
   else self.all=DATA{row} end end
@@ -201,9 +207,64 @@ function NB:add(row) --- update the `datas` about `row`'s klass
 function NB:classify(row) --- which klass likes `row` the most?
   local most,klass,like = -math.huge
   for k,data in pairs(self.datas) do
+    klass = klass or k
     like = data:like(row, self.nh, #self.all.rows)
-    if like > most then most,klass=like,k end end
-  return klass end
+    if like >= most then most,klass=like,k end end
+  return klass end
+
+-- ## ABCD    ---- ----- -------------------------------------------------------
+function ABCD:add(got,want) --- update results for all classes
+  self:exists(want) 
+  self:exists(got)  
+  if want == got then self.yes=self.yes+1 else self.no=self.no+1 end
+  for k,_ in pairs(self.known) do 
+    print("|",want,"|",k,"|")
+    if   want == k
+    then inc(want == got and self.d or self.b, k)
+    else inc(got  == k   and self.c or self.a, k) end end end 
+
+function ABCD:exists(x)
+  local new = not self.known[x]
+  inc(self.known,x)
+  if new then
+    self.a[x]=self.yes + self.no
+    self.b[x]=0; self.c[x]=0; self.d[x]=0 end end
+
+function ABCD:report(    p,out,a,b,c,d,pd,pf,pn,f,acc,g,prec)
+  p = function (z) return math.floor(100*z + 0.5) end
+  out= {}
+  for x,_ in pairs(self.known) do
+    pd,pf,pn,prec,g,f,acc = 0,0,0,0,0,0,0
+    a= (self.a[x] or 0); b= (self.b[x] or 0); 
+    c= (self.c[x] or 0); d= (self.d[x] or 0);
+    if b+d > 0     then pd   = d     / (b+d)        end
+    if a+c > 0     then pf   = c     / (a+c)        end
+    if a+c > 0     then pn   = (b+d) / (a+c)        end
+    if c+d > 0     then prec = d     / (c+d)        end
+    if 1-pf+pd > 0 then g=2*(1-pf) * pd / (1-pf+pd) end 
+    if prec+pd > 0 then f=2*prec*pd / (prec + pd)   end
+    if self.yes + self.no > 0 then 
+       acc= self.yes /(self.yes + self.no) end
+    out[x]={data=self.source,rx=self.rx,num=self.yes+self.no,
+            a=a,b=b,c=c,d=d,acc=p(acc),
+            prec=p(prec), pd=p(pd), pf=p(pf),f=p(f), g=p(g), class=x} end
+  return out end
+
+function ABCD:pretty(t)
+  local function slots(t,     u)
+    u={}; for k,v in pairs(t) do u[1+#u]=k end; table.sort(u); return u end
+  print""
+  local s1  = "%10s | %10s | %4s | %4s | %4s | %4s "
+  local s2  = "| %3s | %3s| %3s | %4s | %3s | %3s |"
+  local d,s = "---", (s1 .. s2)
+  print("#"..fmt(s,"db","rx","a","b","c","d","acc","pd","pf","prec","f","g"))
+  print("#"..fmt(s,d,d,d,d,d,d,d,d,d,d,d,d))
+  for _,x in pairs(slots(t)) do
+    local u = t[x]
+    print(" "..fmt(s.." %s", u.data,u.rx,u.a, u.b, u.c, u.d,
+                        u.acc, u.pd, u.pf, u.prec, u.f, u.g, x)) end end
+ 
+
 -- .     .  
 -- |  *  |_ 
 -- |  |  [_)
@@ -251,6 +312,9 @@ function copy(t,  isShallow, u) --- copy `t` (recursive if If not `isShallaw`)
   if type(t) ~= "table" then return t end
   u={}; for k,v in pairs(t) do u[k] = isShallow and v or copy(v,isShallow) end
   return setmetatable(u,getmetatable(t))  end
+
+function inc(t,k,n) --- increment `t[k]` by `n` (default `n=1`) 
+  t=t or {}; t[k] = (t[k] or 0) + (n or 1); return t end
 
 -- ## Strings to Things    ----- ----- -----------------------------------------
 function coerce(s,    fun) --- Parse `the` config settings from `help`.
@@ -361,15 +425,27 @@ function go.clone(     data1,data2)
   print("mid", o(data1:stats(2, data1.cols.x,"mid"))); 
   print("mid", o(data2:stats(2, data2.cols.x,"mid"))) end
 
-local function _classify(f,nb)
+function go.abcd(  abcd)
+  local abcd= ABCD()
+  local y="yes"
+  local n="no"
+  local m="maybe"
+  for i = 1,6 do abcd:add(y,y) end
+  for i = 1,2 do abcd:add(n,n) end
+  for i = 1,5 do abcd:add(m,m) end
+  abcd:add(m,n)
+  print(ABCD:pretty( abcd:report() )) end
+
+local function _classify(f,nb,abcd)
+  abcd=ABCD()
   local all,correct = 0,0
-  nb=NB(f,function(got,want)
-         all=all+1; correct = correct + (got==want and 1 or 0) end) 
-  print(correct/all) end
+  nb=NB(f,function(got,want) abcd:add(got,want) end)
+  print(ABCD:pretty( abcd:report() )) 
+end
 
 function go.diabetes() _classify("../data/diabetes.csv") end
-function go.soybean() _classify("../data/soybean.csv") end
-
+function go.soybean()  _classify("../data/soybean.csv") end
+function go.weathern()  _classify("../data/weathernom.csv") end
 
 -- ## Start  ----- ----- -------------------------------------------------------
 the = settings(help)
