@@ -15,7 +15,13 @@ OPTIONS:
  -s  --seed  random number seed                     = 10019]]
 
 local betters,coerce,csv,data1,DATA,fmt,is,kap,keys,locals,lt,map,norm
-local o,of,oo,ordered,push,some1,SOME,sort,sorted 
+local o,of,oo,ordered,push,some1,COL,sort,sorted 
+local function obj(s,    t,i,new) 
+  local isa=setmetatable
+  function new(k,...) i=isa({},k); return isa(t.new(i,...) or i,k) end
+  t={__tostring = function(x) return s..o(x) end}
+  t.__index = t;return isa(t,{__call=new}) end
+
 -- ## DATA ----- ----- ---------------------------------------------------------
 local is={}
 function is.skip(s)  return s:find":$" end
@@ -24,50 +30,53 @@ function is.goal(s)  return  s:find"[!+-]$" end
 function is.klass(s) return  s:find"!$" end
 function is.weight(s)  return s:find"-$" and -1 or 1 end
 
-function of(data,fun)  --- return `data.cols` satisfying `fun`.
-  return map(data.cols,function(c) if fun(c.name) then return c end end) end
-
-function DATA(t) 
+DATA=obj"DATA"
+function DATA:new(t) 
    return {names=t,rows={},
-           cols=kap(t,function(k,v) return SOME(k,t[k]) end)} end
+           cols=kap(t,function(k,v) return COL(k,t[k]) end)} end
 
-function data1(t,  data) --- return data, incremented with row `t`
-  if not data then data = DATA(t) else
-    push(data.rows,t)
-    map(data.cols, function(col) some1(col,t[col.at]) end) end
-  return data end
+function DATA:of(fun)
+  return map(self.cols,function(c) if fun(c.name) then return c end end) end
 
-function betters(data,   order,cols,n)
-  cols = of(data,is.goal)
+function DATA:add(t) --- return data, incremented with row `t`
+  push(data.rows,t)
+  map(data.cols, function(col) col:add(t[col.at]) end) end
+
+function DATA:sorted(      order,goals,n)
+  goals = self:of(is.goal)
   function order(row1,row2,    s1,s2,x,y)
     s1,s2,x,y=0,0
-    for _,col in pairs(cols) do
-      x,y= norm(col,row1[col.at]), norm(col,row2[col.at])
+    for _,col in pairs(goals) do
+      x,y= col:norm(row1[col.at]), col:norm(row2[col.at])
       s1 = s1 - math.exp(col.w * (x-y)/#cols)
       s2 = s2 - math.exp(col.w * (y-x)/#cols)  end
     return s1/#cols < s2/#cols end
   return sort(data.rows, order) end
 
+ 
 -- ## NUM  ----- ----- ---------------------------------------------------------
-function SOME(n,s) --- constructor for summary of numbers
-  return {w=is.weight(s or ""),at=n,name=s,_has={},isSorted=true,n=0} end
+COL=obj"COL"
+function COL:new(n,s) --- constructor for summary of columns
+  return  {w=is.weight(s or ""),
+             at=n,name=s,_has={},isSorted=true,n=0} end
 
-function some1(some,x,    pos) --- keep, at most, `the.Some` items
+function COL:add(x,    pos) --- keep, at most, `the.Some` items
   if x~="?" then
-    some.n = some.n+1
-    if #some._has < the.Some then pos=1+(#some._has)
-    elseif math.random()<the.Some/some.n then pos=math.random(#some._has) end
-    if pos then some.isSorted=false
-                some._has[pos]= x end end end
+    self.n = self.n+1
+    if #self._has < the.Some then pos=1+(#self._has)
+    elseif math.random()<the.Some/self.n then pos=math.random(#self._has) end
+    if pos then self.isSorted=false
+                self._has[pos]= x end end end
 
-function sorted(some) --- return `some`'s contents, sorted
-  if not some.isSorted then table.sort(some._has) end
-  some.isSorted=true
-  return some._has end
+function COL:sorted() --- return `self`'s contents, sorted
+  if not self.isSorted then table.sort(self._has) end
+  self.isSorted=true
+  return self._has end
 
-function norm(some,n,    t) --- normalize `n` 0..1 (in the range lo..hi)
-  t=sorted(some)
+function COL:norm(n,    t) --- normalize `n` 0..1 (in the range lo..hi)
+  t=self:sorted()
   return (t[#t] - t[1]) < 1E-9 and 0 or (n-t[1])/(t[#t] - t[1]) end
+
 -- -----------------------------------------------------------------------------
 -- ## Lib
 -- ### Lists
@@ -132,7 +141,7 @@ function locals () --- Return a list of local variables.
 -- -----------------------------------------------------------------------------
 local go={}
 function go.csv(      data)
-  csv(the.file, function(row) data=data1(row,data)  end)
+  csv(the.file, function(t) if data then data:add(t) else data=DATA(t) end end)
   oo(data.cols[1]) end 
 
 function go.betters(      data,rows)
@@ -148,8 +157,11 @@ help:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)", function(k,v)
   the[k]=coerce(v) end)
 
 if the.help then os.exit(print(help)) end
+c=COL(10,"sadas")
+c:add(22)
+print(c)
 
---go.csv()
-go.betters()
+go.csv()
+--go.betters()
 for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end
 local t=locals(); return t
