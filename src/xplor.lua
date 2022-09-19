@@ -14,41 +14,19 @@ OPTIONS:
  -S  --Some  How many items to keep per row         = 256
  -s  --seed  random number seed                     = 10019]]
 
-local betters,coerce,count,csv,data1,DATA,fmt,is,kap,keys,locals,lt,map,norm
-local o,oo,push,same,some1,SOME,somes,sort,slots,sum
+local betters,coerce,csv,data1,DATA,fmt,is,kap,keys,locals,lt,map,norm
+local o,of,oo,ordered,push,some1,SOME,sort,sorted 
+-- ## DATA ----- ----- ---------------------------------------------------------
+local is={}
+function is.skip(s)  return s:find":$" end
+function is.num(s)   return  s:find"^[A-Z]" end
+function is.goal(s)  return  s:find"[!+-]$" end
+function is.klass(s) return  s:find"!$" end
+function is.weight(s)  return s:find"-$" and -1 or 1 end
 
--- ## Reading data
-local _is={}
-function _is.skip(s)  return s:find":$" end
-function _is.num(s)   return  s:find"^[A-Z]" end
-function _is.goal(s)  return  s:find"[!+-]$" end
-function _is.klass(s) return  s:find"!$" end
-function _is.weight(s)  return s:find"-$" and -1 or 1 end
+function of(data,fun)  --- return `data.cols` satisfying `fun`.
+  return map(data.cols,function(c) if fun(c.name) then return c end end) end
 
--- ## NUM
-function SOME(n,s) --- constructor for summary of numbers
-  return {w=_is.weight(s or ""),at=n,name=s,_has={},isSorted=true,n=0} end
-
-function some1(some,n,    pos)
-  if n~="?" then
-    some.n = some.n+1
-    if #some._has < the.Some then pos=1+(#some._has)
-    elseif math.random()<the.Some/some.n then pos=math.random(#some._has) end
-    if pos then some.isSorted=false
-                some._has[pos]= n end end end
-
-function somes(some)
-  if not some.isSorted then table.sort(some._has) end
-  some.isSorted=true
-  return some._has end
-
-function norm(some,n,   t)
-  t=somes(some)
-  tmp =(t[#t] - t[1]) < 1E-9 and 0 or (n-t[1])/(t[#t] - t[1]) 
-  return tmp
-end
-
--- ## DATA
 function DATA(t) 
    return {names=t,rows={},
            cols=kap(t,function(k,v) return SOME(k,t[k]) end)} end
@@ -60,17 +38,37 @@ function data1(t,  data) --- return data, incremented with row `t`
   return data end
 
 function betters(data,   order,cols,n)
-  cols = map(data.cols, function(col) if _is.goal(col.name) then return col end end)
-  local s1,s2,x,y=0,0
-  map(cols,oo)
-  function order(row1,row2)
+  cols = of(data,is.goal)
+  function order(row1,row2,    s1,s2,x,y)
+    s1,s2,x,y=0,0
     for _,col in pairs(cols) do
       x,y= norm(col,row1[col.at]), norm(col,row2[col.at])
-      s1 = s1 - 2.71828^(col.w * (x-y)/#cols)
-      s2 = s2 - 2.71828^(col.w * (y-x)/#cols)  end
+      s1 = s1 - math.exp(col.w * (x-y)/#cols)
+      s2 = s2 - math.exp(col.w * (y-x)/#cols)  end
     return s1/#cols < s2/#cols end
   return sort(data.rows, order) end
 
+-- ## NUM  ----- ----- ---------------------------------------------------------
+function SOME(n,s) --- constructor for summary of numbers
+  return {w=is.weight(s or ""),at=n,name=s,_has={},isSorted=true,n=0} end
+
+function some1(some,x,    pos) --- keep, at most, `the.Some` items
+  if x~="?" then
+    some.n = some.n+1
+    if #some._has < the.Some then pos=1+(#some._has)
+    elseif math.random()<the.Some/some.n then pos=math.random(#some._has) end
+    if pos then some.isSorted=false
+                some._has[pos]= x end end end
+
+function sorted(some) --- return `some`'s contents, sorted
+  if not some.isSorted then table.sort(some._has) end
+  some.isSorted=true
+  return some._has end
+
+function norm(some,n,    t) --- normalize `n` 0..1 (in the range lo..hi)
+  t=sorted(some)
+  return (t[#t] - t[1]) < 1E-9 and 0 or (n-t[1])/(t[#t] - t[1]) end
+-- -----------------------------------------------------------------------------
 -- ## Lib
 -- ### Lists
 function push(t,x)  --- push `x` onto `t`, return `x`
@@ -130,17 +128,8 @@ function locals () --- Return a list of local variables.
     if not k then break end
     if k:sub(1,1) ~= "_" then t[k]=v end
     i = i + 1 end
-  return t end
-
+  return t end
 -- -----------------------------------------------------------------------------
-help:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)", function(k,v) 
-  for n,x in ipairs(arg) do
-    if x=="-"..(k:sub(1,1)) or x=="--"..k then
-      v = v=="false" and "true" or v=="true" and "false" or arg[n+1] end end
-  the[k]=coerce(v) end)
-
-if the.help then os.exit(print(help)) end
-
 local go={}
 function go.csv(      data)
   csv(the.file, function(row) data=data1(row,data)  end)
@@ -150,6 +139,15 @@ function go.betters(      data,rows)
   csv(the.file, function(row) data=data1(row,data)  end)
   rows= betters(data) 
   for i=1,#rows,30 do print(i,o(rows[i])) end end
+
+-- -----------------------------------------------------------------------------
+help:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)", function(k,v) 
+  for n,x in ipairs(arg) do
+    if x=="-"..(k:sub(1,1)) or x=="--"..k then
+      v = v=="false" and "true" or v=="true" and "false" or arg[n+1] end end
+  the[k]=coerce(v) end)
+
+if the.help then os.exit(print(help)) end
 
 --go.csv()
 go.betters()
