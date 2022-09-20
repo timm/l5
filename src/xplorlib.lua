@@ -10,12 +10,6 @@ function l.obj(s,    t,i,new)
   t={__tostring = function(x) return s..l.o(x) end}
   t.__index = t;return isa(t,{__call=new}) end
 
-function l.settings(txt,    t)
-  t={}; txt:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)", 
-                 function(k,v) t[k]=l.coerce(v) end)
-  t._help = t
-  return t end
-
 -- ## Maths
 function l.per(t,p) --- return the pth (0..1) item of `t`.
   p=math.floor(((p or .5)*#t)+.5); return t[math.max(1,math.min(#t,p))] end
@@ -26,8 +20,12 @@ function l.ent(t) --- entropy of a list of counts
   return e end
  
 -- ## Lists
+function l.copy(t, deep,    u) --- copy a list (shallow copy if `deep` is false)
+  if type(t) ~= "table" then return t end
+  u={};for k,v in pairs(t) do u[k]=deep and l.copy(v,deep) or v end;return u end
+
 function l.push(t,x)  --- push `x` onto `t`, return `x`
-  table.insert(t,x); return t end
+  table.insert(t,x); return x end
 
 -- ## Sort
 function l.sort(t,fun) --- return `t`, sorted using function `fun`. 
@@ -62,33 +60,55 @@ function l.oo(t)  --- Print a table `t` (non-recursive)
 function l.o(t) ---  Generate a print string for `t` (non-recursive)
   if type(t) ~= "table" then return tostring(t) end
   t = #t>0 and l.map(t,tostring)
-            or l.map(l.keys(t),function(v) return l.fmt(":%s %s",v,o(t[v])) end)
+            or l.map(l.keys(t),
+                     function(v) return l.fmt(":%s %s",v,l.o(t[v])) end)
   return "{".. table.concat(t," ") .."}" end
 
 -- ## Meta
-function map(t,fun) --- Return `t`, filter through `fun(value)` (skip nils)
+function l.map(t,fun) --- Return `t`, filter through `fun(value)` (skip nils)
   local u={}; for _,v in pairs(t) do u[1+#u] = fun(v) end; return u end
 
-function kap(t,fun) --- Return `t` and its size, filtered via `fun(key,value)`
+function l.kap(t,fun) --- Return `t` and its size, filtered via `fun(key,value)`
   local u={}; for k,v in pairs(t) do u[k]=fun(k,v) end; return u end
 
-function keys(t) --- Return keys of `t`, sorted (skip any with prefix  `_`)
-  return sort(kap(t,function(key,_)  
+function l.keys(t) --- Return keys of `t`, sorted (skip any with prefix  `_`)
+  return l.sort(l.kap(t,function(key,_)  
                 if tostring(key):sub(1,1) ~= "_" then return key end end)) end
 
--- ## Misc
-function load(src,  data,     row)
-  function fun(t) if data then data:add(t) else data=DATA(t) end end
-  if type(src)=="table" then csv(src, fun) else map(src or {}, fun) end
-  return data end
+-- ## Settings
+function l.settings(txt,    t) --- parse help string to extract settings
+  t={}; txt:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)", 
+                 function(k,v) t[k]=l.coerce(v) end)
+  t._help = txt
+  return t end
 
-function cli(t) --- update table slots via command-line flags
+function l.cli(t) --- update table slots via command-line flags
   for k,v in pairs(t) do
     local v=tostring(v)
     for n,x in ipairs(arg) do
       if x=="-"..(k:sub(1,1)) or x=="--"..k then
          v = v=="false" and "true" or v=="true" and "false" or arg[n+1] end end 
-  t[k] = coerce(v) end end
+  t[k] = l.coerce(v) end 
+  if t.help then os.exit(print("\n"..t._help)) end
+  return t end 
 
+-- ## Objects
+function l.obj(s,    t,i,new) 
+  local isa=setmetatable
+  function new(k,...) i=isa({},k); return isa(t.new(i,...) or i,k) end
+  t={__tostring = function(x) return s..l.o(x) end}
+  t.__index = t;return isa(t,{__call=new}) end
+
+function l.on(settings,funs,   fails,old)
+  fails=0
+  old = l.copy(settings)
+  for k,fun in pairs(funs) do
+    if settings.go == "all" or settings.go == k then
+      for k,v in pairs(old) do settings[k]=v end
+      math.randomseed(settings.seed or 10019)
+      print("#>>>>>",k)
+      if fun()==false then fails = fails+1;print("F#AIL!!!!!",k); end end end
+  l.rogues()
+  os.exit(fails) end
 
 return l
