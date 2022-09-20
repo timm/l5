@@ -65,7 +65,7 @@ function DATA:bestRest(m,n,     best,rest,rows)
 -- ## COL  ----- ----- ---------------------------------------------------------
 function COL:new(n,s) --- constructor for summary of columns
   return  {w=is.weight(s or ""),
-             at=n,name=s,_has={},isSorted=false,freq={},n=0} end
+             at=n,name=s,_has={},isSorted=false,counts=nil,n=0} end
 
 function COL:add(x,    pos) --- keep, at most, `the.Some` items
   if x~="?" then
@@ -80,11 +80,11 @@ function COL:sorted() --- return `self`'s contents, sorted
   self.isSorted=true
   return self._has end
 
-function COL:counts()
-  if not self.freq then
-    self.freq={}
-    for _,x in pairs(self._has) do self.freq=1+(self.freq[x]+0) end end
-  return freq end
+function COL:counted()
+  if not self.counts then
+    self.counts={}
+    for _,x in pairs(self._has) do self.counts=1+(self.counts[x]+0) end end
+  return counts end
 
 function COL:norm(n,    t) --- normalize `n` 0..1 (in the range lo..hi)
   t=self:sorted()
