@@ -79,15 +79,12 @@ function COLS:add(t)
     for _,col in pairs(cols) do
        col:add(t[col.at]) end end end
 
-function load(src,  data,     row)
+function load(src,  data,    fun)
   function fun(t) if data then data:add(t) else data=DATA(t) end end
-  if type(src)=="table" then csv(src, fun) else map(src or {}, fun) end
+  if type(src)=="string" then csv(src, fun) else map(src or {}, fun) end
   return data end
 
 -- ## DATA ----- ----- ---------------------------------------------------------
-function DATA:of(fun) --- return columns that satisfy `fun`
-  return map(self.cols,function(c) if fun(c.name) then return c end end) end
-
 function DATA:add(t) --- add a new row, update column summaries.
   push(self.rows,t)
   self.cols:add(t) end
