@@ -90,11 +90,6 @@ function COL:norm(n,    t) --- normalize `n` 0..1 (in the range lo..hi)
   t=self:sorted()
   return (t[#t] - t[1]) < 1E-9 and 0 or (n-t[1])/(t[#t] - t[1]) end
 
-function COL:discretize(n,    t,tmp) --- discretize `Num`s,rounded to (hi-lo)/bins
-  t = self:sorted()
-  tmp = (t[#t] - t[1])/(the.bins - 1)
-  return t[#t]==t[1] and 1 or math.floor(n/tmp+.5)*tmp end 
-
 -- -----------------------------------------------------------------------------
 -- ## Lib
 -- ### Maths
@@ -178,14 +173,35 @@ function load(src,  data,     row)
   if type(src)=="table" then csv(src, fun) else map(src or {}, fun) end
   return data end
 
-function contrast(col,nump,datas)
-  local n,all,xys = 0,{},{}
-  for _,x in pairs(col._has) do
-    n = n+1
-    local bin = nump and discretize(x) or x
-    xys[bin] = xys[bin] or push(all, XY(col.at, col.txt, x)) end 
+function DATA:contrast(col,datas,      nump)
+  local nunp,n,all,xys = is.num(col.name),0,{},{}
+  for y,data in pairs(datas) do
+    for _,row in pairs(data.rows) do
+      local x = row[col.at]
+      n = n+1
+      local bin = nump and discretize(col,x) or x
+      xys[bin] = xys[bin] or push(all, XY(col.at,col.txt,x)) 
+      xys[bin]:add(x,y) end end 
   table.sort(all,lt"xlo")
   return nump and merge(all, n^the.Min) and all end
+
+function discretize(col,n,    t,tmp) --- discretize `Num`s,rounded to (hi-lo)/bins
+  t = col:sorted()
+  tmp = (t[#t] - t[1])/(the.bins - 1)
+  return t[#t]==t[1] and 1 or math.floor(n/tmp+.5)*tmp end 
+
+function merge(xys,nMin,    tryMerging) --- Can we combine any adjacent ranges?
+  function tryMerging(xys0,    n,xys1,merged)
+    n,xys1 = 1,{}
+    while n <= #xys0 do
+      local mergedXY  = n<#xys0 and xys0[n]:merged(xys0[n+1], nMin)
+      xys1[ 1+#xys1 ] = mergedXY or xys0[n]
+      n               = mergedXY and n+2 or n+1 end
+    return #xys1 < #xys1 and tryMerging(xys1) end
+  xys = tryMerging(xys)
+  for n = 2,#xys do xys[n].xlo = xys[n-1].xhi end   -- fill in any gaps
+  xys[1].xlo, xys[#xys].xhi = -math.huge, math.huge -- extend to +/- infinity
+  return xys end
 
 -- -----------------------------------------------------------------------------
 local go={}
