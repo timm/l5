@@ -6,14 +6,15 @@ XPLOR: Bayesian active learning
 USAGE: lua XPLOR.lua [OPTIONS]
 
 OPTIONS:
- -f  --file  file with csv data                     = ../data/auto93.csv
- -g  --go    start-up example                       = nothing
- -h  --help  show help                              = false
- -k  --k     Bayes hack: low attribute frequency    = 1
- -m  --m     Bayes hack: low class frequency        = 2
- -r  --rest  expansion best to rest                 = 5
- -S  --Some  How many items to keep per row         = 256
- -s  --seed  random number seed                     = 10019]]
+ -f  --file  file with csv data                  = ../data/auto93.csv
+ -g  --go    start-up example                    = nothing
+ -h  --help  show help                           = false
+ -k  --k     Bayes hack: low attribute frequency = 1
+ -m  --m     Bayes hack: low class frequency     = 2
+ -M  --Min   stop at n^Min                       = .5
+ -r  --rest  expansion best to rest              = 5
+ -S  --Some  How many items to keep per row      = 256
+ -s  --seed  random number seed                  = 10019]]
 
 local betters,coerce,csv,data1,DATA,ent,fmt,is,kap,keys,locals,lt,map,med,norm
 local o,of,oo,ordered,per,push,sd,some1,COL,sort,sorted 
@@ -32,18 +33,18 @@ function is.goal(s)   return s:find"[!+-]$" end
 function is.klass(s)  return s:find"!$"     end
 function is.weight(s) return s:find"-$" and -1 or 1 end
 
-function DATA:new(t) 
+function DATA:new(t) --- constructor
    return {names=t,rows={}, cols=kap(t,
     function(k,v) return (is.num(t[k]) and NUM or SYM)(k,t[k]) end)} end
 
-function DATA:of(fun)
+function DATA:of(fun) --- return columns that satisfy `fun`
   return map(self.cols,function(c) if fun(c.name) then return c end end) end
 
 function DATA:add(t) --- return data, incremented with row `t`
   push(self.rows,t)
   map(self.cols, function(col) col:add(t[col.at]) end) end
 
-function DATA:sorted(      order,goals)
+function DATA:sorted(      order,goals) --- sort `self.rows`
   goals = self:of(is.goal)
   function order(row1,row2,    s1,s2,x,y)
     s1,s2,x,y=0,0
@@ -55,7 +56,7 @@ function DATA:sorted(      order,goals)
     return s1/#goals < s2/#goals end
   return sort(self.rows, order) end
 
-function DATA:bestRest(m,n,     best,rest,rows)
+function DATA:bestRest(m,n,     best,rest,rows) --- divide `self.rows`
   best, rest, rows = {}, {}, self:sorted()
   for i = 1,m do push(best, rows[i]) end 
   for i = m+1,#rows, (#rows - m+1)/(n*m)//1 do push(rest, rows[i]) end
