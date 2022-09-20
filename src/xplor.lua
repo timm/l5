@@ -16,15 +16,14 @@ OPTIONS:
  -s  --seed  random number seed                     = 10019]]
 
 local betters,coerce,csv,data1,DATA,ent,fmt,is,kap,keys,locals,lt,map,med,norm
-local o,of,oo,ordered,per,push,sd,some1,COL,sort,sorted 
+local o,of,oo,ordered,per,push,sd,some1,COL,sort,sorted 
 local function obj(s,    t,i,new) 
   local isa=setmetatable
   function new(k,...) i=isa({},k); return isa(t.new(i,...) or i,k) end
   t={__tostring = function(x) return s..o(x) end}
   t.__index = t;return isa(t,{__call=new}) end
 
-local COL, DATA = obj"COL", obj"DATA"
-
+local DATA,NUM,SYM = obj"DATA", obj"NUM", obj"SYM"
 -- ## DATA ----- ----- ---------------------------------------------------------
 local is={}
 function is.skip(s)   return s:find":$"     end
@@ -34,8 +33,8 @@ function is.klass(s)  return s:find"!$"     end
 function is.weight(s) return s:find"-$" and -1 or 1 end
 
 function DATA:new(t) 
-   return {names=t,rows={},
-           cols=kap(t,function(k,v) return COL(k,t[k]) end)} end
+   return {names=t,rows={}, cols=kap(t,
+    function(k,v) return (is.num(t[k]) and NUM or SYM)(k,t[k]) end)} end
 
 function DATA:of(fun)
   return map(self.cols,function(c) if fun(c.name) then return c end end) end
@@ -62,33 +61,112 @@ function DATA:bestRest(m,n,     best,rest,rows)
   for i = m+1,#rows, (#rows - m+1)/(n*m)//1 do push(rest, rows[i]) end
   return best, rest end 
  
--- ## COL  ----- ----- ---------------------------------------------------------
-function COL:new(n,s) --- constructor for summary of columns
-  return  {w=is.weight(s or ""),
-             at=n,name=s,_has={},isSorted=false,counts=nil,n=0} end
+function DATA:xys(col,datas)
+  local n,all,xys = 0,{},{}
+  for y,data in pairs(datas) do
+    for _,row in pairs(data.rows) do
+      local x = row[col.at]
+      if x=="?" then
+        n = n+1
+        local bin = col:discretize(x) 
+        xys[bin] = xys[bin] or push(all, XY(col.at,col.txt,x)) 
+        xys[bin]:add(x,y) end end end
+  all = sort(all,lt"xlo")
+  return col:merge(all, n^the.Min) end
 
-function COL:add(x,    pos) --- keep, at most, `the.Some` items
+-- ## NUM  ----- ----- ---------------------------------------------------------
+function NUM:new(n,s) --- constructor for summary of columns
+  n,s = n or 0, s or ""
+  return {n=0, at=n, name=s, mu=0, m2=0, lo=1E32, hi=-1E32, w=is.weight(s)} end
+
+function NUM:add(x) --- Update 
+  if x ~= "?" then
+    self.n  = self.n + 1
+    local d = x - self.mu
+    self.mu = self.mu + d/self.n
+    self.m2 = self.m2 + d*(x - self.mu)
+    self.sd = self.n<0 and 0 or (self.m2<0 and 0 or (self.m2/(self.n-1))^.5)
+    if x > self.hi then self.hi = x end
+    if x < self.lo then self.lo = x end end end
+
+function NUM:norm(n) --- normalize `n` 0..1 (in the range lo..hi)
+  local lo,hi = self.lo,self.hi
+  return (hi - lo) < 1E-9 and 0 or (n - lo)/(hi - lo) end
+
+function NUM:discretize(n,    tmp) --- discretize `Num`s,rounded to (hi-lo)/bins
+  tmp = (self.hi - self.lo)/(the.bins - 1)
+  return self.hi == self.lo and 1 or math.floor(n/tmp+.5)*tmp end 
+
+function NUM:merge(xys,nMin,    tryMerge) --- Can we combine any adjacent ranges?
+  function tryMerge(t,    n,u,merged)
+    while n <= #t do
+      local a,b       = t[n], t[n+1]
+      local mergedSym = n < #t and a.y:simpler(b.y, nMin)
+      u[1+#u]         = mergedSym or XY(col.at,col.name,a.xlo,b.xhi,mergedSym)
+      n               = mergedSym and n+2 or n+1 end
+    return #t == #u and t or tryMerge(u) end
+  xys = tryMerging(xys,1,{})
+  for n = 2,#xys do xys[n].xlo = xys[n-1].xhi end   -- fill in any gaps
+  xys[1].xlo, xys[#xys].xhi = -math.huge, math.huge -- extend to +/- infinity
+  return xys end
+
+-- ## SYM  ----- ----- ---------------------------------------------------------
+function SYM:new(n,s) --- summarize stream of symbols
+  return {n=0, at=n, name=s, mode=nil, most=-1, has={}} end
+
+function SYM:add(s,  n) --- `n` times (default=1), update `self` with `s` 
+  if s~="?" then 
+    inc = n or 1
+    self.n  = self.n + inc
+    self.has[s] = inc + (self.has[s] or 0) 
+    if self.has[s] > self.most then
+      self.most,self.mode = self.has[s], s end end end
+
+function SYM:discretize(x) return x end 
+function SYM:merge(t)      return t end 
+
+function Sym:entropy(     e,fun) --- entropy
+  function fun(p) return p*math.log(p,2) end
+  e=0; for _,n in pairs(self.has) do if n>0 then e=e-fun(n/self.n) end end
+  return e end
+
+function Sym:simpler(sym,tiny) --- returns self+sym if whole better than parts
+  local whole = Sym(self.at, self.txt)
+  for x,n in pairs(self.has) do whole:add(x,n) end
+  for x,n in pairs(sym.has)  do whole:add(x,n) end
+  local e1, e2, e12 = self:entropy(), sym:entropy(), whole:entropy()
+  if self.n < tiny or sym.n < tiny or e12 <= (self.n*e1 + sym.n*e2)/whole.n then 
+    return whole end end
+
+-- ## XY  ----- ----- ----------------------------------------------------------
+function XY:new(n,s,nlo,nhi,sym) --- Keep the `y` values from `xlo` to `xhi`
+  return {txt= s,                    -- name of this column
+          at  = n,                   -- offset for this column
+          xlo = nlo,                 -- min x seen so far
+          xhi = nhi or nlo,          -- max x seen so far
+          y   = sym or Sym(n,s)} end -- y symbols see so far
+
+function XY:__tostring() --- print
+  local x,lo,hi,big = self.txt, self.xlo, self.xhi, math.huge
+  if     lo ==  hi  then return fmt("%s == %s", x, lo)
+  elseif hi ==  big then return fmt("%s >  %s", x, lo)
+  elseif lo == -big then return fmt("%s <= %s", x, hi)
+  else                   return fmt("%s <  %s <= %s", lo,x,hi) end end
+
+function XY:add(x,y) --- Update `xlo`,`xhi` to cover `x`. And add `y` to `self.y`
   if x~="?" then
-    self.n = self.n+1
-    if #self._has < the.Some then pos = 1 + (#self._has)
-    elseif math.random()<the.Some/self.n then pos=math.random(#self._has) end
-    if pos then self.freq, self.isSorted = nil,nil
-                self._has[pos]= x end end end
+    if x < self.xlo then self.xlo=x end
+    if x > self.xhi then self.xhi=x end
+    self.y:add(y) end end
 
-function COL:sorted() --- return `self`'s contents, sorted
-  if not self.isSorted then table.sort(self._has) end
-  self.isSorted=true
-  return self._has end
+function XY:select(row,     x) --- Return true if `row` selected by `self`
+  x = row[self.at]
+  if x =="?" then return true end ------------------ assume yes for unknowns
+  if self.xlo==self.xhi and v==self.xlo then return true end     -- for symbols
+  if self.xlo < x and x <= self.xhi     then return true end end -- for numerics
 
-function COL:counted()
-  if not self.counts then
-    self.counts={}
-    for _,x in pairs(self._has) do self.counts=1+(self.counts[x]+0) end end
-  return counts end
-
-function COL:norm(n,    t) --- normalize `n` 0..1 (in the range lo..hi)
-  t=self:sorted()
-  return (t[#t] - t[1]) < 1E-9 and 0 or (n-t[1])/(t[#t] - t[1]) end
+function XY:selects(rows) --- Return subset of `rows` selected by `self`
+  return map(rows,function(row) if self:select(row) then return row end end) end
 
 -- -----------------------------------------------------------------------------
 -- ## Lib
@@ -172,37 +250,6 @@ function load(src,  data,     row)
   function fun(t) if data then data:add(t) else data=DATA(t) end end
   if type(src)=="table" then csv(src, fun) else map(src or {}, fun) end
   return data end
-
-function DATA:contrast(col,datas,      nump)
-  local nunp,n,all,xys = is.num(col.name),0,{},{}
-  for y,data in pairs(datas) do
-    for _,row in pairs(data.rows) do
-      local x = row[col.at]
-      n = n+1
-      local bin = nump and discretize(col,x) or x
-      xys[bin] = xys[bin] or push(all, XY(col.at,col.txt,x)) 
-      xys[bin]:add(x,y) end end 
-  table.sort(all,lt"xlo")
-  return nump and merge(all, n^the.Min) and all end
-
-function discretize(col,n,    t,tmp) --- discretize `Num`s,rounded to (hi-lo)/bins
-  t = col:sorted()
-  tmp = (t[#t] - t[1])/(the.bins - 1)
-  return t[#t]==t[1] and 1 or math.floor(n/tmp+.5)*tmp end 
-
-function merge(xys,nMin,    tryMerging) --- Can we combine any adjacent ranges?
-  function tryMerging(xys0,    n,xys1,merged)
-    n,xys1 = 1,{}
-    while n <= #xys0 do
-      local mergedXY  = n<#xys0 and xys0[n]:merged(xys0[n+1], nMin)
-      xys1[ 1+#xys1 ] = mergedXY or xys0[n]
-      n               = mergedXY and n+2 or n+1 end
-    return #xys1 < #xys1 and tryMerging(xys1) end
-  xys = tryMerging(xys)
-  for n = 2,#xys do xys[n].xlo = xys[n-1].xhi end   -- fill in any gaps
-  xys[1].xlo, xys[#xys].xhi = -math.huge, math.huge -- extend to +/- infinity
-  return xys end
-
 -- -----------------------------------------------------------------------------
 local go={}
 function go.csv(      data)
