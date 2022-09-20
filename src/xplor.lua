@@ -16,33 +16,83 @@ OPTIONS:
  -S  --Some  How many items to keep per row      = 256
  -s  --seed  random number seed                  = 10019]]
 
-local betters,coerce,csv,data1,DATA,ent,fmt,is,kap,keys,locals,lt,map,med,norm
-local o,of,oo,ordered,per,push,sd,some1,COL,sort,sorted 
-local function obj(s,    t,i,new) 
+local betters,coerce,csv,data1,fmt,is,kap,keys,locals,lt,map,med
+local o,obj,oo,ordered,per,push,sd,sort 
+local lib={betters=betters,coerce=coerce,csv=csv,fmt=fmt,is=is,
+           kap=kap, keys=leys,lt=lt,map=map,med=med,
+           o=o,obj=obj,oo=oo,ordered=ordered,per=per,push=push,
+           sd=sd,some=some,sort=sort}
+
+function obj(s,    t,i,new) 
   local isa=setmetatable
   function new(k,...) i=isa({},k); return isa(t.new(i,...) or i,k) end
   t={__tostring = function(x) return s..o(x) end}
   t.__index = t;return isa(t,{__call=new}) end
 
-local DATA,NUM,SYM = obj"DATA", obj"NUM", obj"SYM"
--- ## DATA ----- ----- ---------------------------------------------------------
-local is={}
+local COLS,DATA,NUM,SYM = obj"COLS", obj"DATA", obj"NUM", obj"SYM"
+
+function DATA:new(t) --- constructor
+   return  {names=t, 
+           rows={}, 
+           cols=COLS(t) } end
+
+function COLS:new(t)
+  return self:columns({names=t, 
+                       klass=nil,
+                       all={}, 
+                       x={}, 
+                       y={}}) end 
+
+function NUM:new(n,s) --- constructor for summary of columns
+  n,s = n or 0, s or ""
+  return {n=0, 
+          at=n, 
+          name=s, 
+          mu=0, m2=0, 
+          lo=1E32, hi=-1E32, 
+           w=is.weight(s)} end
+
+function SYM:new(n,s) --- summarize stream of symbols
+  return {n=0, at=n, name=s, 
+          mode=nil, 
+          most=-1, 
+          has={}} end
+
+function XY:new(n,s,nlo,nhi,sym) --- Keep the `y` values from `xlo` to `xhi`
+  return {txt= s,                    -- name of this column
+          at  = n,                   -- offset for this column
+          xlo = nlo,                 -- min x seen so far
+          xhi = nhi or nlo,          -- max x seen so far
+          y   = sym or Sym(n,s)} end -- y symbols see so far
+
+-- ## COLS ----- ----- ---------------------------------------------------------
 function is.skip(s)   return s:find":$"     end
 function is.num(s)    return s:find"^[A-Z]" end
 function is.goal(s)   return s:find"[!+-]$" end
 function is.klass(s)  return s:find"!$"     end
 function is.weight(s) return s:find"-$" and -1 or 1 end
 
-function DATA:new(t) --- constructor
-   return {names=t,rows={}, cols=kap(t,
-    function(k,v) return (is.num(t[k]) and NUM or SYM)(k,t[k]) end)} end
+function COLS:columns(cols) 
+  for n,s in pairs(cols.names) do
+    col = (is.num(s) and NUM or SYM)(n,s)
+    push(cols.all, col)
+    if not is.skip(s) then
+      if is.klass(s) then cols.klass= col end
+      push(is.goal(s) and cols.y and cols.x, col) end end 
+  return cols end
 
+function COLS:add(t)
+  for _,cols in pairs({self.x, self.y}) do
+    for _,col in pairs(cols) do
+       col:add(t[col.at]) end end end
+
+-- ## DATA ----- ----- ---------------------------------------------------------
 function DATA:of(fun) --- return columns that satisfy `fun`
   return map(self.cols,function(c) if fun(c.name) then return c end end) end
 
-function DATA:add(t) --- return data, incremented with row `t`
+function DATA:add(t) --- add a new row, update column summaries.
   push(self.rows,t)
-  map(self.cols, function(col) col:add(t[col.at]) end) end
+  self.cols:add(t) end
 
 function DATA:sorted(      order,goals) --- sort `self.rows`
   goals = self:of(is.goal)
@@ -76,10 +126,6 @@ function DATA:xys(col,datas)
   return col:merge(all, n^the.Min) end
 
 -- ## NUM  ----- ----- ---------------------------------------------------------
-function NUM:new(n,s) --- constructor for summary of columns
-  n,s = n or 0, s or ""
-  return {n=0, at=n, name=s, mu=0, m2=0, lo=1E32, hi=-1E32, w=is.weight(s)} end
-
 function NUM:add(x) --- Update 
   if x ~= "?" then
     self.n  = self.n + 1
@@ -98,23 +144,21 @@ function NUM:discretize(n,    tmp) --- discretize `Num`s,rounded to (hi-lo)/bins
   tmp = (self.hi - self.lo)/(the.bins - 1)
   return self.hi == self.lo and 1 or math.floor(n/tmp+.5)*tmp end 
 
-function NUM:merge(xys,nMin,    tryMerge) --- Can we combine any adjacent ranges?
-  function tryMerge(t,    n,u,merged)
+function NUM:merge(xys,nMin,    try2Merge) --- Can we combine any adjacent ranges?
+  function try2Merge(t,    n,u,merged)
     while n <= #t do
       local a,b       = t[n], t[n+1]
       local mergedSym = n < #t and a.y:simpler(b.y, nMin)
       u[1+#u]         = mergedSym or XY(col.at,col.name,a.xlo,b.xhi,mergedSym)
       n               = mergedSym and n+2 or n+1 end
-    return #t == #u and t or tryMerge(u) end
-  xys = tryMerging(xys,1,{})
+    return #t == #u and t or look4Merges(u) 
+  end --------------------
+  xys = try2Merge(xys,1,{})
   for n = 2,#xys do xys[n].xlo = xys[n-1].xhi end   -- fill in any gaps
   xys[1].xlo, xys[#xys].xhi = -math.huge, math.huge -- extend to +/- infinity
   return xys end
 
 -- ## SYM  ----- ----- ---------------------------------------------------------
-function SYM:new(n,s) --- summarize stream of symbols
-  return {n=0, at=n, name=s, mode=nil, most=-1, has={}} end
-
 function SYM:add(s,  n) --- `n` times (default=1), update `self` with `s` 
   if s~="?" then 
     inc = n or 1
@@ -131,7 +175,7 @@ function Sym:entropy(     e,fun) --- entropy
   e=0; for _,n in pairs(self.has) do if n>0 then e=e-fun(n/self.n) end end
   return e end
 
-function Sym:simpler(sym,tiny) --- returns self+sym if whole better than parts
+function Sym:simpler(sym,tiny) --- replace self? is self+sym simpler than parts?
   local whole = Sym(self.at, self.txt)
   for x,n in pairs(self.has) do whole:add(x,n) end
   for x,n in pairs(sym.has)  do whole:add(x,n) end
@@ -140,13 +184,6 @@ function Sym:simpler(sym,tiny) --- returns self+sym if whole better than parts
     return whole end end
 
 -- ## XY  ----- ----- ----------------------------------------------------------
-function XY:new(n,s,nlo,nhi,sym) --- Keep the `y` values from `xlo` to `xhi`
-  return {txt= s,                    -- name of this column
-          at  = n,                   -- offset for this column
-          xlo = nlo,                 -- min x seen so far
-          xhi = nhi or nlo,          -- max x seen so far
-          y   = sym or Sym(n,s)} end -- y symbols see so far
-
 function XY:__tostring() --- print
   local x,lo,hi,big = self.txt, self.xlo, self.xhi, math.huge
   if     lo ==  hi  then return fmt("%s == %s", x, lo)
@@ -167,9 +204,9 @@ function XY:select(row,     x) --- Return true if `row` selected by `self`
   if self.xlo < x and x <= self.xhi     then return true end end -- for numerics
 
 function XY:selects(rows) --- Return subset of `rows` selected by `self`
-  return map(rows,function(row) if self:select(row) then return row end end) end
+  return map(rows,function(row) if self:select(row) then return row end end) end
 
--- -----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
 -- ## Lib
 -- ### Maths
 function per(t,p) --- return the pth (0..1) item of `t`.
@@ -237,21 +274,21 @@ function keys(t) --- Return keys of `t`, sorted (skip any with prefix  `_`)
   return sort(kap(t,function(key,_)  
                 if tostring(key):sub(1,1) ~= "_" then return key end end)) end
 
-function locals () --- Return a list of local variables.
-  local i,t = 1,{}
-  while true do
-    local k,v = debug.getlocal(2, i)
-    if not k then break end
-    if k:sub(1,1) ~= "_" then t[k]=v end
-    i = i + 1 end
-  return t end
-
 -- ### Misc
 function load(src,  data,     row)
   function fun(t) if data then data:add(t) else data=DATA(t) end end
   if type(src)=="table" then csv(src, fun) else map(src or {}, fun) end
-  return data end
--- -----------------------------------------------------------------------------
+  return data end
+
+function cli(t) --- update table slots via command-line flags
+  for k,v in pairs(t) do
+    local v=tostring(v)
+    for n,x in ipairs(arg) do
+      if x=="-"..(k:sub(1,1)) or x=="--"..k then
+         v = v=="false" and "true" or v=="true" and "false" or arg[n+1] end end 
+  t[k] = coerce(v) end end
+
+-- -----------------------------------------------------------------------------
 local go={}
 function go.csv(      data)
   csv(the.file, function(t) if data then data:add(t) else data=DATA(t) end end)
@@ -272,16 +309,16 @@ function go.contrast(    data)
 end
 
 -- -----------------------------------------------------------------------------
+-- do this next line, always
 help:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)", function(k,v) 
-  for n,x in ipairs(arg) do
-    if x=="-"..(k:sub(1,1)) or x=="--"..k then
-      v = v=="false" and "true" or v=="true" and "false" or arg[n+1] end end
-  the[k]=coerce(v) end)
+                                                           the[k]=coerce(v) end)
 
-if the.help then os.exit(print(help)) end
-
---go.csv()
+the=cli(the)                              -- update `the` from command line
+if the.help then os.exit(print(help)) end -- maybe print help
+--go.csv()                                -- run demos
 --go.sorted()
 go.bestRest()
+
+-- do these next two line, always
 for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end
-local t=locals(); return t
+return {lib=lib, the=the, COLS=COLS,DATA=DATA,NUM=NUM,SYM=SYM,XY=XY} 
