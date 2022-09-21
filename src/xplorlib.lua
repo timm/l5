@@ -3,7 +3,6 @@ local l ={}
 -- ----------------------------------------------------------------------------
 -- ## Maths
 -- l.per(t,p)            : return the pth (0..1) item of `t`.
--- l.ent(t)              : entropy of a list of counts
 --
 -- ## Lists
 -- l.copy(t, deep)       : copy a list (shallow copy if `deep` is false)
@@ -46,11 +45,6 @@ function l.obj(s,    t,i,new)
 function l.per(t,p) --- return the pth (0..1) item of `t`.
   p=math.floor(((p or .5)*#t)+.5); return t[math.max(1,math.min(#t,p))] end
 
-function l.ent(t) --- entropy of a list of counts
-  function fun(p) return p*math.log(p,2) end
-  e=0; for _,n in pairs(t) do if n>0 then e=e-fun(n/self.n) end end
-  return e end
- 
 -- ## Lists
 function l.copy(t, deep,    u) --- copy a list (shallow copy if `deep` is false)
   if type(t) ~= "table" then return t end
