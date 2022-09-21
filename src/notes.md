@@ -1,3 +1,10 @@
+coding in he small is different to coding in the large. so other principles (architecture,
+secutiry anit-patterns) will drive most of your own high level thinking (as well as how
+you dicuss this design with your peers). but when the rubber hits the road and keys hit the keybard, here are some
+things to think abou
+
+have an rapid ide
+
 dialog indepndence: strings on the creen in tests, not in the core classes
 
 lambda bodies, set operations, 

@@ -16,50 +16,49 @@ OPTIONS:
  -r  --rest  expansion best to rest              = 5
  -S  --Some  How many items to keep per row      = 256
  -s  --seed  random number seed                  = 10019]]
-
---[[
-## Classes
-DATA(t)               : constructor
-NUM(n,s)              : constructor for summary of columns
-SYM(n,s)              : summarize stream of symbols
-XY(n,s,nlo,nhi,sym)   : Keep the `y` values from `xlo` to `xhi`
-
-## DATA
-DATA:add(t)           : add a new row, update column summaries.
-DATA:sorted()         : sort `self.rows`
-DATA:bestRest(m,n)    : divide `self.rows`
-
-## NUM
-NUM:add(x)            : Update
-NUM:norm(n)           : normalize `n` 0..1 (in the range lo..hi)
-NUM:discretize(n)     : discretize `Num`s,rounded to (hi-lo)/bins
-NUM:merge(xys,nMin)   : Can we combine any adjacent ranges?
-
-## SYM
-SYM:add(s)            : `n` times (default=1), update `self` with `s`
-SYM:entropy()         : entropy
-SYM:simpler(sym,tiny) : is `self+sym` simpler than its parts?
-
-## XY
-XY:add(x,y)           : Update `xlo`,`xhi` to cover `x`. And add `y` to `self.y`
-XY:select(row)        : Return true if `row` selected by `self`
-XY:selects(rows)      : Return subset of `rows` selected by `self`
-
-CONVENTIONS: (1) The help string at top of file is parsed to create
-the settings.  (2) Also, all the `go.x` functions can be run with
-`lua xplor.lua -g x`.  (3) Lastly, this code's function arguments
-have some type hints:
-
-2 blanks              : 2 blanks denote optional arguments
-4 blanks              : 4 blanks denote local arguments
-n                     : prefix for numerics
-s                     : prefix for strings
-is                    : prefix for booleans
-fun                   : prefix for functions
-suffix s              : list of thing (so names is list of strings)
-function SYM:new()    : constructor for class e.g. SYM
-e.g. sym              : denotes an instance of class constructor
---]]
+-- ----------------------------------------------------------------------------
+-- ## Classes
+-- DATA(t)               : constructor
+-- NUM(n,s)              : constructor for summary of columns
+-- SYM(n,s)              : summarize stream of symbols
+-- XY(n,s,nlo,nhi,sym)   : Keep the `y` values from `xlo` to `xhi`
+--
+-- ## DATA
+-- DATA:add(t)           : add a new row, update column summaries.
+-- DATA:sorted()         : sort `self.rows`
+-- DATA:bestRest(m,n)    : divide `self.rows`
+--
+-- ## NUM
+-- NUM:add(x)            : Update
+-- NUM:norm(n)           : normalize `n` 0..1 (in the range lo..hi)
+-- NUM:discretize(n)     : discretize `Num`s,rounded to (hi-lo)/bins
+-- NUM:merge(xys,nMin)   : Can we combine any adjacent ranges?
+--
+-- ## SYM
+-- SYM:add(s)            : `n` times (default=1), update `self` with `s`
+-- SYM:entropy()         : entropy
+-- SYM:simpler(sym,tiny) : is `self+sym` simpler than its parts?
+--
+-- ## XY
+-- XY:add(x,y)           : Update `xlo`,`xhi` to cover `x`. And add `y` to `self.y`
+-- XY:select(row)        : Return true if `row` selected by `self`
+-- XY:selects(rows)      : Return subset of `rows` selected by `self`
+-- ----------------------------------------------------------------------------
+-- CONVENTIONS: (1) The help string at top of file is parsed to create
+-- the settings.  (2) Also, all the `go.x` functions can be run with
+-- `lua xplor.lua -g x`.  (3) Lastly, this code's function arguments
+-- have some type hints:
+--
+-- 2 blanks              : 2 blanks denote optional arguments
+-- 4 blanks              : 4 blanks denote local arguments
+-- n                     : prefix for numerics
+-- s                     : prefix for strings
+-- is                    : prefix for booleans
+-- fun                   : prefix for functions
+-- suffix s              : list of thing (so names is list of strings)
+-- function SYM:new()    : constructor for class e.g. SYM
+-- e.g. sym              : denotes an instance of class constructor
+-- ----------------------------------------------------------------------------
 local betters,coerce,csv           = l.betters, l.coerce, l.csv
 local fmt,kap,keys,lt,map,o        = l.fmt,l.kap,l.keys,l.lt,l.map,l.o
 local obj,oo,ordered,per,push,sort = l.obj,l.oo,l.ordered,l.per,l.push,l.sort 
@@ -229,11 +228,11 @@ function XY:__tostring() --- print
   elseif lo == -big then return fmt("%s <= %s", x, hi)
   else                   return fmt("%s <  %s <= %s", lo,x,hi) end end
 
-function XY:add(x,y) --- Update `xlo`,`xhi` to cover `x`. And add `y` to `self.y`
-  if x~="?" then
-    if x < self.xlo then self.xlo=x end
-    if x > self.xhi then self.xhi=x end
-    self.y:add(y) end end
+function XY:add(nx,sy) --- Extend `xlo`,`xhi` to cover `x`. Add `y` to `self.y`
+  if nx~="?" then
+    if nx < self.xlo then self.xlo=nx end
+    if nx > self.xhi then self.xhi=nx end
+    self.y:add(sy) end end
 
 function XY:select(row,     x) --- Return true if `row` selected by `self`
   x = row[self.at]
