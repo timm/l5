@@ -56,6 +56,8 @@ OPTIONS:
 -- is                    : prefix for booleans
 -- fun                   : prefix for functions
 -- suffix s              : list of thing (so names is list of strings)
+-- t                     : a list of any kind of contents
+-- u                     : often used for results generated from t
 -- function SYM:new()    : constructor for class e.g. SYM
 -- e.g. sym              : denotes an instance of class constructor
 -- ----------------------------------------------------------------------------
@@ -134,16 +136,15 @@ function DATA:add(t) --- add a new row, update column summaries.
   self.cols:add(t) end
 
 function DATA:sorted() --- sort `self.rows`
-    return sort(self.rows, 
-                function(row1,row2,    s1,s2,x,y)
-                  s1,s2,x,y=0,0
-                  for _,col in pairs(self.cols.y) do
-                    x = col:norm(row1[col.at])
-                    y = col:norm(row2[col.at])
-                    s1= s1 - math.exp(col.w * (x-y)/#self.cols.y)
-                    s2= s2 - math.exp(col.w * (y-x)/#self.cols.y) end
-                  return s1/#self.cols.y < s2/#self.cols.y end) end
-                     
+    return sort(self.rows, function(row1,row2,    s1,s2,x,y)
+                             s1,s2,x,y=0,0
+                             for _,col in pairs(self.cols.y) do
+                               x = col:norm(row1[col.at])
+                               y = col:norm(row2[col.at])
+                               s1= s1 - math.exp(col.w * (x-y)/#self.cols.y)
+                               s2= s2 - math.exp(col.w * (y-x)/#self.cols.y) end
+                             return s1/#self.cols.y < s2/#self.cols.y end) end
+                             
 function DATA:bestRest(m,n,     best,rest,rows) --- divide `self.rows`
   best, rest, rows = {}, {}, self:sorted()
   for i = 1,m do push(best, rows[i]) end 
@@ -182,13 +183,13 @@ function NUM:discretize(n,    tmp) --- discretize `Num`s,rounded to (hi-lo)/bins
   return self.hi == self.lo and 1 or math.floor(n/tmp+.5)*tmp end 
 
 function NUM:merge(xys,nMin,    try2Merge) --- Can we combine any adjacent ranges?
-  function try2Merge(t,    n,u,merged)
+  function try2Merge(t,n,u)
     while n <= #t do
       local a,b = t[n], t[n+1]
       local ab  = n < #t and a.y:simpler(b.y, nMin)
       u[1+#u]   = ab or XY(col.at, col.name, a.xlo, b.xhi, ab)
       n         = ab and n+2 or n+1 end
-    return #t == #u and t or try2Merge(u) 
+    return #t == #u and t or try2Merge(u,1,{}) 
   end --------------------
   xys = try2Merge(xys,1,{})
   for n = 2,#xys do xys[n].xlo = xys[n-1].xhi end   -- fill in any gaps
