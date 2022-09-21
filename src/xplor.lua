@@ -168,7 +168,7 @@ function SYM:entropy(     e,fun) --- entropy
   e=0; for _,n in pairs(self.has) do if n>0 then e=e-fun(n/self.n) end end
   return e end
 
-function SYM:simpler(sym,tiny) --- replace self? is self+sym simpler than parts?
+function SYM:simpler(sym,tiny) --- is `self+sym` simpler than its parts?
   local whole = SYM(self.at, self.txt)
   for x,n in pairs(self.has) do whole:add(x,n) end
   for x,n in pairs(sym.has)  do whole:add(x,n) end
