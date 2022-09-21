@@ -123,8 +123,9 @@ function COLS:add(t)
     for _,col in pairs(cols) do
        col:add(t[col.at]) end end end
 
-function load(src,  data,    fun)
-  function fun(t) if data then data:add(t) else data=DATA(t) end end
+function load(src,  data) --- if string(src), read file. else, load from list
+  local function fun(t)  --- first row is special (defines the DATA instance)
+    if data then data:add(t) else data=DATA(t) end end
   if type(src)=="string" then csv(src, fun) else map(src or {}, fun) end
   return data end
 
