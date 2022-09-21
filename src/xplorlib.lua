@@ -1,36 +1,35 @@
--- ----------------------------------------------------------------------------
 local b4={}; for k,v in pairs(_ENV) do b4[k]=v end;
 local l ={}
 --[[
 ## Maths
-| l.per(t,p)            | return the pth (0..1) item of `t`.                     |
-| l.ent(t)              | entropy of a list of counts                            |
+l.per(t,p)            : return the pth (0..1) item of `t`.                    
+l.ent(t)              : entropy of a list of counts                           
 
 ## Lists
-| l.copy(t, deep)       | copy a list (shallow copy if `deep` is false)          |
-| l.push(t,x)           | push `x` onto `t`, return `x`                          |
+l.copy(t, deep)       : copy a list (shallow copy if `deep` is false)         
+l.push(t,x)           : push `x` onto `t`, return `x`                         
 
 ### Sorting
-| l.sort(t,fun)         | return `t`, sorted using function `fun`.               |
-| l.lt(x)               | return function that sorts ascending on key `x`        |
+l.sort(t,fun)         : return `t`, sorted using function `fun`.              
+l.lt(x)               : return function that sorts ascending on key `x`       
 
 ### String to thing
-| l.coerce(s)           | Parse `the` config settings from `help`.               |
-| l.csv(sFilename, fun) | call `fun` on csv rows.                                |
+l.coerce(s)           : Parse `the` config settings from `help`.              
+l.csv(sFilename, fun) : call `fun` on csv rows.                               
 
 ### Thing to String
-| l.fmt(str,...)        | emulate printf                                         |
-| l.oo(t)               | Print a table `t` (non-recursive)                      |
-| l.o(t)                | Generate a print string for `t` (non-recursive)        |
+l.fmt(str,...)        : emulate printf                                        
+l.oo(t)               : Print a table `t` (non-recursive)                     
+l.o(t)                : Generate a print string for `t` (non-recursive)       
 
 ## Meta
-| l.map(t,fun)          | Return `t`, filter through `fun(value)` (skip nils)    |
-| l.kap(t,fun)          | Return `t` and its size, filtered via `fun(key,value)` |
-| l.keys(t)             | Return keys of `t`, sorted (skip any with prefix  `_`) |
+l.map(t,fun)          : Return `t`, filter through `fun(value)` (skip nils)   
+l.kap(t,fun)          : Return `t` and its size, filtered via `fun(key,value)`
+l.keys(t)             : Return keys of `t`, sorted (skip any with prefix  `_`)
 
 ## Settings
-| l.settings(txt)       | parse help string to extract settings                  |
-| l.cli(t)              | update table slots via command-line flags              |
+l.settings(txt)       : parse help string to extract settings                 
+l.cli(t)              : update table slots via command-line flags             
 --]]
 
 -- ## Linting

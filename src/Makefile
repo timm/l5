@@ -33,7 +33,8 @@ pdfs:
 
 txts : 
 	@figlet -W -f larry3d xplor > _xplor.lua; cat xplor.lua >> _xplor.lua
-	$(foreach f,xplorlib.lua xplorgo.lua, (figlet -W -f contessa $f >> _xplor.lua ; cat $f >> _xplor.lua);)
+	#$(foreach f,xplorlib.lua xplorgo.lua, (figlet -W -f contessa $f >> _xplor.lua ; cat $f >> _xplor.lua);)
+	$(foreach f,xplorlib.lua xplorgo.lua, (figlet -W -f contessa $f ; cat $f;) >> _xplor.lua;)
 	$(MAKE) ~/tmp/_xplor.pdf
 
 ~/tmp/%.txt: %.lua

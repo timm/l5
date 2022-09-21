@@ -7,7 +7,6 @@
  \//\/_/  \ \ \/    \/____/ \/___/   \/_/ 
            \ \_\                          
             \/_/                          
---
 local l=require"xplorlib"
 local the= l.settings[[
 
@@ -29,48 +28,46 @@ OPTIONS:
 
 --[[
 ## Classes
-| DATA(t)               | constructor                                              |
-| NUM(n,s)              | constructor for summary of columns                       |
-| SYM(n,s)              | summarize stream of symbols                              |
-| XY(n,s,nlo,nhi,sym)   | Keep the `y` values from `xlo` to `xhi`                  |
+DATA(t)               : constructor
+NUM(n,s)              : constructor for summary of columns
+SYM(n,s)              : summarize stream of symbols
+XY(n,s,nlo,nhi,sym)   : Keep the `y` values from `xlo` to `xhi`
 
 ## DATA
-| DATA:add(t)           | add a new row, update column summaries.                  |
-| DATA:sorted()         | sort `self.rows`                                         |
-| DATA:bestRest(m,n)    | divide `self.rows`                                       |
+DATA:add(t)           : add a new row, update column summaries.
+DATA:sorted()         : sort `self.rows`
+DATA:bestRest(m,n)    : divide `self.rows`
 
 ## NUM
-| NUM:add(x)            | Update                                                   |
-| NUM:norm(n)           | normalize `n` 0..1 (in the range lo..hi)                 |
-| NUM:discretize(n)     | discretize `Num`s,rounded to (hi-lo)/bins                |
-| NUM:merge(xys,nMin)   | Can we combine any adjacent ranges?                      |
+NUM:add(x)            : Update
+NUM:norm(n)           : normalize `n` 0..1 (in the range lo..hi)
+NUM:discretize(n)     : discretize `Num`s,rounded to (hi-lo)/bins
+NUM:merge(xys,nMin)   : Can we combine any adjacent ranges?
 
 ## SYM
-| SYM:add(s)            | `n` times (default=1), update `self` with `s`            |
-| SYM:entropy()         | entropy                                                  |
-| SYM:simpler(sym,tiny) | is `self+sym` simpler than its parts?                    |
+SYM:add(s)            : `n` times (default=1), update `self` with `s`
+SYM:entropy()         : entropy
+SYM:simpler(sym,tiny) : is `self+sym` simpler than its parts?
 
 ## XY
-| XY:add(x,y)           | Update `xlo`,`xhi` to cover `x`. And add `y` to `self.y` |
-| XY:select(row)        | Return true if `row` selected by `self`                  |
-| XY:selects(rows)      | Return subset of `rows` selected by `self`               |
+XY:add(x,y)           : Update `xlo`,`xhi` to cover `x`. And add `y` to `self.y`
+XY:select(row)        : Return true if `row` selected by `self`
+XY:selects(rows)      : Return subset of `rows` selected by `self`
 
 CONVENTIONS: (1) The help string at top of file is parsed to create
 the settings.  (2) Also, all the `go.x` functions can be run with
 `lua xplor.lua -g x`.  (3) Lastly, this code's function arguments
 have some type hints:
 
-| What               | Notes                                       |
-|:------------------:|---------------------------------------------|
-| 2 blanks           | 2 blanks denote optional arguments          |
-| 4 blanks           | 4 blanks denote local arguments             |
-| n                  | prefix for numerics                         |
-| s                  | prefix for strings                          |
-| is                 | prefix for booleans                         |
-| fun                | prefix for functions                        |
-| suffix s           | list of thing (so names is list of strings) |
-| function SYM:new() | constructor for class e.g. SYM              |
-| e.g. sym           | denotes an instance of class constructor    |
+2 blanks              : 2 blanks denote optional arguments
+4 blanks              : 4 blanks denote local arguments
+n                     : prefix for numerics
+s                     : prefix for strings
+is                    : prefix for booleans
+fun                   : prefix for functions
+suffix s              : list of thing (so names is list of strings)
+function SYM:new()    : constructor for class e.g. SYM
+e.g. sym              : denotes an instance of class constructor
 --]]
 local betters,coerce,csv           = l.betters, l.coerce, l.csv
 local fmt,kap,keys,lt,map,o        = l.fmt,l.kap,l.keys,l.lt,l.map,l.o
@@ -266,34 +263,34 @@ local b4={}; for k,v in pairs(_ENV) do b4[k]=v end;
 local l ={}
 --[[
 ## Maths
-| l.per(t,p)            | return the pth (0..1) item of `t`.                     |
-| l.ent(t)              | entropy of a list of counts                            |
+l.per(t,p)            : return the pth (0..1) item of `t`.                    
+l.ent(t)              : entropy of a list of counts                           
 
 ## Lists
-| l.copy(t, deep)       | copy a list (shallow copy if `deep` is false)          |
-| l.push(t,x)           | push `x` onto `t`, return `x`                          |
+l.copy(t, deep)       : copy a list (shallow copy if `deep` is false)         
+l.push(t,x)           : push `x` onto `t`, return `x`                         
 
 ### Sorting
-| l.sort(t,fun)         | return `t`, sorted using function `fun`.               |
-| l.lt(x)               | return function that sorts ascending on key `x`        |
+l.sort(t,fun)         : return `t`, sorted using function `fun`.              
+l.lt(x)               : return function that sorts ascending on key `x`       
 
 ### String to thing
-| l.coerce(s)           | Parse `the` config settings from `help`.               |
-| l.csv(sFilename, fun) | call `fun` on csv rows.                                |
+l.coerce(s)           : Parse `the` config settings from `help`.              
+l.csv(sFilename, fun) : call `fun` on csv rows.                               
 
 ### Thing to String
-| l.fmt(str,...)        | emulate printf                                         |
-| l.oo(t)               | Print a table `t` (non-recursive)                      |
-| l.o(t)                | Generate a print string for `t` (non-recursive)        |
+l.fmt(str,...)        : emulate printf                                        
+l.oo(t)               : Print a table `t` (non-recursive)                     
+l.o(t)                : Generate a print string for `t` (non-recursive)       
 
 ## Meta
-| l.map(t,fun)          | Return `t`, filter through `fun(value)` (skip nils)    |
-| l.kap(t,fun)          | Return `t` and its size, filtered via `fun(key,value)` |
-| l.keys(t)             | Return keys of `t`, sorted (skip any with prefix  `_`) |
+l.map(t,fun)          : Return `t`, filter through `fun(value)` (skip nils)   
+l.kap(t,fun)          : Return `t` and its size, filtered via `fun(key,value)`
+l.keys(t)             : Return keys of `t`, sorted (skip any with prefix  `_`)
 
 ## Settings
-| l.settings(txt)       | parse help string to extract settings                  |
-| l.cli(t)              | update table slots via command-line flags              |
+l.settings(txt)       : parse help string to extract settings                 
+l.cli(t)              : update table slots via command-line flags             
 --]]
 
 -- ## Linting

@@ -23,7 +23,7 @@ gawk '
               d[NR][i]=$i
               w[i] = length($i)>w[i] ? length($i) : w[i] } }
 END {
-  s="| %-"w[3]"s | %-"w[4]"s |\n" 
+  s="%-"w[3]"s : %-"w[4]"s\n" 
   for(i=1;i<=NR;i++) {
      if (d[i][1] && (d[i][1] != d[i-1][1]))  {
          print "\n## "  d[i][1] ;
@@ -40,5 +40,5 @@ END {
 function nch(n,ch,    s) {
   while(--n>=0) s = s ch
   return s } '
-     
-          
+
+
