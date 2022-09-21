@@ -1,9 +1,43 @@
+-- ----------------------------------------------------------------------------
 local b4={}; for k,v in pairs(_ENV) do b4[k]=v end;
 local l ={}
+--[[
+## Maths
+| l.per(t,p)            | return the pth (0..1) item of `t`.                     |
+| l.ent(t)              | entropy of a list of counts                            |
 
+## Lists
+| l.copy(t, deep)       | copy a list (shallow copy if `deep` is false)          |
+| l.push(t,x)           | push `x` onto `t`, return `x`                          |
+
+### Sorting
+| l.sort(t,fun)         | return `t`, sorted using function `fun`.               |
+| l.lt(x)               | return function that sorts ascending on key `x`        |
+
+### String to thing
+| l.coerce(s)           | Parse `the` config settings from `help`.               |
+| l.csv(sFilename, fun) | call `fun` on csv rows.                                |
+
+### Thing to String
+| l.fmt(str,...)        | emulate printf                                         |
+| l.oo(t)               | Print a table `t` (non-recursive)                      |
+| l.o(t)                | Generate a print string for `t` (non-recursive)        |
+
+## Meta
+| l.map(t,fun)          | Return `t`, filter through `fun(value)` (skip nils)    |
+| l.kap(t,fun)          | Return `t` and its size, filtered via `fun(key,value)` |
+| l.keys(t)             | Return keys of `t`, sorted (skip any with prefix  `_`) |
+
+## Settings
+| l.settings(txt)       | parse help string to extract settings                  |
+| l.cli(t)              | update table slots via command-line flags              |
+--]]
+
+-- ## Linting
 function l.rogues() 
   for k,v in pairs(_ENV) do if not b4[k] then print("?",k,type(v)) end end end
 
+-- ## Objects
 function l.obj(s,    t,i,new) 
   local isa=setmetatable
   function new(k,...) i=isa({},k); return isa(t.new(i,...) or i,k) end
@@ -27,14 +61,15 @@ function l.copy(t, deep,    u) --- copy a list (shallow copy if `deep` is false)
 function l.push(t,x)  --- push `x` onto `t`, return `x`
   table.insert(t,x); return x end
 
--- ## Sort
+-- ### Sorting
 function l.sort(t,fun) --- return `t`, sorted using function `fun`. 
   table.sort(t,fun); return t end
 
 function l.lt(x) --- return function that sorts ascending on key `x`
   return function(a,b) return a[x] < b[x] end end
 
--- ## String to thing
+-- ## Coercion
+-- ### String to thing
 function l.coerce(s,    fun) --- Parse `the` config settings from `help`.
   function fun(s1)
     if s1=="true"  then return true  end
@@ -47,10 +82,10 @@ function l.csv(sFilename, fun,      src,s,t) --- call `fun` on csv rows.
   while true do
     s = io.read()
     if   s 
-    then t = {}; for s1 in s:gmatch("([^,]+)") do t[1+#t]=l.coerce(s1) end; fun(t)
+    then t={}; for s1 in s:gmatch("([^,]+)") do t[1+#t]=l.coerce(s1) end; fun(t)
     else return io.close(src) end end end
 
--- ## Thing to String
+-- ### Thing to String
 function l.fmt(str,...) --- emulate printf
   return string.format(str,...) end
 
@@ -92,13 +127,7 @@ function l.cli(t) --- update table slots via command-line flags
   if t.help then os.exit(print("\n"..t._help)) end
   return t end 
 
--- ## Objects
-function l.obj(s,    t,i,new) 
-  local isa=setmetatable
-  function new(k,...) i=isa({},k); return isa(t.new(i,...) or i,k) end
-  t={__tostring = function(x) return s..l.o(x) end}
-  t.__index = t;return isa(t,{__call=new}) end
-
+-- ## Runtime
 function l.on(settings,funs,   fails,old)
   fails=0
   old = l.copy(settings)
@@ -111,4 +140,4 @@ function l.on(settings,funs,   fails,old)
   l.rogues()
   os.exit(fails) end
 
-return l
+return l

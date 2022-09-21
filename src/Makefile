@@ -31,8 +31,13 @@ pdfs:
 	@a2ps -o ~/tmp/all.ps -qBr -f 5 --columns 3-M letter --pro=color --line-numbers=1 --pretty-print=$R/etc/lua.ssh  -A virtual$g
 	ps2pdf ~/tmp/all.ps ~/tmp/all.pdf
 
+txts : 
+	@figlet -W -f larry3d xplor > _xplor.lua; cat xplor.lua >> _xplor.lua
+	$(foreach f,xplorlib.lua xplorgo.lua, (figlet -W -f contessa $f >> _xplor.lua ; cat $f >> _xplor.lua);)
+	$(MAKE) ~/tmp/_xplor.pdf
+
 ~/tmp/%.txt: %.lua
-	@gawk -f ../etc/comments.awk $<  |sort > $@
+	@bash  ../etc/comments.sh $<  > $@
 	@cat $@
 
 ~/tmp/%.pdf: %.lua  ## .lua ==> .pdf
@@ -42,7 +47,7 @@ pdfs:
 	@a2ps                   \
 		-Br                    \
 		-L 150                  \
-		-l 82                   \
+		-l 84                   \
 		--file-align=fill        \
 		--line-numbers=1          \
 		--borders=no               \
