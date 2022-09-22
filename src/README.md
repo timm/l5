@@ -1,3 +1,7 @@
+<img width='280' align=right src='https://fcit.usf.edu/matrix/wp-content/uploads/2016/12/Robot-11-C.png'>
+
+[xplor](#xplorlua) | [xplorlib](#xplorliblua) <hr>
+
 <pre>
 
 Xplor: Bayesian active learning
@@ -16,14 +20,6 @@ Options:
  -S  --Some  How many items to keep per row      = 256
  -s  --seed  random number seed                  = 10019
 </pre>
-
-<img width='280' align=right src='https://fcit.usf.edu/matrix/wp-content/uploads/2016/12/Robot-11-C.png'>
-
-<hr> 
-
-[xplor](#xplorlua) | [xplorlib](#xplorliblua) <hr>
-
-
 
 
 #	xplor.lua	
@@ -115,7 +111,7 @@ need to do the 2 space thing
 
 | What | Notes |
 |:---|:---|
-| l.copy(t:`tab`, isDeep:`bool`) | copy a list (shallow copy if `deep` is false) |
+| l.copy(t:`tab`, isDeep:`bool`) | copy a list (deep copy if `isDep`) |
 | l.push(t:`tab`, x)   | push `x` onto `t`, return `x` |
 
 
@@ -123,7 +119,7 @@ need to do the 2 space thing
 
 | What | Notes |
 |:---|:---|
-| l.sort(t:`tab`, fun:`fun`)  | return `t`, sorted using function `fun`.  |
+| l.sort(t:`tab`, fun:`fun`)  | return `t`, sorted using function `fun` |
 | l.lt(x)  | return function that sorts ascending on key `x` |
 
 
@@ -132,8 +128,8 @@ need to do the 2 space thing
 
 | What | Notes |
 |:---|:---|
-| l.coerce(s:`str`) | Parse `the` config settings from `help`. |
-| l.csv(sFilename:`str`, fun:`fun`) | call `fun` on csv rows. |
+| l.coerce(s:`str`) | Parse `the` config settings from `help` |
+| l.csv(sFilename:`str`, fun:`fun`) | call `fun` on csv rows |
 
 
 ### Thing to String	
