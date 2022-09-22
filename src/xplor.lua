@@ -135,16 +135,15 @@ function DATA:add(t) --- add a new row, update column summaries.
   self.cols:add(t) end
 
 function DATA:sorted() --- sort `self.rows`
-    return sort(self.rows, 
-                function(row1,row2,    s1,s2,x,y)
-                  s1,s2,x,y=0,0
-                  for _,col in pairs(self.cols.y) do
-                    x = col:norm(row1[col.at])
-                    y = col:norm(row2[col.at])
-                    s1= s1 - math.exp(col.w * (x-y)/#self.cols.y)
-                    s2= s2 - math.exp(col.w * (y-x)/#self.cols.y) end
-                  return s1/#self.cols.y < s2/#self.cols.y end) end
-                     
+    return sort(self.rows, function(row1,row2,    s1,s2,x,y)
+                             s1,s2,x,y=0,0
+                             for _,col in pairs(self.cols.y) do
+                               x = col:norm(row1[col.at])
+                               y = col:norm(row2[col.at])
+                               s1= s1 - math.exp(col.w * (x-y)/#self.cols.y)
+                               s2= s2 - math.exp(col.w * (y-x)/#self.cols.y) end
+                             return s1/#self.cols.y < s2/#self.cols.y end) end
+                             
 function DATA:bestRest(m,n,     best,rest,rows) --- divide `self.rows`
   best, rest, rows = {}, {}, self:sorted()
   for i = 1,m do push(best, rows[i]) end 
@@ -184,13 +183,13 @@ function NUM:discretize(n,    tmp) --- discretize `Num`s,rounded to (hi-lo)/bins
   return self.hi == self.lo and 1 or math.floor(n/tmp+.5)*tmp end 
 
 function NUM:merge(xys,nMin,    try2Merge) --- Can we combine any adjacent ranges?
-  function try2Merge(t,    n,u,merged)
+  function try2Merge(t,n,u)
     while n <= #t do
       local a,b = t[n], t[n+1]
       local ab  = n < #t and a.y:simpler(b.y, nMin)
       u[1+#u]   = ab or XY(col.at, col.name, a.xlo, b.xhi, ab)
       n         = ab and n+2 or n+1 end
-    return #t == #u and t or try2Merge(u) 
+    return #t == #u and t or try2Merge(u,1,{}) 
   end --------------------
   xys = try2Merge(xys,1,{})
   for n = 2,#xys do xys[n].xlo = xys[n-1].xhi end   -- fill in any gaps
@@ -230,11 +229,11 @@ function XY:__tostring() --- print
   elseif lo == -big then return fmt("%s <= %s", x, hi)
   else                   return fmt("%s <  %s <= %s", lo,x,hi) end end
 
-function XY:add(x,y) --- Update `xlo`,`xhi` to cover `x`. And add `y` to `self.y`
-  if x~="?" then
-    if x < self.xlo then self.xlo=x end
-    if x > self.xhi then self.xhi=x end
-    self.y:add(y) end end
+function XY:add(nx,sy) --- Extend `xlo`,`xhi` to cover `x`. Add `y` to `self.y`
+  if nx~="?" then
+    if nx < self.xlo then self.xlo=nx end
+    if nx > self.xhi then self.xhi=nx end
+    self.y:add(sy) end end
 
 function XY:select(row,     x) --- Return true if `row` selected by `self`
   x = row[self.at]
