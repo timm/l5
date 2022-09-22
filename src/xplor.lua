@@ -1,12 +1,12 @@
 local l=require"xplorlib"
 local the= l.settings[[
 
-XPLOR: Bayesian active learning
-(c) 2022 Tim Menzies <timm@ieee.org> BSD-2 license
+Xplor: Bayesian active learning
+(c) 2022 Tim Menzies <timm@ieee.org> Bsd-2 license
 
-USAGE: lua xplorgo.lua [OPTIONS]
+Usage: lua xplorgo.lua [Options]
 
-OPTIONS:
+Options:
  -f  --file  file with csv data                  = ../data/auto93.csv
  -g  --go    start-up example                    = nothing
  -h  --help  show help                           = false
@@ -45,7 +45,7 @@ XY:add(x,y)           : Update `xlo`,`xhi` to cover `x`. And add `y` to `self.y`
 XY:select(row)        : Return true if `row` selected by `self`
 XY:selects(rows)      : Return subset of `rows` selected by `self`
 
-CONVENTIONS: (1) The help string at top of file is parsed to create
+Conventions: (1) The help string at top of file is parsed to create
 the settings.  (2) Also, all the `go.x` functions can be run with
 `lua xplor.lua -g x`.  (3) Lastly, this code's function arguments
 have some type hints:
@@ -164,6 +164,7 @@ local function xys(col,datas)
   return col:merge(sort(all,lt"xlo"), n^the.Min) end
 
 -- ## NUM  ----- ----- ---------------------------------------------------------
+-- If you are happy
 function NUM:add(x) --- Update 
   if x ~= "?" then
     self.n  = self.n + 1
