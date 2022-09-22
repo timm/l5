@@ -29,7 +29,7 @@ Options:
 -- | n                   | prefix for numerics |
 -- | s                   | prefix for strings |
 -- | is                  | prefix for booleans |
--- | fun                 | prefix for functions |                      
+-- | suffix fun          | suffix for functions |                      
 -- | suffix s            | list of thing (so names is list of strings)|
 -- | function SYM:new()  | constructor for class e.g. SYM |
 -- | e.g. sym            | denotes an instance of class constructor |

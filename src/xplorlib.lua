@@ -1,3 +1,5 @@
+-- some xxs not working
+-- need to do the 2 space thing
 local b4={}; for k,v in pairs(_ENV) do b4[k]=v end;
 local l ={}
 -- ----------------------------------------------------------------------------
@@ -13,7 +15,7 @@ function l.obj(s,    t,i,new)
   t.__index = t;return isa(t,{__call=new}) end
 
 -- ## Maths
-function l.per(t,p) --- return the pth (0..1) item of `t`.
+function l.per(t, p) --- return the pth (0..1) item of `t`.
   p=math.floor(((p or .5)*#t)+.5); return t[math.max(1,math.min(#t,p))] end
 
 -- ## Lists
@@ -21,11 +23,11 @@ function l.copy(t, deep,    u) --- copy a list (shallow copy if `deep` is false)
   if type(t) ~= "table" then return t end
   u={};for k,v in pairs(t) do u[k]=deep and l.copy(v,deep) or v end;return u end
 
-function l.push(t,x)  --- push `x` onto `t`, return `x`
+function l.push(t, x)  --- push `x` onto `t`, return `x`
   table.insert(t,x); return x end
 
 -- ### Sorting
-function l.sort(t,fun) --- return `t`, sorted using function `fun`. 
+function l.sort(t, fun) --- return `t`, sorted using function `fun`. 
   table.sort(t,fun); return t end
 
 function l.lt(x) --- return function that sorts ascending on key `x`
@@ -49,7 +51,7 @@ function l.csv(sFilename, fun,      src,s,t) --- call `fun` on csv rows.
     else return io.close(src) end end end
 
 -- ### Thing to String
-function l.fmt(str,...) --- emulate printf
+function l.fmt(str, ...) --- emulate printf
   return string.format(str,...) end
 
 function l.oo(t)  --- Print a table `t` (non-recursive)
@@ -62,10 +64,10 @@ function l.o(t) ---  Generate a print string for `t` (non-recursive)
   return "{".. table.concat(t," ") .."}" end
 
 -- ## Meta
-function l.map(t,fun) --- Return `t`, filter through `fun(value)` (skip nils)
+function l.map(t, fun) --- Return `t`, filter through `fun(value)` (skip nils)
   local u={}; for _,v in pairs(t) do u[1+#u] = fun(v) end; return u end
 
-function l.kap(t,fun) --- Return `t` and its size, filtered via `fun(key,value)`
+function l.kap(t, fun) --- Return `t` and its size, filtered via `fun(key,value)`
   local u={}; for k,v in pairs(t) do u[k]=fun(k,v) end; return u end
 
 function l.keys(t) --- Return keys of `t`, sorted (skip any with prefix  `_`)
@@ -90,7 +92,7 @@ function l.cli(t) --- update table slots via command-line flags
   return t end 
 
 -- ## Runtime
-function l.on(settings,funs) --- reset settings before running a demo
+function l.on(settings, funs) --- reset settings before running a demo
   local fails=0
   local old = l.copy(settings)
   for _,k in pairs(_,keys(funs)) do
