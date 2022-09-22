@@ -19,9 +19,9 @@ function l.per(t, p) --- return the pth (0..1) item of `t`.
   p=math.floor(((p or .5)*#t)+.5); return t[math.max(1,math.min(#t,p))] end
 
 -- ## Lists
-function l.copy(t, deep,    u) --- copy a list (shallow copy if `deep` is false)
+function l.copy(t, isDeep,    u) --- copy a list (shallow copy if `deep` is false)
   if type(t) ~= "table" then return t end
-  u={};for k,v in pairs(t) do u[k]=deep and l.copy(v,deep) or v end;return u end
+  u={};for k,v in pairs(t) do u[k]=isDeep and l.copy(v,isDeep) or v end;return u end
 
 function l.push(t, x)  --- push `x` onto `t`, return `x`
   table.insert(t,x); return x end
