@@ -1,10 +1,11 @@
 toc={}
 obj={}
 
-function lines(fun)
+function lines(sFilename, fun,      src,s) --- call `fun` on csv rows.
+  src  = io.input(sFilename)
   while true do
-    s=io.read()
-    if s then fun(s) else return io.close() end end  end
+    s = io.read()
+    if s then fun(s) else return io.close(src) end end end
 
 function dump()
   if #toc>0 then
@@ -30,14 +31,16 @@ function pretty(s)
           :gsub("([^, ()]+)", function(s1) 
                                s1=trim(s1); return annotate(s1,of(s1)) end) end
 
-lines(function(line)
-  line:gsub("[A-Z][A-Z]+",      
-            function(x) obj[x:lower()]=x 
-                        obj[x:lower().."s"]="["..x.."]" end)
-  if line:find"^[-][-] " then
-    line:gsub("^[-][-] ([^\n]+)", 
-              function(x) dump(); print(x:gsub("[-][-][-][-][-].*",""),"") end) 
-  else  
-    line:gsub("^function[%s]+([^-]+)[-][-][-] ([^\n]+)",
-              function(what,notes) toc[1+#toc] = {pretty(what),notes} end) end end) 
-dump()
+for i,file in ipairs(arg) do
+    print("\n#",file,"\n")
+    lines(file,function(line)
+      line:gsub("[A-Z][A-Z]+",      
+                function(x) obj[x:lower()]=x 
+                            obj[x:lower().."s"]="["..x.."]" end)
+      if line:find"^[-][-] " then
+        line:gsub("^[-][-] ([^\n]+)", 
+                  function(x) dump(); print(x:gsub("[-][-][-][-][-].*",""),"") end) 
+      else  
+        line:gsub("^function[%s]+([^-]+)[-][-][-] ([^\n]+)",
+                  function(what,notes) toc[1+#toc] = {pretty(what),notes} end) end end) 
+    dump() end 

@@ -1,3 +1,6 @@
+
+#	xplor.lua	
+
 Conventions: (1) The help string at top of file is parsed to create	
 the settings.  (2) Also, all the `go.x` functions can be run with	
 `lua xplor.lua -g x`.  (3) Lastly, this code's function arguments	
@@ -23,7 +26,7 @@ have some type hints:
 | NUM(n:`num`, s:`str`)  | constructor for summary of columns |
 | SYM(n:`num`, s:`str`)  | summarize stream of symbols |
 | XY(n:`num`, s:`str`, nlo:`num`, nhi:`num`, sym:`SYM`)  | Keep the `y` values from `xlo` to `xhi` |
-| load(src:`str`,  data:`DATA`)  | if string(src), read file. else, load from list |
+| load(from,  data:`DATA`)  | if string(from), read file. else, load from list |
 
 
 ## DATA 	
@@ -65,4 +68,74 @@ If you are happy
 | XY:selects(rows)  | Return subset of `rows` selected by `self` |
 
 
+
+#	xplorlib.lua	
+
 	
+## Linting	
+## Objects	
+## Maths	
+
+| What | Notes |
+|:---|:---|
+| l.per(t:`tab`,p)  | return the pth (0..1) item of `t`. |
+
+
+## Lists	
+
+| What | Notes |
+|:---|:---|
+| l.copy(t:`tab`, deep) | copy a list (shallow copy if `deep` is false) |
+| l.push(t:`tab`,x)   | push `x` onto `t`, return `x` |
+
+
+### Sorting	
+
+| What | Notes |
+|:---|:---|
+| l.sort(t:`tab`,fun)  | return `t`, sorted using function `fun`.  |
+| l.lt(x)  | return function that sorts ascending on key `x` |
+
+
+## Coercion	
+### String to thing	
+
+| What | Notes |
+|:---|:---|
+| l.coerce(s:`str`) | Parse `the` config settings from `help`. |
+| l.csv(sFilename:`str`, fun) | call `fun` on csv rows. |
+
+
+### Thing to String	
+
+| What | Notes |
+|:---|:---|
+| l.fmt(str:`str`,...)  | emulate printf |
+| l.oo(t:`tab`)   | Print a table `t` (non-recursive) |
+| l.o(t:`tab`)  |  Generate a print string for `t` (non-recursive) |
+
+
+## Meta	
+
+| What | Notes |
+|:---|:---|
+| l.map(t:`tab`,fun)  | Return `t`, filter through `fun(value)` (skip nils) |
+| l.kap(t:`tab`,fun)  | Return `t` and its size, filtered via `fun(key,value)` |
+| l.keys(t:`tab`)  | Return keys of `t`, sorted (skip any with prefix  `_`) |
+
+
+## Settings	
+
+| What | Notes |
+|:---|:---|
+| l.settings(txt) | parse help string to extract settings |
+| l.cli(t:`tab`)  | update table slots via command-line flags |
+
+
+## Runtime	
+
+| What | Notes |
+|:---|:---|
+| l.on(settings:`str`,funs)  | reset settings before running a demo |
+
+
