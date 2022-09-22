@@ -130,7 +130,7 @@ need to do the 2 space thing
 
 | What | Notes |
 |:---|:---|
-| l.settings(txt) | parse help string to extract settings |
+| l.settings(s:`str`) | parse help string to extract settings |
 | l.cli(t:`tab`)  | update table slots via command-line flags |
 
 

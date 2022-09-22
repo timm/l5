@@ -75,10 +75,10 @@ function l.keys(t) --- Return keys of `t`, sorted (skip any with prefix  `_`)
   return l.sort(l.kap(t,want)) end
 
 -- ## Settings
-function l.settings(txt,    t) --- parse help string to extract settings
-  t={}; txt:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)", 
+function l.settings(s,    t) --- parse help string to extract settings
+  t={}; s:gsub("\n [-][%S]+[%s]+[-][-]([%S]+)[^\n]+= ([%S]+)", 
                  function(k,v) t[k]=l.coerce(v) end)
-  t._help = txt
+  t._help = s
   return t end
 
 function l.cli(t) --- update table slots via command-line flags
