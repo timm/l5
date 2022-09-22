@@ -22,7 +22,8 @@ Options:
 
 #	xplor.lua	
 
-Conventions: (1) The help string at top of file is parsed to create	
+## Code Conventions	
+(1) The help string at top of file is parsed to create	
 the settings.  (2) Also, all the `go.x` functions can be run with	
 `lua xplor.lua -g x`.  (3) Lastly, this code's function arguments	
 have some type hints:	
