@@ -12,12 +12,11 @@ bestLeaf:;   $(foreach d,$D, lua l5.lua -s ${RANDOM} -S 2000 -m 10 -f ../data/$d
 
 TWOPLUS=cat $@ | awk 'BEGIN {FS="\n";RS=""} NR==1 { print("\n\n"); next} {print $$0 "\n\n"}'
 
-README.md : xplor.lua xplorlib.lua
-	(echo "<img width='280' align=right src='https://fcit.usf.edu/matrix/wp-content/uploads/2016/12/Robot-11-C.png'>") > $@
-	(echo ""; echo "[xplor](#xplorlua) | [xplorlib](#xplorliblua) <hr>"; echo ""; echo "<pre>") >> $@
-	lua xplorgo.lua -h    >> $@ 
+README.md : xploring.lua xplor.lua xplorlib.lua
+	(echo ""; echo "<pre>") > $@
+	lua xplorgo.lua -h      >> $@ 
 	(echo "</pre>"; echo "") >> $@
-	lua readme.lua  $^    >> $@
+	lua readme.lua  $^      >> $@
 
 pub: ## save all to Github
 	git add *;git commit -am save;git push;git status
