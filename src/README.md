@@ -13,7 +13,7 @@ have some type hints:
 | n                   | prefix for numerics |	
 | s                   | prefix for strings |	
 | is                  | prefix for booleans |	
-| fun                 | prefix for functions |                      	
+| suffix fun          | suffix for functions |                      	
 | suffix s            | list of thing (so names is list of strings)|	
 | function SYM:new()  | constructor for class e.g. SYM |	
 | e.g. sym            | denotes an instance of class constructor |	
@@ -71,6 +71,8 @@ If you are happy
 
 #	xplorlib.lua	
 
+some xxs not working	
+need to do the 2 space thing	
 	
 ## Linting	
 ## Objects	
@@ -78,22 +80,22 @@ If you are happy
 
 | What | Notes |
 |:---|:---|
-| l.per(t:`tab`,p)  | return the pth (0..1) item of `t`. |
+| l.per(t:`tab`, p)  | return the pth (0..1) item of `t`. |
 
 
 ## Lists	
 
 | What | Notes |
 |:---|:---|
-| l.copy(t:`tab`, deep) | copy a list (shallow copy if `deep` is false) |
-| l.push(t:`tab`,x)   | push `x` onto `t`, return `x` |
+| l.copy(t:`tab`, isDeep:`bool`) | copy a list (shallow copy if `deep` is false) |
+| l.push(t:`tab`, x)   | push `x` onto `t`, return `x` |
 
 
 ### Sorting	
 
 | What | Notes |
 |:---|:---|
-| l.sort(t:`tab`,fun)  | return `t`, sorted using function `fun`.  |
+| l.sort(t:`tab`, fun:`fun`)  | return `t`, sorted using function `fun`.  |
 | l.lt(x)  | return function that sorts ascending on key `x` |
 
 
@@ -103,14 +105,14 @@ If you are happy
 | What | Notes |
 |:---|:---|
 | l.coerce(s:`str`) | Parse `the` config settings from `help`. |
-| l.csv(sFilename:`str`, fun) | call `fun` on csv rows. |
+| l.csv(sFilename:`str`, fun:`fun`) | call `fun` on csv rows. |
 
 
 ### Thing to String	
 
 | What | Notes |
 |:---|:---|
-| l.fmt(str:`str`,...)  | emulate printf |
+| l.fmt(str:`str`, ...)  | emulate printf |
 | l.oo(t:`tab`)   | Print a table `t` (non-recursive) |
 | l.o(t:`tab`)  |  Generate a print string for `t` (non-recursive) |
 
@@ -119,8 +121,8 @@ If you are happy
 
 | What | Notes |
 |:---|:---|
-| l.map(t:`tab`,fun)  | Return `t`, filter through `fun(value)` (skip nils) |
-| l.kap(t:`tab`,fun)  | Return `t` and its size, filtered via `fun(key,value)` |
+| l.map(t:`tab`, fun:`fun`)  | Return `t`, filter through `fun(value)` (skip nils) |
+| l.kap(t:`tab`, fun:`fun`)  | Return `t` and its size, filtered via `fun(key,value)` |
 | l.keys(t:`tab`)  | Return keys of `t`, sorted (skip any with prefix  `_`) |
 
 
@@ -136,6 +138,6 @@ If you are happy
 
 | What | Notes |
 |:---|:---|
-| l.on(settings:`str`,funs)  | reset settings before running a demo |
+| l.on(settings:`str`, funs:`[fun]`)  | reset settings before running a demo |
 
 
