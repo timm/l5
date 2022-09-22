@@ -1,73 +1,68 @@
-
-
-## Linting
-
-
-## Objects
-
-
-## Maths
-
-| What | Notes |
-|:---:|----|
-| l.per(t,p)  | return the pth (0..1) item of `t`. |
-| l.ent(t)  | entropy of a list of counts |
-
-
-## Lists
-
-| What | Notes |
-|:---:|----|
-| l.copy(t, deep,    u)  | copy a list (shallow copy if `deep` is false) |
-| l.push(t,x)   | push `x` onto `t`, return `x` |
-
-
-### Sorting
+Conventions: (1) The help string at top of file is parsed to create	
+the settings.  (2) Also, all the `go.x` functions can be run with	
+`lua xplor.lua -g x`.  (3) Lastly, this code's function arguments	
+have some type hints:	
+   	
+| What|Notes|                                     	
+|:----|:----|	
+| 2 blanks            | 2 blanks denote optional arguments |	
+| 4 blanks            | 4 blanks denote local arguments |	
+| n                   | prefix for numerics |	
+| s                   | prefix for strings |	
+| is                  | prefix for booleans |	
+| fun                 | prefix for functions |                      	
+| suffix s            | list of thing (so names is list of strings)|	
+| function SYM:new()  | constructor for class e.g. SYM |	
+| e.g. sym            | denotes an instance of class constructor |	
+   	
+## Classes	
 
 | What | Notes |
-|:---:|----|
-| l.sort(t,fun)  | return `t`, sorted using function `fun`.  |
-| l.lt(x)  | return function that sorts ascending on key `x` |
+|:---|:---|
+| DATA(t:`tab`)  | constructor |
+| NUM(n:`num`, s:`str`)  | constructor for summary of columns |
+| SYM(n:`num`, s:`str`)  | summarize stream of symbols |
+| XY(n:`num`, s:`str`, nlo:`num`, nhi:`num`, sym:`SYM`)  | Keep the `y` values from `xlo` to `xhi` |
+| load(src:`str`,  data:`DATA`)  | if string(src), read file. else, load from list |
 
 
-## Coercion
-
-
-### String to thing
-
-| What | Notes |
-|:---:|----|
-| l.coerce(s,    fun)  | Parse `the` config settings from `help`. |
-| l.csv(sFilename, fun,      src,s,t)  | call `fun` on csv rows. |
-
-
-### Thing to String
+## DATA 	
 
 | What | Notes |
-|:---:|----|
-| l.fmt(str,...)  | emulate printf |
-| l.oo(t)   | Print a table `t` (non-recursive) |
-| l.o(t)  |  Generate a print string for `t` (non-recursive) |
+|:---|:---|
+| DATA:add(t:`tab`)  | add a new row, update column summaries. |
+| DATA:sorted()  | sort `self.rows` |
+| DATA:bestRest(m, n:`num`) | divide `self.rows` |
 
 
-## Meta
-
-| What | Notes |
-|:---:|----|
-| l.map(t,fun)  | Return `t`, filter through `fun(value)` (skip nils) |
-| l.kap(t,fun)  | Return `t` and its size, filtered via `fun(key,value)` |
-| l.keys(t)  | Return keys of `t`, sorted (skip any with prefix  `_`) |
-
-
-## Settings
+## NUM  	
+If you are happy	
 
 | What | Notes |
-|:---:|----|
-| l.settings(txt,    t)  | parse help string to extract settings |
-| l.cli(t)  | update table slots via command-line flags |
+|:---|:---|
+| NUM:add(x)  | Update  |
+| NUM:norm(n:`num`)  | normalize `n` 0..1 (in the range lo..hi) |
+| NUM:discretize(n:`num`) | discretize `Num`s,rounded to (hi-lo)/bins |
+| NUM:merge(xys:`[XY]`, nMin:`num`)  | Can we combine any adjacent ranges? |
 
 
-## Runtime
+## SYM  	
+
+| What | Notes |
+|:---|:---|
+| SYM:add(s:`str`) | `n` times (default=1), update `self` with `s`  |
+| SYM:entropy() | entropy |
+| SYM:simpler(sym:`SYM`, tiny)  | is `self+sym` simpler than its parts? |
 
 
-  
+## XY  	
+
+| What | Notes |
+|:---|:---|
+| XY:__tostring()  | print |
+| XY:add(nx:`num`, sy:`str`)  | Extend `xlo`,`xhi` to cover `x`. Add `y` to `self.y` |
+| XY:select(row) | Return true if `row` selected by `self` |
+| XY:selects(rows)  | Return subset of `rows` selected by `self` |
+
+
+	

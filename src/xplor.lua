@@ -17,49 +17,23 @@ Options:
  -S  --Some  How many items to keep per row      = 256
  -s  --seed  random number seed                  = 10019]]
 
---[[
-## Classes
-DATA(t)               : constructor
-NUM(n,s)              : constructor for summary of columns
-SYM(n,s)              : summarize stream of symbols
-XY(n,s,nlo,nhi,sym)   : Keep the `y` values from `xlo` to `xhi`
-
-## DATA
-DATA:add(t)           : add a new row, update column summaries.
-DATA:sorted()         : sort `self.rows`
-DATA:bestRest(m,n)    : divide `self.rows`
-
-## NUM
-NUM:add(x)            : Update
-NUM:norm(n)           : normalize `n` 0..1 (in the range lo..hi)
-NUM:discretize(n)     : discretize `Num`s,rounded to (hi-lo)/bins
-NUM:merge(xys,nMin)   : Can we combine any adjacent ranges?
-
-## SYM
-SYM:add(s)            : `n` times (default=1), update `self` with `s`
-SYM:entropy()         : entropy
-SYM:simpler(sym,tiny) : is `self+sym` simpler than its parts?
-
-## XY
-XY:add(x,y)           : Update `xlo`,`xhi` to cover `x`. And add `y` to `self.y`
-XY:select(row)        : Return true if `row` selected by `self`
-XY:selects(rows)      : Return subset of `rows` selected by `self`
-
-Conventions: (1) The help string at top of file is parsed to create
-the settings.  (2) Also, all the `go.x` functions can be run with
-`lua xplor.lua -g x`.  (3) Lastly, this code's function arguments
-have some type hints:
-
-2 blanks              : 2 blanks denote optional arguments
-4 blanks              : 4 blanks denote local arguments
-n                     : prefix for numerics
-s                     : prefix for strings
-is                    : prefix for booleans
-fun                   : prefix for functions
-suffix s              : list of thing (so names is list of strings)
-function SYM:new()    : constructor for class e.g. SYM
-e.g. sym              : denotes an instance of class constructor
---]]
+-- Conventions: (1) The help string at top of file is parsed to create
+-- the settings.  (2) Also, all the `go.x` functions can be run with
+-- `lua xplor.lua -g x`.  (3) Lastly, this code's function arguments
+-- have some type hints:
+--    
+-- | What|Notes|                                     
+-- |:----|:----|
+-- | 2 blanks            | 2 blanks denote optional arguments |
+-- | 4 blanks            | 4 blanks denote local arguments |
+-- | n                   | prefix for numerics |
+-- | s                   | prefix for strings |
+-- | is                  | prefix for booleans |
+-- | fun                 | prefix for functions |                      
+-- | suffix s            | list of thing (so names is list of strings)|
+-- | function SYM:new()  | constructor for class e.g. SYM |
+-- | e.g. sym            | denotes an instance of class constructor |
+--    
 local betters,coerce,csv           = l.betters, l.coerce, l.csv
 local fmt,kap,keys,lt,map,o        = l.fmt,l.kap,l.keys,l.lt,l.map,l.o
 local obj,oo,ordered,per,push,sort = l.obj,l.oo,l.ordered,l.per,l.push,l.sort 
@@ -80,7 +54,7 @@ function COLS:new(t)
                        x={}, 
                        y={}}) end 
 
-function NUM:new(n,s) --- constructor for summary of columns
+function NUM:new(n, s) --- constructor for summary of columns
   n,s = n or 0, s or ""
   return {n=0, 
           at=n, 
@@ -89,13 +63,13 @@ function NUM:new(n,s) --- constructor for summary of columns
           lo=1E32, hi=-1E32, 
           w=is.weight(s)} end
 
-function SYM:new(n,s) --- summarize stream of symbols
+function SYM:new(n, s) --- summarize stream of symbols
   return {n=0, at=n, name=s, 
           mode=nil, 
           most=-1, 
           has={}} end
 
-function XY:new(n,s,nlo,nhi,sym) --- Keep the `y` values from `xlo` to `xhi`
+function XY:new(n, s, nlo, nhi, sym) --- Keep the `y` values from `xlo` to `xhi`
   return {txt= s,                    -- name of this column
           at  = n,                   -- offset for this column
           xlo = nlo,                 -- min x seen so far
@@ -144,13 +118,13 @@ function DATA:sorted() --- sort `self.rows`
                                s2= s2 - math.exp(col.w * (y-x)/#self.cols.y) end
                              return s1/#self.cols.y < s2/#self.cols.y end) end
                              
-function DATA:bestRest(m,n,     best,rest,rows) --- divide `self.rows`
+function DATA:bestRest(m, n,     best,rest,rows) --- divide `self.rows`
   best, rest, rows = {}, {}, self:sorted()
   for i = 1,m do push(best, rows[i]) end 
   for i = m+1,#rows, (#rows - m+1)/(n*m)//1 do push(rest, rows[i]) end
   return best, rest end 
  
-local function xys(col,datas)
+local function xys(col, datas)
   local n,all,xys = 0,{},{}
   for y,data in pairs(datas) do
     for _,row in pairs(data.rows) do
@@ -182,8 +156,8 @@ function NUM:discretize(n,    tmp) --- discretize `Num`s,rounded to (hi-lo)/bins
   tmp = (self.hi - self.lo)/(the.bins - 1)
   return self.hi == self.lo and 1 or math.floor(n/tmp+.5)*tmp end 
 
-function NUM:merge(xys,nMin,    try2Merge) --- Can we combine any adjacent ranges?
-  function try2Merge(t,n,u)
+function NUM:merge(xys, nMin) --- Can we combine any adjacent ranges?
+  local function try2Merge(t,n,u)
     while n <= #t do
       local a,b = t[n], t[n+1]
       local ab  = n < #t and a.y:simpler(b.y, nMin)
@@ -213,7 +187,7 @@ function SYM:entropy(     e,fun) --- entropy
   e=0; for _,n in pairs(self.has) do if n>0 then e=e-fun(n/self.n) end end
   return e end
 
-function SYM:simpler(sym,tiny) --- is `self+sym` simpler than its parts?
+function SYM:simpler(sym, tiny) --- is `self+sym` simpler than its parts?
   local whole = SYM(self.at, self.txt)
   for x,n in pairs(self.has) do whole:add(x,n) end
   for x,n in pairs(sym.has)  do whole:add(x,n) end
@@ -229,7 +203,7 @@ function XY:__tostring() --- print
   elseif lo == -big then return fmt("%s <= %s", x, hi)
   else                   return fmt("%s <  %s <= %s", lo,x,hi) end end
 
-function XY:add(nx,sy) --- Extend `xlo`,`xhi` to cover `x`. Add `y` to `self.y`
+function XY:add(nx, sy) --- Extend `xlo`,`xhi` to cover `x`. Add `y` to `self.y`
   if nx~="?" then
     if nx < self.xlo then self.xlo=nx end
     if nx > self.xhi then self.xhi=nx end
