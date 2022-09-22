@@ -1,7 +1,3 @@
-<img width='280' align=right src='https://fcit.usf.edu/matrix/wp-content/uploads/2016/12/Robot-11-C.png'>
-
-[xplor](#xplorlua) | [xplorlib](#xplorliblua) <hr>
-
 <pre>
 
 Xplor: Bayesian active learning
@@ -20,6 +16,12 @@ Options:
  -S  --Some  How many items to keep per row      = 256
  -s  --seed  random number seed                  = 10019
 </pre>
+
+<img width='280' align=right src='https://fcit.usf.edu/matrix/wp-content/uploads/2016/12/Robot-11-C.png'>
+
+[xplor](#xplorlua) | [xplorlib](#xplorliblua) <hr>
+
+
 
 
 #	xplor.lua	
