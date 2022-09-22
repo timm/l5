@@ -1,4 +1,4 @@
-[xplor](#xplor.lua) | [xplorlib](#xplorlib.lua) <hr>
+[xplor](#xplor) | [xplorlib](#xplorlib) <hr>
 
 <pre>
 
