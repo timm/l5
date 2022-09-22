@@ -1,4 +1,4 @@
-[xplor](#xplor) | [xplorlib](#xplorlib) <hr>
+[xplor](#xplorlua) | [xplorlib](xplorliblua) <hr>
 
 <pre>
 
