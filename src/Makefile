@@ -14,7 +14,7 @@ TWOPLUS=cat $@ | awk 'BEGIN {FS="\n";RS=""} NR==1 { print("\n\n"); next} {print 
 
 README.md : xplor.lua xplorlib.lua
 	(echo "<img width='280' align=right src='https://fcit.usf.edu/matrix/wp-content/uploads/2016/12/Robot-11-C.png'>") > $@
-	(echo "[xplor](#xplorlua) | [xplorlib](#xplorliblua) <hr>"; echo ""; echo "<pre>") >> $@
+	(echo ""; echo "[xplor](#xplorlua) | [xplorlib](#xplorliblua) <hr>"; echo ""; echo "<pre>") >> $@
 	lua xplorgo.lua -h    >> $@ 
 	(echo "</pre>"; echo "") >> $@
 	lua readme.lua  $^    >> $@
