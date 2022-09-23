@@ -25,7 +25,7 @@ function go.csv(      data)
 function go.sorted(      data,rows)
   data = load(the.file)
   rows= data:sorted() 
-  for i=1,#rows,30 do print(i,o(rows[i])) end end
+  for i=1,#rows,30 do print(i,o(rows[i].cells)) end end
 
 function go.bestRest(      data,best,rest)
   data = load(the.file)

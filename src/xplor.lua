@@ -17,36 +17,22 @@ Options:
  -S  --Some  How many items to keep per row      = 256
  -s  --seed  random number seed                  = 10019]]
 
--- ## Code Conventions
--- (1) The help string at top of file is parsed to create
--- the settings.  (2) Also, all the `go.x` functions can be run with
--- `lua xplor.lua -g x`.  (3) Lastly, this code's function arguments
--- have some type hints:
---    
--- | What|Notes|                                     
--- |:----|:----|
--- | 2 blanks            | 2 blanks denote optional arguments |
--- | 4 blanks            | 4 blanks denote local arguments |
--- | n                   | prefix for numerics |
--- | s                   | prefix for strings |
--- | is                  | prefix for booleans |
--- | suffix fun          | suffix for functions |                      
--- | suffix s            | list of thing (so names is list of strings)|
--- | function SYM:new()  | constructor for class e.g. SYM |
--- | e.g. sym            | denotes an instance of class constructor |
---    
 local betters,coerce,csv           = l.betters, l.coerce, l.csv
 local fmt,kap,keys,lt,map,o        = l.fmt,l.kap,l.keys,l.lt,l.map,l.o
 local obj,oo,ordered,per,push,sort = l.obj,l.oo,l.ordered,l.per,l.push,l.sort 
 local is = {}
 
 -- ## Classes
-local COLS,DATA,NUM,SYM,XY = obj"COLS", obj"DATA", obj"NUM", obj"SYM", obj"XY"
+local COLS,NUM,SYM,XY = obj"COLS", obj"NUM", obj"SYM", obj"XY"
+local DATA,ROW        = obj"DATA", obj"ROW"
 
 function DATA:new(t) --- constructor
    return  {names=t, 
            rows={}, 
            cols=COLS(t) } end
+
+function ROW:new(t) --- constructor
+   return  {cells=t, cooked={}} end
 
 function COLS:new(t)
   return self:columns({names=t, 
@@ -77,7 +63,7 @@ function XY:new(n, s, nlo, nhi, sym) --- Keep the `y` values from `xlo` to `xhi`
           xhi = nhi or nlo,          -- max x seen so far
           y   = sym or SYM(n,s)} end -- y symbols see so far
 
--- ## COLS ----- ----- ---------------------------------------------------------
+-- ## COLS ----- ----- ---------------------------------------------------------
 function is.skip(s)   return s:find":$"     end
 function is.num(s)    return s:find"^[A-Z]" end
 function is.goal(s)   return s:find"[!+-]$" end
@@ -93,14 +79,14 @@ function COLS:columns(cols,    col)
       push(is.goal(s) and cols.y or cols.x, col) end end 
   return cols end
 
-function COLS:add(t)
+function COLS:add(row)
   for _,cols in pairs({self.x, self.y}) do
     for _,col in pairs(cols) do
-       col:add(t[col.at]) end end end
+       col:add(row.cells[col.at]) end end end
 
 function load(from,  data) --- if string(from), read file. else, load from list
-  local function fun(t)  --- first row is special (defines the DATA instance)
-    if data then data:add(t) else data=DATA(t) end end
+  local function fun(t)  -- first row is special (defines the DATA instance)
+    if data then data:add(t.cells and t or ROW(t)) else data=DATA(t) end end
   if type(from)=="string" then csv(from, fun) else map(src or {}, fun) end
   return data end
 
@@ -113,8 +99,8 @@ function DATA:sorted() --- sort `self.rows`
     return sort(self.rows, function(row1,row2,    s1,s2,x,y)
                              s1,s2,x,y=0,0
                              for _,col in pairs(self.cols.y) do
-                               x = col:norm(row1[col.at])
-                               y = col:norm(row2[col.at])
+                               x = col:norm(row1.cells[col.at])
+                               y = col:norm(row2.cells[col.at])
                                s1= s1 - math.exp(col.w * (x-y)/#self.cols.y)
                                s2= s2 - math.exp(col.w * (y-x)/#self.cols.y) end
                              return s1/#self.cols.y < s2/#self.cols.y end) end
@@ -129,7 +115,7 @@ local function xys(col, datas)
   local n,all,xys = 0,{},{}
   for y,data in pairs(datas) do
     for _,row in pairs(data.rows) do
-      local x = row[col.at]
+      local x = row.cells[col.at]
       if x=="?" then
         n = n+1
         local bin = col:discretize(x) 
@@ -211,7 +197,7 @@ function XY:add(nx, sy) --- Extend `xlo`,`xhi` to cover `x`. Add `y` to `self.y`
     self.y:add(sy) end end
 
 function XY:select(row,     x) --- Return true if `row` selected by `self`
-  x = row[self.at]
+  x = row.cells[self.at]
   if x =="?" then return true end ------------------ assume yes for unknowns
   if self.xlo==self.xhi and v==self.xlo then return true end     -- for symbols
   if self.xlo < x and x <= self.xhi     then return true end end -- for numerics
