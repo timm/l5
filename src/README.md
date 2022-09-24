@@ -31,7 +31,7 @@ the settings.  (2) Also, all the `go.x` functions can be run with
 `lua xplor.lua -g x`.  (3) Lastly, this code's function arguments
 have some type hints:
 
-| What                | Notes |                                     
+| _What_                | Notes |                                     
 |:--------------------|:-----------------------------------|
 | 2 blanks            | 2 blanks denote optional arguments |
 | 4 blanks            | 4 blanks denote local arguments |
