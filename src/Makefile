@@ -13,9 +13,9 @@ bestLeaf:;   $(foreach d,$D, lua l5.lua -s ${RANDOM} -S 2000 -m 10 -f ../data/$d
 TWOPLUS=cat $@ | awk 'BEGIN {FS="\n";RS=""} NR==1 { print("\n\n"); next} {print $$0 "\n\n"}'
 
 README.md : xplor.lua xplorlib.lua
-	(echo ""; echo "<pre>")  > $@
+	(echo ""; echo "\`\`\`css")  > $@
 	lua xplorgo.lua -h       >> $@ 
-	(echo "</pre>"; echo "") >> $@
+	(echo "\`\`\`") >> $@
 	cat README.txt           >> $@
 	lua readme.lua  $^       >> $@
 

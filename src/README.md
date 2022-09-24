@@ -1,5 +1,5 @@
 
-<pre>
+```css
 
 Xplor: Bayesian active learning
 (c) 2022 Tim Menzies <timm@ieee.org> Bsd-2 license
@@ -16,8 +16,7 @@ Options:
  -r  --rest  expansion best to rest              = 5
  -S  --Some  How many items to keep per row      = 256
  -s  --seed  random number seed                  = 10019
-</pre>
-
+```
 [xplor](#xplorlua) | [xplorlib](#xplorliblua)
 
  <img width='280' 
