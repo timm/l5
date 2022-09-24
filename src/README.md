@@ -52,16 +52,16 @@ have some type hints:
 |:---|:---|
 | DATA:new(t:`tab`) |  constructor |
 | ROW:new(t:`tab`) |  constructor |
-| NUM:new(n:`num`,s:`str`) |  constructor for summary of columns |
-| SYM:new(n:`num`,s:`str`) |  summarize stream of symbols |
-| XY:new(n:`num`,s:`str`,nlo:`num`,nhi:`num`,sym:`SYM`) |  Keep the `y` values from `xlo` to `xhi` |
+| NUM:new(n:`num`, s:`str`) |  constructor for summary of columns |
+| SYM:new(n:`num`, s:`str`) |  summarize stream of symbols |
+| XY:new(n:`num`, s:`str`, nlo:`num`, nhi:`num`, sym:`SYM`) |  Keep the `y` values from `xlo` to `xhi` |
 
 
 ## COLS 	
 
 | What | Notes |
 |:---|:---|
-| load(from,  data:`DATA`) |  if string(from), read file. else, load from list |
+| load(from,   data:`DATA`?) |  if string(from), read file. else, load from list |
 
 
 ## DATA 	
@@ -70,7 +70,7 @@ have some type hints:
 |:---|:---|
 | DATA:add(t:`tab`) |  add a new row, update column summaries. |
 | DATA:sorted() |  sort `self.rows` |
-| DATA:bestRest(m, n:`num`,) |  divide `self.rows` |
+| DATA:bestRest(m,  n:`num`) |  divide `self.rows` |
 
 
 ## NUM  	
@@ -80,17 +80,17 @@ If you are happy
 |:---|:---|
 | NUM:add(x) |  Update  |
 | NUM:norm(n:`num`) |  normalize `n` 0..1 (in the range lo..hi) |
-| NUM:discretize(n:`num`,) |  discretize `Num`s,rounded to (hi-lo)/bins |
-| NUM:merge(xys:`[XY]`, nMin:`num`) |  Can we combine any adjacent ranges? |
+| NUM:discretize(n:`num`) |  discretize `Num`s,rounded to (hi-lo)/bins |
+| NUM:merge(xys:`[XY]`,  nMin:`num`) |  Can we combine any adjacent ranges? |
 
 
 ## SYM  	
 
 | What | Notes |
 |:---|:---|
-| SYM:add(s:`str`,  n:`num`) |  `n` times (default=1), update `self` with `s`  |
+| SYM:add(s:`str`,   n:`num`?) |  `n` times (default=1), update `self` with `s`  |
 | SYM:entropy() |  entropy |
-| SYM:simpler(sym:`SYM`, tiny) |  is `self+sym` simpler than its parts? |
+| SYM:simpler(sym:`SYM`,  tiny) |  is `self+sym` simpler than its parts? |
 
 
 ## XY  	
@@ -98,8 +98,8 @@ If you are happy
 | What | Notes |
 |:---|:---|
 | XY:__tostring() |  print |
-| XY:add(nx:`num`, sy:`str`) |  Extend `xlo`,`xhi` to cover `x`. Add `y` to `self.y` |
-| XY:select(row:`ROW`,) |  Return true if `row` selected by `self` |
+| XY:add(nx:`num`,  sy:`str`) |  Extend `xlo`,`xhi` to cover `x`. Add `y` to `self.y` |
+| XY:select(row:`ROW`) |  Return true if `row` selected by `self` |
 | XY:selects(rows:`[ROW]`) |  Return subset of `rows` selected by `self` |
 
 
@@ -115,22 +115,22 @@ need to do the 2 space thing
 
 | What | Notes |
 |:---|:---|
-| l.per(t:`tab`, p) |  return the pth (0..1) item of `t`. |
+| l.per(t:`tab`,  p) |  return the pth (0..1) item of `t`. |
 
 
 ## Lists	
 
 | What | Notes |
 |:---|:---|
-| l.copy(t:`tab`, isDeep:`bool`,) |  copy a list (deep copy if `isDep`) |
-| l.push(t:`tab`, x) |  push `x` onto `t`, return `x` |
+| l.copy(t:`tab`,  isDeep:`bool`) |  copy a list (deep copy if `isDep`) |
+| l.push(t:`tab`,  x) |  push `x` onto `t`, return `x` |
 
 
 ### Sorting	
 
 | What | Notes |
 |:---|:---|
-| l.sort(t:`tab`, fun:`fun`) |  return `t`, sorted using function `fun` |
+| l.sort(t:`tab`,  fun:`fun`) |  return `t`, sorted using function `fun` |
 | l.lt(x) |  return function that sorts ascending on key `x` |
 
 
@@ -139,15 +139,15 @@ need to do the 2 space thing
 
 | What | Notes |
 |:---|:---|
-| l.coerce(s:`str`,) |  Parse `the` config settings from `help` |
-| l.csv(sFilename:`str`, fun:`fun`,) |  call `fun` on csv rows |
+| l.coerce(s:`str`) |  Parse `the` config settings from `help` |
+| l.csv(sFilename:`str`,  fun:`fun`) |  call `fun` on csv rows |
 
 
 ### Thing to String	
 
 | What | Notes |
 |:---|:---|
-| l.fmt(str:`str`, ...) |  emulate printf |
+| l.fmt(str:`str`,  ...) |  emulate printf |
 | l.oo(t:`tab`) |  Print a table `t` (non-recursive) |
 | l.o(t:`tab`) |   Generate a print string for `t` (non-recursive) |
 
@@ -156,8 +156,8 @@ need to do the 2 space thing
 
 | What | Notes |
 |:---|:---|
-| l.map(t:`tab`, fun:`fun`) |  Return `t`, filter through `fun(value)` (skip nils) |
-| l.kap(t:`tab`, fun:`fun`) |  Return `t` and its size, filtered via `fun(key,value)` |
+| l.map(t:`tab`,  fun:`fun`) |  Return `t`, filter through `fun(value)` (skip nils) |
+| l.kap(t:`tab`,  fun:`fun`) |  Return `t` and its size, filtered via `fun(key,value)` |
 | l.keys(t:`tab`) |  Return keys of `t`, sorted (skip any with prefix  `_`) |
 
 
@@ -165,7 +165,7 @@ need to do the 2 space thing
 
 | What | Notes |
 |:---|:---|
-| l.settings(s:`str`,) |  parse help string to extract settings |
+| l.settings(s:`str`) |  parse help string to extract settings |
 | l.cli(t:`tab`) |  update table slots via command-line flags |
 
 
@@ -173,6 +173,6 @@ need to do the 2 space thing
 
 | What | Notes |
 |:---|:---|
-| l.on(configs:`tab`, funs:`[fun]`) |  reset cofnig before running a demo |
+| l.on(configs:`tab`,  funs:`[fun]`) |  reset cofnig before running a demo |
 
 
