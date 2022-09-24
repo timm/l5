@@ -2,7 +2,7 @@
      align=right 
      src='https://fcit.usf.edu/matrix/wp-content/uploads/2016/12/Robot-11-C.png'>
     
-[xplor](#xplorlua) | [xplorlib](#xplorliblua) <hr>
+[xplor](#xplorlua) | [xplorlib](#xplorliblua)
 
 ## Code Conventions
 
