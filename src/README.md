@@ -1,5 +1,5 @@
 
-```css
+```html
 
 Xplor: Bayesian active learning
 (c) 2022 Tim Menzies <timm@ieee.org> Bsd-2 license
