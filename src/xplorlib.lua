@@ -92,13 +92,13 @@ function l.cli(t) --- update table slots via command-line flags
   return t end
 
 -- ## Runtime
-function l.on(settings, funs) --- reset settings before running a demo
+function l.on(configs, funs) --- reset cofnig before running a demo
   local fails=0
-  local old = l.copy(settings)
+  local old = l.copy(configs)
   for _,k in pairs(l.keys(funs)) do
-    if settings.go == "all" or settings.go == k then
-      for k,v in pairs(old) do settings[k]=v end
-      math.randomseed(settings.seed or 10019)
+    if configs.go == "all" or configs.go == k then
+      for k,v in pairs(old) do configs[k]=v end
+      math.randomseed(configs.seed or 10019)
       print("#>>>>>",k)
       if funs[k]()==false then fails=fails+1;print("# FAIL!!!!!",k); end end end
   l.rogues()

@@ -18,7 +18,7 @@ function of(s)  --- try all the things
   return plural(s) or singular(s) end
 
 function plural(s,   s1,what) 
-  if s:sub(#s)=="s"  then  
+  if #s>1 and s:sub(#s)=="s"  then  
     s1   = s:sub(1,#s-1)
     what = singular(s1)
     return what and "["..what.."]"  or "tab" end end
@@ -27,10 +27,10 @@ function singular(s)
   return obj[s] or is.str(s) or is.num(s) or is.tbl(s) or is.bool(s) or is.fun(s) end
 
 function pretty(s) --- clean up the signature
-    return s:gsub("[,]?    .*", ")")
-            :gsub(":new()",    "")
-            :gsub("([^, ()]+)", function(s1) 
-                                  s1=trim(s1); return hint(s1,of(s1)) end) end
+    return s:gsub("    .*", "")
+            :gsub(":new()",     "")
+            :gsub("([^, \t]+)",   function(s1) 
+                                    return hint(s1,of(s1)) end) end
 
 -- Low-level utils
 function lines(sFilename, fun,      src,s) --- call `fun` on csv rows.
@@ -58,9 +58,8 @@ for _,file in ipairs(arg) do
       line:gsub("^[-][-] ([^\n]+)", 
                 function(x) dump(); print(x:gsub("[-][-][-][-][-].*",""),"") end) 
     else  
-      line:gsub("^function[%s]+[(]([^)]+)[)][%s]*[-][-][-] ([^\n]+)",
-                function(lhs,rhs) print(lhs); tbl[1+#tbl] = {pretty(lhs),rhs} end) end end) 
+      line:gsub("^function[%s]+([^(]+)[(]([^)]*).*[-][-][-](.*)",
+                function(fun,args,comment) 
+                   tbl[1+#tbl] ={fun..'('..pretty(args)..')',comment} 
+                   end) end end) 
   dump() end 
-
--- s:gsub("^function[%s]+[a-zA-Z0-9_]+[(](.*)[)](.*) [-][-][-] (.*)",function(x,y) print("::",x,y) end)
--- s:gsub("^function[%s]+[a-zA-Z0-9_]+[(](.*)[)](.*)[%s]*[-][-][-]([.]*)$",function(x,y) print("::",x,y) end)

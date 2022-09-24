@@ -158,11 +158,11 @@ function NUM:merge(xys, nMin) --- Can we combine any adjacent ranges?
   return xys end
 
 -- ## SYM  ----- ----- ---------------------------------------------------------
-function SYM:add(s,     inc) --- `n` times (default=1), update `self` with `s` 
+function SYM:add(s,  n) --- `n` times (default=1), update `self` with `s` 
   if s~="?" then 
-    inc = inc or 1
-    self.n  = self.n + inc
-    self.has[s] = inc + (self.has[s] or 0) 
+    n = n or 1
+    self.n  = self.n + n
+    self.has[s] = n + (self.has[s] or 0) 
     if self.has[s] > self.most then
       self.most,self.mode = self.has[s], s end end end
 
