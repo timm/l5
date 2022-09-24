@@ -52,9 +52,9 @@ have some type hints:
 |:---|:---|
 | DATA:new(t:`tab`) |  constructor |
 | ROW:new(t:`tab`) |  constructor |
-| NUM:new(n:`num`, s:`str`) |  constructor for summary of columns |
-| SYM:new(n:`num`, s:`str`) |  summarize stream of symbols |
-| XY:new(n:`num`, s:`str`, nlo:`num`, nhi:`num`, sym:`SYM`) |  Keep the `y` values from `xlo` to `xhi` |
+| NUM:new(n:`num`,s:`str`) |  constructor for summary of columns |
+| SYM:new(n:`num`,s:`str`) |  summarize stream of symbols |
+| XY:new(n:`num`,s:`str`,nlo:`num`,nhi:`num`,sym:`SYM`) |  Keep the `y` values from `xlo` to `xhi` |
 
 
 ## COLS 	

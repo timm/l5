@@ -41,7 +41,7 @@ function COLS:new(t)
                        x={}, 
                        y={}}) end 
 
-function NUM:new(n, s) --- constructor for summary of columns
+function NUM:new(n,s) --- constructor for summary of columns
   n,s = n or 0, s or ""
   return {n=0, 
           at=n, 
@@ -50,13 +50,13 @@ function NUM:new(n, s) --- constructor for summary of columns
           lo=1E32, hi=-1E32, 
           w=is.weight(s)} end
 
-function SYM:new(n, s) --- summarize stream of symbols
+function SYM:new(n,s) --- summarize stream of symbols
   return {n=0, at=n, name=s, 
           mode=nil, 
           most=-1, 
           has={}} end
 
-function XY:new(n, s, nlo, nhi, sym) --- Keep the `y` values from `xlo` to `xhi`
+function XY:new(n,s,nlo,nhi,sym) --- Keep the `y` values from `xlo` to `xhi`
   return {txt= s,                    -- name of this column
           at  = n,                   -- offset for this column
           xlo = nlo,                 -- min x seen so far
