@@ -30,7 +30,8 @@ function hint(s1,type) --- if we know a type, add to arg. Else return arg
 function pretty(s) --- clean up the signature
     return s:gsub("    .*",     "")
             :gsub(":new()",     "")
-            :gsub("([^, \t]+)", function(s1) return hint(s1, is.of(s1)) end) end
+            :gsub("([^, \t]+)", function(s1) return hint("<i>"..s1.."</i>", 
+                                                         is.of(s1)) end) end
 
 function optional(s)
   local after,t = "",{}
@@ -66,6 +67,6 @@ for _,file in ipairs(arg) do
       line:gsub("[A-Z][A-Z]+", function(x) obj[x:lower()]=x end)
       line:gsub("^function[%s]+([^(]+)[(]([^)]*).*[-][-][-](.*)",
                 function(fun,args,comment) 
-                   tbl[1+#tbl] ={"<i>"..fun..'</i>('..optional(pretty(args))..')',comment} 
+                   tbl[1+#tbl]={fun..'('..optional(pretty(args))..')',comment} 
                    end) end end) 
   dump() end 
