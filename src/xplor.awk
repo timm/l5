@@ -12,6 +12,8 @@ function haS(i, k, f, x)    {               malloc(i,k); @f(i[k],x)    }
 function hAS(i, k, f, x, y) {               malloc(i,k); @f(i[k],x,y)  }
 function malloc(i,k)          { i[k]["\001"]; delete i[j]["\001"] }
 
+function push(a,x) { a[1+length(a)] = x; return x }
+
 function add(i,x,   f) { f=i.is"Add"; return @f(i,x)  }
 function dist(i,x,  f) { f=i.is"Dist"; return @f(i,x) }
   
@@ -23,14 +25,26 @@ function sym(i,n,s) {
   i.mode = ""
   has(i,"has")}
 
-func num(i,n,s) {
+function num(i,n,s) {
   i.is   = "num"
   i.at   = n?n:0
   i.name = s?s:""
   i.n    = i.mu   = i.m2 = i.sd = 0
   w      = s ~ /-$/ ? -1 : 1  }
 
-func data(i,a) {
+function cols(i,a)
+  has(i,"all")
+  has(i,"x")
+  has(i,"y")
+  for(c in a)
+    what = a[c] i~/^[A-Z] ? "num" : "sym"
+    has(i.cols,c,what,c,a[c]j)
+    if (a[c] !~ /:$/) {
+      if (a[c] ~ /!$/) i.klass=c
+      what 
+      if push(i[(a[c] ~ /[\+-!]$/ ? push(i.y,j
+
+fucntion data(i,a) {
   has(i,"rows")
   has(i,"cols")
   for(j in a)
