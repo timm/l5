@@ -30,7 +30,7 @@ function hint(s1,type) --- if we know a type, add to arg. Else return arg
 function pretty(s) --- clean up the signature
     return s:gsub("    .*",     "")
             :gsub(":new()",     "")
-            :gsub("([^, \t]+)", function(s1) return hint("<i>"..s1.."</i>", 
+            :gsub("([^, \t]+)", function(s1) return hint("<b>"..s1.."</b>", 
                                                          is.of(s1)) end) end
 
 function optional(s)
