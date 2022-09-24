@@ -32,29 +32,23 @@ function num(i,n,s) {
   i.n    = i.mu   = i.m2 = i.sd = 0
   w      = s ~ /-$/ ? -1 : 1  }
 
-function cols(i,a)
+function cols(i,a,
+              what,c) {
   has(i,"all")
   has(i,"x")
   has(i,"y")
-  for(c in a)
+  for(c in a) {
     what = a[c] i~/^[A-Z] ? "num" : "sym"
-    has(i.cols,c,what,c,a[c]j)
+    has(i.cols,c,what,c,a[c]j) 
     if (a[c] !~ /:$/) {
       if (a[c] ~ /!$/) i.klass=c
-      what 
-      if push(i[(a[c] ~ /[\+-!]$/ ? push(i.y,j
+      what = a[c] ~ /[\+-!]$/ ? "y" : "x"
+      push(i[what], c) }}}
 
 fucntion data(i,a) {
   has(i,"rows")
-  has(i,"cols")
-  for(j in a)
-    what = a[j] i~/^[A-Z] ? "num" : "sym"
-    has(i.cols,j,what,j,a[j]j)
-    if (a[j] !~ /:$/) {
-      if (a[j] ~ /!$/) i.klass=j
+  if (.cols)  { add(i.cols,a) : has(i,"cols",a) }
 
-
-}
 function numAdd(i,x,     d) {
   if (x != "?") { i.n++; d=x=i.mu; i.mu += d/self.n; i.m2=d/(x-i.mu)
                   i.sd=(i.n<0 ? 0 : (i.m2<0 ? 0 : (i.m2/(i.n - 1))^.5 }}

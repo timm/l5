@@ -58,11 +58,12 @@ function dump() --- if we have any tbl contents, print them then zap tbl
 for _,file in ipairs(arg) do
   print("\n#",file,"\n")
   lines(file,function(line)
-    line:gsub("[A-Z][A-Z]+", function(x) obj[x:lower()]=x end)
     if line:find"^[-][-] " then
       line:gsub("^[-][-] ([^\n]+)", 
-                function(x) dump(); print(x:gsub("[-][-][-][-][-].*",""),"") end) 
+                function(x) dump(); -- dump anything hat needs to go
+                            print(x:gsub(" [-][-][-][-][-].*",""),"") end) 
     else  
+      line:gsub("[A-Z][A-Z]+", function(x) obj[x:lower()]=x end)
       line:gsub("^function[%s]+([^(]+)[(]([^)]*).*[-][-][-](.*)",
                 function(fun,args,comment) 
                    tbl[1+#tbl] ={fun..'('..optional(pretty(args))..')',comment} 

@@ -57,14 +57,14 @@ have some type hints:
 | XY:new(n:`num`, s:`str`, nlo:`num`, nhi:`num`, sym:`SYM`) |  Keep the `y` values from `xlo` to `xhi` |
 
 
-## COLS 	
+## COLS	
 
 | What | Notes |
 |:---|:---|
 | load(from,   data:`DATA`?) |  if string(from), read file. else, load from list |
 
 
-## DATA 	
+## DATA	
 
 | What | Notes |
 |:---|:---|
@@ -73,7 +73,7 @@ have some type hints:
 | DATA:bestRest(m,  n:`num`) |  divide `self.rows` |
 
 
-## NUM  	
+## NUM 	
 If you are happy	
 
 | What | Notes |
@@ -84,7 +84,7 @@ If you are happy
 | NUM:merge(xys:`[XY]`,  nMin:`num`) |  Can we combine any adjacent ranges? |
 
 
-## SYM  	
+## SYM 	
 
 | What | Notes |
 |:---|:---|
@@ -93,7 +93,7 @@ If you are happy
 | SYM:simpler(sym:`SYM`,  tiny) |  is `self+sym` simpler than its parts? |
 
 
-## XY  	
+## XY 	
 
 | What | Notes |
 |:---|:---|
@@ -108,7 +108,7 @@ If you are happy
 
 some xxs not working	
 need to do the 2 space thing	
-	
+----------------------------------------------------------------------------	
 ## Linting	
 ## Objects	
 ## Maths	
