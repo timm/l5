@@ -86,12 +86,17 @@ function COLS:add(row)
 
 function load(from,  data) --- if string(from), read file. else, load from list
   local function fun(t)  -- first row is special (defines the DATA instance)
-    if data then data:add(t.cells and t or ROW(t)) else data=DATA(t) end end
+    if data then data:add(t) else data=DATA(t) end end
   if type(from)=="string" then csv(from, fun) else map(src or {}, fun) end
   return data end
 
 -- ## DATA ----- ----- ---------------------------------------------------------
+function DATA:clone()
+  data=DATA{self.cols.names}
+end
+
 function DATA:add(t) --- add a new row, update column summaries.
+  t = t.cells and t or ROW(t)
   push(self.rows,t)
   self.cols:add(t) end
 
@@ -110,7 +115,17 @@ function DATA:bestRest(m, n,     best,rest,rows) --- divide `self.rows`
   for i = 1,m do push(best, rows[i]) end 
   for i = m+1,#rows, (#rows - m+1)/(n*m)//1 do push(rest, rows[i]) end
   return best, rest end 
- 
+
+function DATA:split(m,n)
+  best,rest,rows = self:bestRest(m,n)
+  best,rest = self:clone(best), self:clone(rest)
+  most,split = -1,nil
+  for _,col in pairs(self.cols.x) do
+    for _,xy in pairs( xys(col, {best=best, rest=rest})) do
+      if xy:score(best) > most then
+        most,split = xy:score(best,#best.rows,#rest.rows),xy end end end 
+  return split end
+
 local function xys(col, datas)
   local n,all,xys = 0,{},{}
   for y,data in pairs(datas) do
@@ -181,6 +196,12 @@ function SYM:simpler(sym, tiny) --- is `self+sym` simpler than its parts?
   local e1, e2, e12 = self:entropy(), sym:entropy(), whole:entropy()
   if self.n < tiny or sym.n < tiny or e12 <= (self.n*e1 + sym.n*e2)/whole.n then 
     return whole end end
+
+function SYM:score(want,B,R)
+  local b,r,e = 0,0,1E-32
+  for k,v in pairs(self.has) do if k==want then b=b+v else r=r+v end end
+  b,r = b/(B+e), r/(R+e)
+  return b^2 / (b+r) end
 
 -- ## XY  ----- ----- ----------------------------------------------------------
 function XY:__tostring() --- print
