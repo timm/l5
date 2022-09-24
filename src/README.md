@@ -50,27 +50,27 @@ have some type hints:
 
 | What | Notes |
 |:---|:---|
-| DATA:new(<b>t</b>:`tab`) |  constructor |
-| ROW:new(<b>t</b>:`tab`) |  constructor |
-| NUM:new(<b>n</b>:`num`, <b>s</b>:`str`) |  constructor for summary of columns |
-| SYM:new(<b>n</b>:`num`, <b>s</b>:`str`) |  summarize stream of symbols |
-| XY:new(<b>n</b>:`num`, <b>s</b>:`str`, <b>nlo</b>:`num`, <b>nhi</b>:`num`, <b>sym</b>:`SYM`) |  Keep the `y` values from `xlo` to `xhi` |
+| DATA:new( <b>t</b>:`tab`) |  constructor |
+| ROW:new( <b>t</b>:`tab`) |  constructor |
+| NUM:new( <b>n</b>:`num`,  <b>s</b>:`str`) |  constructor for summary of columns |
+| SYM:new( <b>n</b>:`num`,  <b>s</b>:`str`) |  summarize stream of symbols |
+| XY:new( <b>n</b>:`num`,  <b>s</b>:`str`,  <b>nlo</b>:`num`,  <b>nhi</b>:`num`,  <b>sym</b>:`SYM`) |  Keep the `y` values from `xlo` to `xhi` |
 
 
 ## COLS	
 
 | What | Notes |
 |:---|:---|
-| load(<b>from</b>,   <b>data</b>:`DATA`?) |  if string(from), read file. else, load from list |
+| load( <b>from</b>,    <b>data</b>:`DATA`?) |  if string(from), read file. else, load from list |
 
 
 ## DATA	
 
 | What | Notes |
 |:---|:---|
-| DATA:add(<b>t</b>:`tab`) |  add a new row, update column summaries. |
+| DATA:add( <b>t</b>:`tab`) |  add a new row, update column summaries. |
 | DATA:sorted() |  sort `self.rows` |
-| DATA:bestRest(<b>m</b>,  <b>n</b>:`num`) |  divide `self.rows` |
+| DATA:bestRest( <b>m</b>,   <b>n</b>:`num`?) |  divide `self.rows` |
 
 
 ## NUM 	
@@ -78,19 +78,19 @@ If you are happy
 
 | What | Notes |
 |:---|:---|
-| NUM:add(<b>x</b>) |  Update  |
-| NUM:norm(<b>n</b>:`num`) |  normalize `n` 0..1 (in the range lo..hi) |
-| NUM:discretize(<b>n</b>:`num`) |  discretize `Num`s,rounded to (hi-lo)/bins |
-| NUM:merge(<b>xys</b>:`[XY]`,  <b>nMin</b>:`num`) |  Can we combine any adjacent ranges? |
+| NUM:add( <b>x</b>) |  Update  |
+| NUM:norm( <b>n</b>:`num`) |  normalize `n` 0..1 (in the range lo..hi) |
+| NUM:discretize( <b>n</b>:`num`) |  discretize `Num`s,rounded to (hi-lo)/bins |
+| NUM:merge( <b>xys</b>:`[XY]`,   <b>nMin</b>:`num`?) |  Can we combine any adjacent ranges? |
 
 
 ## SYM 	
 
 | What | Notes |
 |:---|:---|
-| SYM:add(<b>s</b>:`str`,   <b>n</b>:`num`?) |  `n` times (default=1), update `self` with `s`  |
+| SYM:add( <b>s</b>:`str`,    <b>n</b>:`num`?) |  `n` times (default=1), update `self` with `s`  |
 | SYM:entropy() |  entropy |
-| SYM:simpler(<b>sym</b>:`SYM`,  <b>tiny</b>) |  is `self+sym` simpler than its parts? |
+| SYM:simpler( <b>sym</b>:`SYM`,   <b>tiny</b>?) |  is `self+sym` simpler than its parts? |
 
 
 ## XY 	
@@ -98,9 +98,9 @@ If you are happy
 | What | Notes |
 |:---|:---|
 | XY:__tostring() |  print |
-| XY:add(<b>nx</b>:`num`,  <b>sy</b>:`str`) |  Extend `xlo`,`xhi` to cover `x`. Add `y` to `self.y` |
-| XY:select(<b>row</b>:`ROW`) |  Return true if `row` selected by `self` |
-| XY:selects(<b>rows</b>:`[ROW]`) |  Return subset of `rows` selected by `self` |
+| XY:add( <b>nx</b>:`num`,   <b>sy</b>:`str`?) |  Extend `xlo`,`xhi` to cover `x`. Add `y` to `self.y` |
+| XY:select( <b>row</b>:`ROW`) |  Return true if `row` selected by `self` |
+| XY:selects( <b>rows</b>:`[ROW]`) |  Return subset of `rows` selected by `self` |
 
 
 
@@ -115,23 +115,23 @@ need to do the 2 space thing
 
 | What | Notes |
 |:---|:---|
-| l.per(<b>t</b>:`tab`,  <b>p</b>) |  return the pth (0..1) item of `t`. |
+| l.per( <b>t</b>:`tab`,   <b>p</b>?) |  return the pth (0..1) item of `t`. |
 
 
 ## Lists	
 
 | What | Notes |
 |:---|:---|
-| l.copy(<b>t</b>:`tab`,  <b>isDeep</b>:`bool`) |  copy a list (deep copy if `isDep`) |
-| l.push(<b>t</b>:`tab`,  <b>x</b>) |  push `x` onto `t`, return `x` |
+| l.copy( <b>t</b>:`tab`,   <b>isDeep</b>:`bool`?) |  copy a list (deep copy if `isDep`) |
+| l.push( <b>t</b>:`tab`,   <b>x</b>?) |  push `x` onto `t`, return `x` |
 
 
 ### Sorting	
 
 | What | Notes |
 |:---|:---|
-| l.sort(<b>t</b>:`tab`,  <b>fun</b>:`fun`) |  return `t`, sorted using function `fun` |
-| l.lt(<b>x</b>) |  return function that sorts ascending on key `x` |
+| l.sort( <b>t</b>:`tab`,   <b>fun</b>:`fun`?) |  return `t`, sorted using function `fun` |
+| l.lt( <b>x</b>) |  return function that sorts ascending on key `x` |
 
 
 ## Coercion	
@@ -139,40 +139,40 @@ need to do the 2 space thing
 
 | What | Notes |
 |:---|:---|
-| l.coerce(<b>s</b>:`str`) |  Parse `the` config settings from `help` |
-| l.csv(<b>sFilename</b>:`str`,  <b>fun</b>:`fun`) |  call `fun` on csv rows |
+| l.coerce( <b>s</b>:`str`) |  Parse `the` config settings from `help` |
+| l.csv( <b>sFilename</b>:`str`,   <b>fun</b>:`fun`?) |  call `fun` on csv rows |
 
 
 ### Thing to String	
 
 | What | Notes |
 |:---|:---|
-| l.fmt(<b>str</b>:`str`,  <b>...</b>) |  emulate printf |
-| l.oo(<b>t</b>:`tab`) |  Print a table `t` (non-recursive) |
-| l.o(<b>t</b>:`tab`) |   Generate a print string for `t` (non-recursive) |
+| l.fmt( <b>str</b>:`str`,   <b>...</b>?) |  emulate printf |
+| l.oo( <b>t</b>:`tab`) |  Print a table `t` (non-recursive) |
+| l.o( <b>t</b>:`tab`) |   Generate a print string for `t` (non-recursive) |
 
 
 ## Meta	
 
 | What | Notes |
 |:---|:---|
-| l.map(<b>t</b>:`tab`,  <b>fun</b>:`fun`) |  Return `t`, filter through `fun(value)` (skip nils) |
-| l.kap(<b>t</b>:`tab`,  <b>fun</b>:`fun`) |  Return `t` and its size, filtered via `fun(key,value)` |
-| l.keys(<b>t</b>:`tab`) |  Return keys of `t`, sorted (skip any with prefix  `_`) |
+| l.map( <b>t</b>:`tab`,   <b>fun</b>:`fun`?) |  Return `t`, filter through `fun(value)` (skip nils) |
+| l.kap( <b>t</b>:`tab`,   <b>fun</b>:`fun`?) |  Return `t` and its size, filtered via `fun(key,value)` |
+| l.keys( <b>t</b>:`tab`) |  Return keys of `t`, sorted (skip any with prefix  `_`) |
 
 
 ## Settings	
 
 | What | Notes |
 |:---|:---|
-| l.settings(<b>s</b>:`str`) |  parse help string to extract settings |
-| l.cli(<b>t</b>:`tab`) |  update table slots via command-line flags |
+| l.settings( <b>s</b>:`str`) |  parse help string to extract settings |
+| l.cli( <b>t</b>:`tab`) |  update table slots via command-line flags |
 
 
 ## Runtime	
 
 | What | Notes |
 |:---|:---|
-| l.on(<b>configs</b>:`tab`,  <b>funs</b>:`[fun]`) |  reset cofnig before running a demo |
+| l.on( <b>configs</b>:`tab`,   <b>funs</b>:`[fun]`?) |  reset cofnig before running a demo |
 
 
