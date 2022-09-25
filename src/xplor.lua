@@ -126,8 +126,9 @@ function DATA:split(m,n)
   local most,split = -1,nil
   for _,col in pairs(self.cols.x) do
     for i,xy in pairs( xys(col, {best=best, rest=rest})) do
-      if xy.y:score("best",B,R) > most then
-        most,split = xy.y:score("best",B,R),xy end end end 
+      local tmp = xy.y:score("best",B,R) 
+      if tmp > most then
+        most,split = tmp,xy end end end 
   return split,most end
 
 function xys(col, datas)
