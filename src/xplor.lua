@@ -19,7 +19,7 @@ Options:
  -s  --seed  random number seed                  = 10019]]
 
 local betters,cat,coerce,csv  = l.betters, l.cat, l.coerce, l.csv
-local fmt,kap,keys,lt,map,o   = l.fmt,l.kap,l.keys,l.lt,l.map,l.o
+local fmt,gt,kap,keys,lt,map,o= l.fmt,l.gt,l.kap,l.keys,l.lt,l.map,l.o
 local obj,oo,ordered,per,push = l.obj,l.oo,l.ordered,l.per,l.push
 local rnd,sort                = l.rnd,l.sort 
 local is = {}
@@ -118,30 +118,29 @@ function DATA:bestRest(m, n,     best,rest,rows) --- divide `self.rows`
   for i = m+1,#rows, (#rows - m+1)/(n*m)//1 do push(rest, rows[i]) end
   return best, rest end 
 
-local xys
-function DATA:split(m,n)
+function DATA:xys(m,n)
+  local function xys(col,datas,      x,n,all,bin,xys)
+    n,all,xys = 0,{},{}
+    for y,data in pairs(datas) do
+      for _,row in pairs(data.rows) do
+        x = row.cells[col.at]
+        if x ~= "?" then
+          n        = n+1
+          bin      = col:discretize(x) 
+          xys[bin] = xys[bin] or push(all, XY(col.at,col.name,x)) 
+          xys[bin]:add(x,y) end end end
+    return col:merge(sort(all,lt"xlo"), 
+                     n^the.Min) 
+  end -------------------------
+  local most,split     = -1,nil
   local best,rest,rows = self:bestRest(m,n)
   local B,R = #best, #rest
-  best,rest = self:clone(best), self:clone(rest)
-  local most,split = -1,nil
+  local out = {}
   for _,col in pairs(self.cols.x) do
-    for i,xy in pairs( xys(col, {best=best, rest=rest})) do
-      local tmp = xy.y:score("best",B,R) 
-      if tmp > most then
-        most,split = tmp,xy end end end 
-  return split,most end
-
-function xys(col, datas)
-  local n,all,xys = 0,{},{}
-  for y,data in pairs(datas) do
-    for _,row in pairs(data.rows) do
-      local x = row.cells[col.at]
-      if x ~= "?" then
-        n = n+1
-        local bin = col:discretize(x) 
-        xys[bin] = xys[bin] or push(all, XY(col.at,col.name,x)) 
-        xys[bin]:add(x,y) end end end
-  return col:merge(sort(all,lt"xlo"), n^the.Min) end
+    for i,xy in pairs(xys(col,{best = self:clone(best),
+                               rest = self:clone(rest)})) do
+      push(out, {xy=xy, score=xy.y:score("best",B,R)}) end end
+  return sort(out,gt"score") end
 
 -- ## NUM  ----- ----- ---------------------------------------------------------
 -- If you are happy

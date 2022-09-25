@@ -36,6 +36,9 @@ function l.sort(t, fun) --- return `t`, sorted using function `fun`
 function l.lt(x) --- return function that sorts ascending on key `x`
   return function(a,b) return a[x] < b[x] end end
 
+function l.gt(x) --- return function that sorts descending on key `x`
+  return function(a,b) return a[x] > b[x] end end
+
 -- ## Coercion
 -- ### String to thing
 function l.coerce(s,    fun) --- Parse `the` config settings from `help`

@@ -34,8 +34,8 @@ function go.bestRest(      data,best,rest)
   data = load(the.file)
   best,rest = data:bestRest(20,3) 
   print(#best, #rest) 
-  local split,most=data:split(20,3)
-  print(split,most)
+  local splits=data:xys(20,3)
+  print(splits[1].score, splits[1].xy)
 end
 
 -- -----------------------------------------------------------------------------
