@@ -76,7 +76,7 @@ local COL=obj"COL"
 function COL:new(n,s)
   n,s=n or 0, s or ""
   return {has=SOME(), at=n, name=s,
-          is=kap(is,function(k,fun) print(s,k); return fun(s) end)} end 
+          is=kap(is,function(k,fun) return fun(s) end)} end 
 
 function COL:add(x) self.has:add(x); return self end
 
@@ -110,17 +110,15 @@ function DATA:dist(row1,row2)
     d = d + dist(col,row1[col.at],row2[col.at])^2 end 
   return (d/n)^.5 end
 
-function DATA:add(row,data)
-  if not data then data = DATA(row) else
-    push(data.rows, row)
-    for _,cols in pairs{data.cols.x, data.cols.y} do
-      for _,col in pairs(cols) do 
-        col:add(row[col.at]) end end end 
-  return data end
+function DATA:add(row)
+  push(self.rows, row)
+  for _,cols in pairs{self.cols.x, self.cols.y} do
+    for _,col in pairs(cols) do 
+     col:add(row[col.at]) end end end 
 
 function main(file)
   local data
-  csv(file,function(row) if data then data:add(row) else data=DATA(row) end end)
+  csv(file,function(row) oo(row);if data then data:add(row) else data=DATA(row) end end)
   oo(data) end
 
 -----
