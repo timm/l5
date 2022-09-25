@@ -16,7 +16,7 @@ Options:
  -M  --Min   stop at n^Min                       = .5
  -r  --rest  expansion best to rest              = 5
  -S  --Some  How many items to keep per row      = 256
- -s  --seed  random number seed                  = 10019]]
+ -s  --seed  random number seed                  = 937162211]]
 
 local betters,cat,coerce,csv  = l.betters, l.cat, l.coerce, l.csv
 local fmt,gt,kap,keys,lt,map,o= l.fmt,l.gt,l.kap,l.keys,l.lt,l.map,l.o

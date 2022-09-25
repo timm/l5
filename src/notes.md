@@ -1,3 +1,17 @@
+control you seed
+
+
+licens, ut dont get clever
+
+things to optimize
+- dist (its abways in the code. best way to optimize dist, recursively cluster using a random subsample,  then add in ther es tin linear time)
+- loads (once spedd u lads by 40% profiling code then making tiny changes to order of operations)
+
+heuristics
+- if you goal is classify thing, you dont know your goals. Ask n users abiut hat you qrre doing any you will learn N goals.  if youa re classifying then you dont yet know what youa re doing.
+  if you are multi-objective optimziing youa re trading off between differenr goals.
+- epsilon domiantion: dont infere more than you ahve too. accuracyies of .924444 are dubius. lots of variation ins tuff, estpeicall in SE.
+
 coding in he small is different to coding in the large. so other principles (architecture,
 secutiry anit-patterns) will drive most of your own high level thinking (as well as how
 you dicuss this design with your peers). but when the rubber hits the road and keys hit the keybard, here are some

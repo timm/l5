@@ -1,53 +1,71 @@
-local R,coerce,csv,fmt,kap,keys,map,o,obj,oo,push,sort
+local l=require"keyslib"
+local the=l.options[[
+
+KEYS: multi-objective semi-supervised explainations
+(c)2022 Tim Menzies <timm@ieee.org> BSD-2 license
+
+Usage: lua keysgo.lua [Options]
+
+Options:
+ -b  --bins  minimum bin width                   = 16
+ -f  --file  file with csv data                  = ../data/auto93.csv
+ -g  --go    start-up example                    = nothing
+ -h  --help  show help                           = false
+ -K  --K     Bayes hack: low attribute frequency = 1
+ -M  --M     Bayes hack: low class frequency     = 2
+ -m  --min   stop at n^Min                       = .5
+ -r  --rest  expansion best to rest              = 5
+ -S  --Some  How many items to keep per row      = 256
+ -s  --seed  random number seed                  = 10019]]
+
+local coerce,csv,fmt,kap,keys = l.R,l.coerce,l.csv,l.fmt,l.kap,l.keys
+local map,o,obj,oo,push       = l.map,l.o,l.obj,l.oo,l.push
+local rand,rint,sort          = l.rand,l.rint,l.sort
+
+local SOME,COL,DATA,XY=obj"SOME", obj"COL", obj"DATA",obj"XY"
 -------------------------------------------------------------------------------
--- maths
-R=math.random
+function XY:new(n,s,nlo,nhi) --- Count the `y` values from `xlo` to `xhi`
+  return {name= s,                  -- name of this column
+          at  = n,                   -- offset for this column
+          xlo = nlo,                 -- min x seen so far
+          xhi = nhi or nlo,          -- max x seen so far
+          n   = 0,                   -- number of items seen
+          y   = {}} end              -- y symbols see so far
 
--- lists
-function last(t)    return t[#t] end
-function push(t, x) table.insert(t,x); return x end
-function map(t, f)  local u={};for i,v in pairs(t)do u[1+#u]=f(v)end;return u end
-function kap(t, f)  local u={};for k,v in pairs(t)do u[k]=f(k,v)end; return u end
+function XY:__tostring() --- print
+  local x,lo,hi,big = self.name, self.xlo, self.xhi, math.huge
+  if     lo ==  hi  then return fmt("%s == %s", x, lo)
+  elseif hi ==  big then return fmt("%s >  %s", x, lo)
+  elseif lo == -big then return fmt("%s <= %s", x, hi)
+  else                   return fmt("%s <  %s <= %s", lo,x,hi) end end
 
--- sorting
-function sort(t, f) table.sort(t,f); return t end
-function keys(t) 
-  local function want(k,x) if tostring(k):sub(1,1) ~= "_" then return k end end
-  return sort(kap(t,want)) end
+function XY:add(nx,sy,  n) --- `n` times (default=1), count `sy` & expand to cover `nx` 
+  if nx~="?" then
+    n = n or 1
+    self.n     = n + self.n 
+    self.y[sy] = n + (self.y[sy] or 0)    -- count
+    if nx < self.xlo then self.xlo=nx end -- expand
+    if nx > self.xhi then self.xhi=nx end end end
 
--- strings
-fmt = string.format
-function oo(t)      print(o(t)) end
-function o(t) 
-  if type(t) ~= "table" then return tostring(t) end
-  local function filter(v) return fmt(":%s %s",v,o(t[v])) end
-  t = #t>0 and map(t,tostring) or map(keys(t),filter)
-  return "{".. table.concat(t," ") .."}" end
+function XY:select(row,     x) --- return true if `row` selected by `self`
+  x = row[self.at]
+  if x =="?" then return row end ------------------ assume yes for unknowns
+  if self.xlo==self.xhi and v==self.xlo then return row end     -- for symbols
+  if self.xlo < x and x <= self.xhi     then return row end end -- for numerics
 
--- strings to things
-function coerce(s,    fun) --- Parse `the` config settings from `help`
-  function fun(s1)
-    if s1=="true"  then return true  end
-    if s1=="false" then return false end
-    return s1 end
-  return math.tointeger(s) or tonumber(s) or fun(s:match"^%s*(.-)%s*$") end
+function XY:selects(rows) --- return subset of `rows` selected by `self`
+  return map(rows,function(row) return self:select(row) end) end
 
-function csv(sFilename, fun,      src,s,t) --- call `fun` on csv rows
-  src  = io.input(sFilename)
-  while true do
-    s = io.read()
-    if   s
-    then t={}; for s1 in s:gmatch("([^,]+)") do t[1+#t]=coerce(s1) end; fun(t)
-    else return io.close(src) end end end
+function XY:merge(xy,nMin) --- if whole simpler than parts, return merged self+xy
+  local whole = XY(self.n, self.s, self.xlo, xy.xhi)
+  for y,n in pairs(self.y) do whole:add(self.xlo,y,n) end
+  for y,n in pairs(xy.y)   do whole:add(xy.xhi,  y,n) end
+  if self.n < nMin or xy.n < nMin then return whole end -- merge if too small
+  local e1,e2,e12= ent(self.y), ent(xy.y), ent(whole.y)
+  if e12 <= (self.n*e1 + xy.n*e2)/whole.n               -- merge if whole simpler
+  then return whole end end
 
--- objects
-function obj(s,    t,i,new) 
-  local isa=setmetatable
-  function new(k,...) i=isa({},k); return isa(t.new(i,...) or i,k) end
-  t={__tostring = function(x) return s..o(x) end}
-  t.__index = t;return isa(t,{__call=new}) end
 -------------------------------------------------------------------------------
-local SOME=obj"SOME"
 function SOME:new(max)
   return {sorted=false, _has={}, n=0, max=max or 512} end
 
@@ -56,7 +74,7 @@ function SOME:add(x)
   if x ~= "?" then
     self.n = self.n+1 
     if #self._has < self.max        then add(1+#self._has)
-    elseif R()    < self.max/self.n then add(R(#self._has)) end end end 
+    elseif rand() < self.max/self.n then add(rint(#self._has)) end end end 
 
 function SOME:nums()
   if not self.sorted then table.sort(self._has) end
@@ -70,7 +88,6 @@ function is.goal(s)   return s:find"[!+-]$" end
 function is.klass(s)  return s:find"!$"     end
 function is.weight(s) return s:find"-$" and -1 or 1 end
 
-local COL=obj"COL"
 function COL:new(n,s)
   n,s=n or 0, s or ""
   return {has=SOME(), at=n, name=s,
@@ -90,21 +107,20 @@ function COL:discretize(x)
 
 function COL:merge(xys, nMin) --- Can we combine any adjacent ranges?
   if not self.is.num then return xys end
-  local function try2Merge(t,n,u)
+  local function merges(t,n,u) 
     while n <= #t do
-      local a,b = t[n], t[n+1]
-      local ab  = n < #t and simpler(a.y, b.y, nMin) -- <=== aas
-      u[1+#u]   = ab and XY(a.at, a.name, a.xlo, b.xhi, ab) or a
-      n         = ab and n+2 or n+1 end
-    return #t == #u and t or try2Merge(u,1,{}) 
+      local xy1,xy2 = t[n], t[n+1]
+      local xy12    = n < #t and xy1:merge(xy2, nMin) 
+      u[1+#u]       = xy12 or xy1
+      n             = xy12 and n+2 or n+1 end
+    return #t == #u and t or merges(u,1,{}) 
   end ---------------------
-  xys = try2Merge(xys,1,{})
+  xys = merges(xys,1,{})
   for n = 2,#xys do xys[n].xlo = xys[n-1].xhi end   -- fill in any gaps
   xys[1].xlo, xys[#xys].xhi = -math.huge, math.huge -- extend to +/- infinity
   return xys end
 
 -------------------------------------------------------------------------------
-local DATA=obj"DATA"
 function DATA:new(names)
   self = {rows={}, cols={names=names, all={},x={},y={}}}
   for n,s in pairs(names) do
@@ -135,6 +151,17 @@ function DATA:add(row)
     for _,col in pairs(cols) do 
      col:add(row[col.at]) end end end 
 
+function DATA:sorted() --- sort `self.rows`
+    return sort(self.rows, 
+                function(row1,row2,    s1,s2,x,y)
+                  s1,s2,x,y=0,0
+                  for _,col in pairs(self.cols.y) do
+                    x = col:norm(row1[col.at])
+                    y = col:norm(row2[col.at])
+                    s1= s1 - math.exp(col.is.w * (x-y)/#self.cols.y)
+                    s2= s2 - math.exp(col.is.w * (y-x)/#self.cols.y) end
+                  return s1/#self.cols.y < s2/#self.cols.y end) end
+
 function load(file,    data)
   csv(file, function(row) 
               if data then data:add(row) else data=DATA(row) end end) 
@@ -151,8 +178,7 @@ function DATA:xys(m,n)
           bin      = col:discretize(x) 
           xys[bin] = xys[bin] or push(all, XY(col.at,col.name,x)) 
           xys[bin]:add(x,y) end end end
-    return col:merge(sort(all,lt"xlo"), 
-                     n^the.Min) 
+    return col:merge(sort(all,lt"xlo"), n^the.Min) 
   end -------------------------
   local most,split     = -1,nil
   local best,rest,rows = self:bestRest(m,n)
@@ -164,5 +190,5 @@ function DATA:xys(m,n)
       push(out, {xy=xy, score=xy.y:score("best",B,R)}) end end
   return sort(out,gt"score") end
 
------
-load("../data/auto93.csv")
+-- That's all folks
+return {the=the, DATA=DATA, COL=COL, XY=XY, SOME=SOME}
