@@ -164,7 +164,5 @@ function DATA:xys(m,n)
       push(out, {xy=xy, score=xy.y:score("best",B,R)}) end end
   return sort(out,gt"score") end
 
-
 -----
 load("../data/auto93.csv")
-
