@@ -18,6 +18,9 @@ function l.obj(s,    t,i,new)
 function l.per(t, p) --- return the pth (0..1) item of `t`.
   p=math.floor(((p or .5)*#t)+.5); return t[math.max(1,math.min(#t,p))] end
 
+function l.rnd(x, places) 
+  local mult=10^(places or 2); return math.floor(x * mult + 0.5)/mult end
+
 -- ## Lists
 function l.copy(t, isDeep,    u) --- copy a list (deep copy if `isDep`)
   if type(t) ~= "table" then return t end
@@ -53,6 +56,9 @@ function l.csv(sFilename, fun,      src,s,t) --- call `fun` on csv rows
 -- ### Thing to String
 function l.fmt(str, ...) --- emulate printf
   return string.format(str,...) end
+
+function l.cat(t) 
+  return table.concat(t,", ") end
 
 function l.oo(t)  --- Print a table `t` (non-recursive)
   print(l.o(t)) end

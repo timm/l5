@@ -1,8 +1,8 @@
 local l=require"xplorlib"
 local X=require"xplor"
 
-local the,DATA,NUM,SYM = X.the,X.DATA,X.NUM,X.SYM
-local o,on,oo,csv,map  = l.o,l.on,l.oo,l.csv,l.map
+local the,DATA,NUM,SYM    = X.the,X.DATA,X.NUM,X.SYM
+local o,on,oo,csv,map,rnd = l.o,l.on,l.oo,l.csv,l.map,l.rnd
 
 -- -----------------------------------------------------------------------------
 local go={}
@@ -18,10 +18,13 @@ function go.sym(     sym)
   for _,s in pairs{"a","a","a","a","b","b","c"} do sym:add(s) end
   print(sym.mode, sym:entropy()) end
 
-function go.csv(      data)
-  data = load(the.file)
-  map(data.cols.x, oo) end
-
+function go.csv(      data1,data2)
+  data1 = load(the.file)
+  map(data1.cols.x, function(col) print(1,o(rnd(col:div()))) end) 
+  print""
+  data2 = data1:clone(data1.rows)
+  map(data2.cols.x, function(col) print(2,o(rnd(col:div()))) end) end
+  
 function go.sorted(      data,rows)
   data = load(the.file)
   rows= data:sorted() 
@@ -30,7 +33,10 @@ function go.sorted(      data,rows)
 function go.bestRest(      data,best,rest)
   data = load(the.file)
   best,rest = data:bestRest(20,3) 
-  print(#best, #rest) end
+  print(#best, #rest) 
+  local split,most=data:split(20,3)
+  print(split,most)
+end
 
 -- -----------------------------------------------------------------------------
 the = l.cli(the)                  
