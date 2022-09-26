@@ -40,7 +40,7 @@ function XY:__tostring() --- print
   elseif lo == -big then return fmt("%s <= %s", x, hi)
   else                   return fmt("%s <  %s <= %s", lo,x,hi) end end
 
-function XY:add(nx,sy,  n) --- `n` times (default=1), count `sy` & expand to cover `nx` 
+function XY:add(nx,sy,  n) --- `n`[=1] times,count `sy`. Expand to cover `nx` 
   if nx~="?" then
     n = n or 1
     self.n     = n + self.n 
@@ -78,7 +78,9 @@ function XY:merge(xy,nMin) --- if whole simpler than parts, return merged self+x
   if e12 <= (self.n*e1 + xy.n*e2)/whole.n               -- merge if whole simpler
   then return whole end end
 
-local function like(xys,n,nB,nR) --- returns likelihood we do/dont `want` `xys`
+-- ### Class methods 
+-- For lists of `xy`s.
+function XY.like(xys,sWant,n,nB,nR) --- likelihood we do/dont `sWant` `xys`
   function like1(f,n,nall,nhypotheses,     prior,like)
     prior = (n+the.K)/(nall + the.K*nhypotheses)
     like  = math.log(prior)
@@ -89,8 +91,7 @@ local function like(xys,n,nB,nR) --- returns likelihood we do/dont `want` `xys`
   for _,xy in pairs(xys) do
     for k,v in pairs(xy.y) do 
       c = xy.at
-      if k==want then yes[c]=(yes[c] or 0)+v; no[c] =(no[c]  or 0) 
-                 else no[c] =(no[c]  or 0)+v; yes[c]=(yes[c] or 0) end end end 
+      if k==sWant then yes[c]=(yes[c] or 0)+v else no[c]=(no[c] or 0)+v end end end 
   return like1(yes,nB,nB + nR,2), like1(no,nR,nB + nR,2) end
 
 -------------------------------------------------------------------------------
