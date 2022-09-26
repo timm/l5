@@ -7,8 +7,9 @@ KEYS: multi-objective semi-supervised explainations
 Usage: lua keysgo.lua [Options]
 
 Options:
+ -a  --aim   aim; One of {plan,watch,explore}    = plan
  -b  --bins  minimum bin width                   = 16
- -f  --file  file with csv data                  = ../data/auto93.csv
+ -f  --file  file with csv data                  = ../../data/auto93.csv
  -g  --go    start-up example                    = nothing
  -h  --help  show help                           = false
  -K  --K     Bayes hack: low attribute frequency = 1
@@ -18,13 +19,13 @@ Options:
  -S  --Some  How many items to keep per row      = 256
  -s  --seed  random number seed                  = 10019]]
 
-local coerce,csv,fmt,kap,keys = l.R,l.coerce,l.csv,l.fmt,l.kap,l.keys
-local map,o,obj,oo,push       = l.map,l.o,l.obj,l.oo,l.push
-local rand,rint,sort          = l.rand,l.rint,l.sort
+local coerce,csv,ent,fmt,gt,kap = l.coerce, l.csv, l.ent, l.fmt, l.gt, l.kap
+local keys,lt,map,o,obj,oo      = l.keys, l.lt, l.map, l.o, l.obj, l.oo
+local push,rand,rint,sort       = l.push, l.rand, l.rint, l.sort
 
 local SOME,COL,DATA,XY=obj"SOME", obj"COL", obj"DATA",obj"XY"
 -------------------------------------------------------------------------------
-function XY:new(n,s,nlo,nhi) --- Count the `y` values from `xlo` to `xhi`
+function XY:new(s,n,nlo,nhi) --- Count the `y` values from `xlo` to `xhi`
   return {name= s,                  -- name of this column
           at  = n,                   -- offset for this column
           xlo = nlo,                 -- min x seen so far
@@ -47,6 +48,18 @@ function XY:add(nx,sy,  n) --- `n` times (default=1), count `sy` & expand to cov
     if nx < self.xlo then self.xlo=nx end -- expand
     if nx > self.xhi then self.xhi=nx end end end
 
+local aims={}
+function aims.plan(b,r)    return b*2/(b+r+1E-32) end
+function aims.watch(b,r)   return 0 or r*2/(b+r+1E-32) end
+function aims.explore(b,r) return 1/r + 1/b end
+
+function XY:score(want,B,R) --- how well does `self` select for `want`?
+  local b,r,e = 0,0,1E-30
+  for got,n in pairs(self.y) do 
+    if got==want then b=b+n else r=r+n end end
+  b, r = b/(B+e), r/(R+e)
+  return aims[the.aim](b,r) end
+
 function XY:select(row,     x) --- return true if `row` selected by `self`
   x = row[self.at]
   if x =="?" then return row end ------------------ assume yes for unknowns
@@ -57,7 +70,7 @@ function XY:selects(rows) --- return subset of `rows` selected by `self`
   return map(rows,function(row) return self:select(row) end) end
 
 function XY:merge(xy,nMin) --- if whole simpler than parts, return merged self+xy
-  local whole = XY(self.n, self.s, self.xlo, xy.xhi)
+  local whole = XY(self.name, self.at, self.xlo, xy.xhi)
   for y,n in pairs(self.y) do whole:add(self.xlo,y,n) end
   for y,n in pairs(xy.y)   do whole:add(xy.xhi,  y,n) end
   if self.n < nMin or xy.n < nMin then return whole end -- merge if too small
@@ -65,15 +78,31 @@ function XY:merge(xy,nMin) --- if whole simpler than parts, return merged self+x
   if e12 <= (self.n*e1 + xy.n*e2)/whole.n               -- merge if whole simpler
   then return whole end end
 
+function like(xys,swant,nB,nR)
+  function like1(f,n1, n12)
+    local prior,like
+    prior = (n1+the.K)/(n12 + the.K*2)
+    like  = math.log(prior)
+    for c,n in pairs(f) do
+      like = like + math.log((n+the.M*prior/(n1 +the.M))) end 
+    return like 
+  end ---------
+  for _,xy in pairs(xys) do
+    for k,v in pairs(xy.y) do 
+      c = xy.at
+      if k==sWant then yes[c]=(yes[c] or 0)+v; no[c] =(no[c]  or 0) 
+                  else no[c] =(no[c]  or 0)+v; yes[c]=(yes[c] or 0) end end end 
+  return like1(yes,nB,nB + nR), like1(no,nR,nB + nR) end
+
 -------------------------------------------------------------------------------
 function SOME:new(max)
-  return {sorted=false, _has={}, n=0, max=max or 512} end
+  return {sorted=false, _has={}, n=0, max=max or the.Some} end
 
 function SOME:add(x)
   local function add(pos) self._has[pos]=x; self.sorted=false end
   if x ~= "?" then
     self.n = self.n+1 
-    if #self._has < self.max        then add(1+#self._has)
+    if #self._has < self.max        then add(1+#self._has) 
     elseif rand() < self.max/self.n then add(rint(#self._has)) end end end 
 
 function SOME:nums()
@@ -88,10 +117,10 @@ function is.goal(s)   return s:find"[!+-]$" end
 function is.klass(s)  return s:find"!$"     end
 function is.weight(s) return s:find"-$" and -1 or 1 end
 
-function COL:new(n,s)
+function COL:new(s,n)
   n,s=n or 0, s or ""
   return {has=SOME(), at=n, name=s,
-          is=kap(is,function(k,fun) return fun(s) end)} end 
+          is=kap(is,function(k,fun)  return fun(s) end)} end 
 
 function COL:add(x) self.has:add(x); return self end
 
@@ -110,7 +139,7 @@ function COL:merge(xys, nMin) --- Can we combine any adjacent ranges?
   local function merges(t,n,u) 
     while n <= #t do
       local xy1,xy2 = t[n], t[n+1]
-      local xy12    = n < #t and xy1:merge(xy2, nMin) 
+      local xy12    = xy2 and xy1:merge(xy2, nMin) 
       u[1+#u]       = xy12 or xy1
       n             = xy12 and n+2 or n+1 end
     return #t == #u and t or merges(u,1,{}) 
@@ -124,7 +153,7 @@ function COL:merge(xys, nMin) --- Can we combine any adjacent ranges?
 function DATA:new(names)
   self = {rows={}, cols={names=names, all={},x={},y={}}}
   for n,s in pairs(names) do
-    col = push(self.cols.all, COL(n,s))
+    local col = push(self.cols.all, COL(s,n))
     if not is.skip(s) then
       if is.klass(s) then self.cols.klass=col end
       push(is.goal(s)  and self.cols.y or self.cols.x, col) end end
@@ -151,6 +180,11 @@ function DATA:add(row)
     for _,col in pairs(cols) do 
      col:add(row[col.at]) end end end 
 
+function DATA:clone(t)
+  local data=DATA(self.cols.names)
+  for _,row in pairs(t or {}) do data:add(row) end 
+  return data end
+
 function DATA:sorted() --- sort `self.rows`
     return sort(self.rows, 
                 function(row1,row2,    s1,s2,x,y)
@@ -158,16 +192,25 @@ function DATA:sorted() --- sort `self.rows`
                   for _,col in pairs(self.cols.y) do
                     x = col:norm(row1[col.at])
                     y = col:norm(row2[col.at])
-                    s1= s1 - math.exp(col.is.w * (x-y)/#self.cols.y)
-                    s2= s2 - math.exp(col.is.w * (y-x)/#self.cols.y) end
+                    s1= s1 - math.exp(col.is.weight * (x-y)/#self.cols.y)
+                    s2= s2 - math.exp(col.is.weight * (y-x)/#self.cols.y) end
                   return s1/#self.cols.y < s2/#self.cols.y end) end
 
-function load(file,    data)
-  csv(file, function(row) 
-              if data then data:add(row) else data=DATA(row) end end) 
-  oo(data.cols.all[1].has:nums()) end
+function load(src,    data)
+  local function add(row)
+          if data then data:add(row) else data=DATA(row) end end 
+  if type(src)=="string" then csv(src, add) else map(src or {},add) end
+  return data end
 
-function DATA:xys(m,n)
+function DATA:xys()
+  local function bestRest(     rows,best,rest,m,step)
+    rows      = self:sorted()
+    best,rest = self:clone(), self:clone()
+    m         = (#rows)^the.min//1
+    step      = (#rows-m+1)/(the.rest*m)//1
+    for i=1  , m    , 1    do best:add(rows[i]) end
+    for i=m+1, #rows, step do rest:add(rows[i]) end 
+    return best, rest, #best.rows, #rest.rows end
   local function xys(col,datas,      x,n,all,bin,xys)
     n,all,xys = 0,{},{}
     for y,data in pairs(datas) do
@@ -176,18 +219,16 @@ function DATA:xys(m,n)
         if x ~= "?" then
           n        = n+1
           bin      = col:discretize(x) 
-          xys[bin] = xys[bin] or push(all, XY(col.at,col.name,x)) 
-          xys[bin]:add(x,y) end end end
-    return col:merge(sort(all,lt"xlo"), n^the.Min) 
+          xys[bin] = xys[bin] or push(all, XY(col.name,col.at,x)) 
+          xys[bin]:add(x,y) 
+    end end end
+    return col:merge(sort(all,lt"xlo"), n^the.min) 
   end -------------------------
-  local most,split     = -1,nil
-  local best,rest,rows = self:bestRest(m,n)
-  local B,R = #best, #rest
   local out = {}
+  local best,rest,B,R = bestRest()
   for _,col in pairs(self.cols.x) do
-    for i,xy in pairs(xys(col,{best = self:clone(best),
-                               rest = self:clone(rest)})) do
-      push(out, {xy=xy, score=xy.y:score("best",B,R)}) end end
+    for i,xy in pairs(xys(col,{best = best, rest = rest})) do
+      push(out, {xy=xy, score=xy:score("best",B,R)}) end end
   return sort(out,gt"score") end
 
 -- That's all folks
