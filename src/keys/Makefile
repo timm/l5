@@ -35,11 +35,11 @@ MAKEFLAGS += --silent
 SHELL=/bin/bash
 R=$(shell git rev-parse --show-toplevel)
 
-README.md : xplor.lua xplorlib.lua
+README.md : keys.lua keyslib.lua
 	(echo ""; echo "\`\`\`css")  > $@
-	lua xplorgo.lua -h       >> $@ 
-	grep '^##' Makefile | sed 's/^## //' >> #@ 
-	(echo "\`\`\`") >> $@
+	lua keysgo.lua -h       >> $@ 
+	(echo "\`\`\`"; echo"") >> $@
+	grep '^##' Makefile | sed 's/^## //' >> $@ 
 	lua ../readme.lua >>$@
 
 D=auto2 auto93 nasa93dem china coc1000 healthCloseIsses12mths0011-easy \
@@ -65,22 +65,11 @@ pub: ## save all to Github
 htmls:
 	@$(foreach f,$(shell ls *.lua), $(MAKE)  -s ../docs/$(basename $f).html;)
 
-g=about.lua  num.lua sym.lua row.lua cols.lua data.lua eg.lua
-pdfs:
-	a2ps -o ~/tmp/all.ps -qBr -f 5 -M letter --borders=no --pro=color --line-numbers=1 --borders=no -A virtual --pretty-print=$R/etc/lua.ssh --columns 3 $g
-	@a2ps -o ~/tmp/all.ps -qBr -f 5 --columns 3-M letter --pro=color --line-numbers=1 --pretty-print=$R/etc/lua.ssh  -A virtual$g
-	ps2pdf ~/tmp/all.ps ~/tmp/all.pdf
-
-txts : 
-	@figlet -W -f larry3d xplor > _xplor.lua; cat xplor.lua >> _xplor.lua
-	#$(foreach f,xplorlib.lua xplorgo.lua, (figlet -W -f contessa $f >> _xplor.lua ; cat $f >> _xplor.lua);)
-	$(foreach f,xplorlib.lua xplorgo.lua, (figlet -W -f contessa $f ; cat $f;) >> _xplor.lua;)
-	$(MAKE) ~/tmp/_xplor.pdf
-	rm _xplor.lua
-
-~/tmp/%.txt: %.lua
-	@bash  ../etc/comments.sh $<  > $@
-	@cat $@
+pdf : 
+	@figlet -W -f larry3d keys > _keys.lua; cat keys.lua >> _keys.lua
+	$(foreach f,keyslib.lua keysgo.lua, (echo ""; figlet -W -f graceful $(basename $f .lua) ; cat $f;) >> _keys.lua;)
+	$(MAKE) ~/tmp/_keys.pdf
+	rm _keys.lua
 
 ~/tmp/%.pdf: %.lua  ## .lua ==> .pdf
 	@echo 1
@@ -103,6 +92,3 @@ txts :
 	  -o	 $@.ps $<
 	ps2pdf $@.ps $@; rm $@.ps
 	@open $@
-
-
-#		--footer='Page %p. or #p.'  \
