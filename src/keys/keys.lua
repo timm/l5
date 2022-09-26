@@ -23,7 +23,7 @@ local coerce,csv,ent,fmt,gt,kap = l.coerce, l.csv, l.ent, l.fmt, l.gt, l.kap
 local keys,lt,map,o,obj,oo      = l.keys, l.lt, l.map, l.o, l.obj, l.oo
 local push,rand,rint,sort       = l.push, l.rand, l.rint, l.sort
 
-local SOME,COL,DATA,XY=obj"SOME", obj"COL", obj"DATA",obj"XY"
+local SOME,COL,DATA,XY=obj"SOME", obj"COL", obj"DATA", obj"XY"
 -------------------------------------------------------------------------------
 function XY:new(s,n,nlo,nhi) --- Count the `y` values from `xlo` to `xhi`
   return {name= s,                  -- name of this column
@@ -78,21 +78,20 @@ function XY:merge(xy,nMin) --- if whole simpler than parts, return merged self+x
   if e12 <= (self.n*e1 + xy.n*e2)/whole.n               -- merge if whole simpler
   then return whole end end
 
-function like(xys,swant,nB,nR)
-  function like1(f,n1, n12)
-    local prior,like
-    prior = (n1+the.K)/(n12 + the.K*2)
+local function like(xys,n,nB,nR) --- returns likelihood we do/dont `want` `xys`
+  function like1(f,n,nall,nhypotheses,     prior,like)
+    prior = (n+the.K)/(nall + the.K*nhypotheses)
     like  = math.log(prior)
-    for c,n in pairs(f) do
-      like = like + math.log((n+the.M*prior/(n1 +the.M))) end 
+    for c,n1 in pairs(f) do
+      like = like + math.log((n1+the.M*prior)/(n +the.M)) end 
     return like 
   end ---------
   for _,xy in pairs(xys) do
     for k,v in pairs(xy.y) do 
       c = xy.at
-      if k==sWant then yes[c]=(yes[c] or 0)+v; no[c] =(no[c]  or 0) 
-                  else no[c] =(no[c]  or 0)+v; yes[c]=(yes[c] or 0) end end end 
-  return like1(yes,nB,nB + nR), like1(no,nR,nB + nR) end
+      if k==want then yes[c]=(yes[c] or 0)+v; no[c] =(no[c]  or 0) 
+                 else no[c] =(no[c]  or 0)+v; yes[c]=(yes[c] or 0) end end end 
+  return like1(yes,nB,nB + nR,2), like1(no,nR,nB + nR,2) end
 
 -------------------------------------------------------------------------------
 function SOME:new(max)
