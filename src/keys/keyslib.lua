@@ -58,6 +58,10 @@ function l.push(t, x) --- push `x` to end of list; return `x`
 function l.sd(t) --- sorted list standard deviation= (90-10)th percentile/2.58
   return (t[(.9*#t)//1] - t[(.1*#t)//1]) / 2.58 end
 
+function l.top(n,t) --- return first `n` items from `t`.
+  local u={}; for i=1,#t do u[1+#u] = t[i]; if i>= n then break end end
+  return u end
+
 -- ### Sorting Lists
 function l.gt(s)
   return function(a,b) return a[s] > b[s] end end

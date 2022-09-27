@@ -1,7 +1,8 @@
 local l=require"keyslib"
 local k=require"keys"
 
-local fmt,map,o,obj,oo,push = l.fmt,l.map,l.o,l.obj,l.oo,l.push
+local fmt,map,o,obj,oo     = l.fmt,l.map,l.o,l.obj,l.oo
+local powerset, push,top   = l.powerset, l.push,l.top
 local the,SOME,COL,DATA,XY = k.the,k.SOME, k.COL, k.DATA, k.XY
 
 local function cli(the) --- alters contents of `the` from command-line
@@ -63,9 +64,12 @@ function go.xys(     data)
   map(data:xys(),oo)
 end
 
-
-
-
+function go.learn(     data)
+  data = load(the.file) 
+  xyss,B,R= data:xys()
+  local function fun(xys) return {score=XY.like(xys,"best",B,R),xys=xys} end 
+  top(the.beam, sort(map(powerset(top(the.beam,xyss)), fun),gt"score"))
+end
 
 -------------------------------------------------------------------------------
 run(go,cli(the))

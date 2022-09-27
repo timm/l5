@@ -9,6 +9,7 @@ Usage: lua keysgo.lua [Options]
 Options:
  -a  --aim   aim; One of {plan,watch,explore}    = plan
  -b  --bins  minimum bin width                   = 16
+ -B  --beam  beam size                           = 10
  -f  --file  file with csv data                  = ../../data/auto93.csv
  -g  --go    start-up example                    = nothing
  -h  --help  show help                           = false
@@ -80,7 +81,7 @@ function XY:merge(xy,nMin) --- if whole simpler than parts, return merged self+x
 
 -- ### Class methods 
 -- For lists of `xy`s.
-function XY.like(xys,sWant,n,nB,nR) --- likelihood we do/dont `sWant` `xys`
+function XY.like(xys,sWant,nB,nR) --- likelihood we do/dont `sWant` `xys`
   function like1(f,n,nall,nhypotheses,     prior,like)
     prior = (n+the.K)/(nall + the.K*nhypotheses)
     like  = math.log(prior)
@@ -229,7 +230,9 @@ function DATA:xys()
   for _,col in pairs(self.cols.x) do
     for i,xy in pairs(xys(col,{best = best, rest = rest})) do
       push(out, {xy=xy, score=xy:score("best",B,R)}) end end
-  return sort(out,gt"score") end
+  return sort(out,gt"score"),B,R end
+
+--function DATA:learn()
 
 -- That's all folks
 return {the=the, DATA=DATA, COL=COL, XY=XY, SOME=SOME}
