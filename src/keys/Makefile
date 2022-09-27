@@ -74,7 +74,7 @@ pdf :
 	rm _keys.lua
 
 ~/tmp/%.pdf: %.lua  ## .lua ==> .pdf
-	mkdir -p $R/docs
+	mkdir -p ~/tmp
 	echo "pdf-ing $@ ... "
 	a2ps                   \
 		-Br                    \

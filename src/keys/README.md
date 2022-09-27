@@ -8,6 +8,7 @@ Usage: lua keysgo.lua [Options]
 Options:
  -a  --aim   aim; One of {plan,watch,explore}    = plan
  -b  --bins  minimum bin width                   = 16
+ -B  --beam  beam size                           = 10
  -f  --file  file with csv data                  = ../../data/auto93.csv
  -g  --go    start-up example                    = nothing
  -h  --help  show help                           = false
@@ -71,7 +72,7 @@ For lists of `xy`s.
 
 | What | Notes |
 |:---|:---|
-| <b>XY.like(xys:`[XY]`, sWant:`str`, n:`num`, nB:`num`, nR:`num`)</b> |  likelihood we do/dont `sWant` `xys` |
+| <b>XY.like(xys:`[XY]`, sWant:`str`, nB:`num`, nR:`num`)</b> |  likelihood we do/dont `sWant` `xys` |
 | <b>COL:merge(xys:`[XY]`,  nMin:`num`)</b> |  Can we combine any adjacent ranges? |
 | <b>DATA:sorted()</b> |  sort `self.rows` |
 
@@ -110,6 +111,7 @@ Hence, we use our own (using Park-Miller).
 | <b>l.map(t:`tab`,  fun:`fun`)</b> |  map function `fun`(v) over list (skip nil results)  |
 | <b>l.push(t:`tab`,  x)</b> |  push `x` to end of list; return `x`  |
 | <b>l.sd(t:`tab`)</b> |  sorted list standard deviation= (90-10)th percentile/2.58 |
+| <b>l.top(n:`num`, t:`tab`)</b> |  return first `n` items from `t`. |
 
 
 ### Sorting Lists	
