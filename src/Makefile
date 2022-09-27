@@ -19,8 +19,9 @@ README.md : xplor.lua xplorlib.lua
 	cat README.txt           >> $@
 	lua readme.lua  $^       >> $@
 
-pub: ## save all to Github
-	git add *;git commit -am save;git push;git status
+y?=save
+bye: ## save all to Github
+	git add *;git commit -am "$(y)" ;git push;git status
 
 ../docs/%.html: %.lua 
 	@mkdir -p $R/docs
