@@ -1,8 +1,8 @@
 local l=require"keyslib"
 local k=require"keys"
 
-local fmt,map,o,obj,oo     = l.fmt,l.map,l.o,l.obj,l.oo
-local powerset, push,top   = l.powerset, l.push,l.top
+local fmt,gt,lt,map,o,obj,oo     = l.fmt,l.gt,l.lt,l.map,l.o,l.obj,l.oo
+local powerset, push,sort,top   = l.powerset, l.push,l.sort,l.top
 local the,SOME,COL,DATA,XY = k.the,k.SOME, k.COL, k.DATA, k.XY
 
 local function cli(the) --- alters contents of `the` from command-line
@@ -43,6 +43,7 @@ function go.col(     col)
 
 function go.data(      data)
   data=load(the.file) 
+ oo(data.cols.all)
   oo(data.cols.all[4].has:nums()) end
 
 function go.clone(     data1,data2)
@@ -67,10 +68,13 @@ end
 function go.learn(     data,xyss,B,R)
   data = load(the.file) 
   xyss,B,R= data:xys()
-  local function fun(sys) 
-    if #xys>0 then return {score=XY.like(xys,"best",B,R),xys=xys} end end
+  local function fun(xys) 
+    if #xys>0 then 
+      return {score=XY.like(xys,"best",B,R),xys=xys} end end
   --top(the.beam, sort(map(powerset(top(the.beam,xyss)), fun),gt"score"))
-  map(powerset(top(the.beam,xyss)),fun)
+  map(top(the.beam,
+      sort(map(powerset(top(the.beam,xyss)),fun),gt"score")),
+    oo)
 end
 
 -------------------------------------------------------------------------------

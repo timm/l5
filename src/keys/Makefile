@@ -56,7 +56,7 @@ rule:; echo 1; $(foreach d,$D, lua tiny2.lua -f ../data/$d.csv -g rule; )
 bestLeaf:;   $(foreach d,$D, lua l5.lua -s ${RANDOM} -S 2000 -m 10 -f ../data/$d.csv -e bestLeaf; )
 
 y?=saving
-m: ## save all to Github
+itso: ## save all to Github
 	echo "git commit -am '$y'"
 	git add *;git commit -am "$y";git push;git status
 

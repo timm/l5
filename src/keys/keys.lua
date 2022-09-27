@@ -27,7 +27,8 @@ local push,rand,rint,sort       = l.push, l.rand, l.rint, l.sort
 local SOME,COL,DATA,XY=obj"SOME", obj"COL", obj"DATA", obj"XY"
 -------------------------------------------------------------------------------
 function XY:new(s,n,nlo,nhi) --- Count the `y` values from `xlo` to `xhi`
-  return {name= s,                  -- name of this column
+  return {_id=self._id,
+          name= s,                  -- name of this column
           at  = n,                   -- offset for this column
           xlo = nlo,                 -- min x seen so far
           xhi = nhi or nlo,          -- max x seen so far
@@ -53,6 +54,7 @@ local aims={}
 function aims.plan(b,r)    return b*2/(b+r+1E-32) end
 function aims.watch(b,r)   return 0 or r*2/(b+r+1E-32) end
 function aims.explore(b,r) return 1/r + 1/b end
+function aims.refute(b,r) return (b+r)/(b-r+1E-32) end
 
 function XY:score(want,B,R) --- how well does `self` select for `want`?
   local b,r,e = 0,0,1E-30
@@ -82,24 +84,23 @@ function XY:merge(xy,nMin) --- if whole simpler than parts, return merged self+x
 -- ### Class methods 
 -- For lists of `xy`s.
 function XY.like(xys,sWant,nB,nR) --- likelihood we do/dont `sWant` `xys`
-  oo(xys)
-  function like1(f,n,nall,nhypotheses,     prior,like)
+  local function like1(f,n,nall,nhypotheses,     prior,like)
     prior = (n+the.K)/(nall + the.K*nhypotheses)
     like  = math.log(prior)
     for c,n1 in pairs(f) do
       like = like + math.log((n1+the.M*prior)/(n +the.M)) end 
-    return like 
+    return math.exp(like) 
   end ---------
+  local yes,no={},{}
   for _,xy in pairs(xys) do
-    oo(xy)
     for k,v in pairs(xy.y) do 
-      c = xy.at
+      local c = xy.at
       if k==sWant then yes[c]=(yes[c] or 0)+v else no[c]=(no[c] or 0)+v end end end 
-  return like1(yes,nB,nB + nR,2), like1(no,nR,nB + nR,2) end
+  return aims[the.aim](like1(yes,nB,nB + nR,2), like1(no,nR,nB + nR,2)) end
 
 -------------------------------------------------------------------------------
 function SOME:new(max)
-  return {sorted=false, _has={}, n=0, max=max or the.Some} end
+  return {_id=self._id,sorted=false, _has={}, n=0, max=max or the.Some} end
 
 function SOME:add(x)
   local function add(pos) self._has[pos]=x; self.sorted=false end
@@ -122,7 +123,7 @@ function is.weight(s) return s:find"-$" and -1 or 1 end
 
 function COL:new(s,n)
   n,s=n or 0, s or ""
-  return {has=SOME(), at=n, name=s,
+  return {_id=self._id, has=SOME(), at=n, name=s,
           is=kap(is,function(k,fun)  return fun(s) end)} end 
 
 function COL:add(x) self.has:add(x); return self end
@@ -154,7 +155,7 @@ function COL:merge(xys, nMin) --- Can we combine any adjacent ranges?
 
 -------------------------------------------------------------------------------
 function DATA:new(names)
-  self = {rows={}, cols={names=names, all={},x={},y={}}}
+  self = {_id=self._id,rows={}, cols={names=names, all={},x={},y={}}}
   for n,s in pairs(names) do
     local col = push(self.cols.all, COL(s,n))
     if not is.skip(s) then
