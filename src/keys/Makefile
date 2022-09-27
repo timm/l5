@@ -1,4 +1,4 @@
-#= [keys](\#keys) | [keyslib](\#keyslib)
+#= [keys](#keyslua) | [keyslib](#keysliblus)
 #=  
 #= <img width="350" 
 #=      align=right 
