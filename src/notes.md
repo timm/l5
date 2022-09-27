@@ -1,3 +1,11 @@
+your build tools are part of your system and should be under version control
+
+all those tricks you use to shortcut the production should be vailable to the rest of
+the team (makefile)
+
+3 months from now, your own code will be as alien as anyone elses. write doco (includes 
+demos, help string, self-documenting makefiles)
+
 control you seed
 
 
