@@ -20,7 +20,7 @@ Options:
  -s  --seed  random number seed                  = 10019
 ```
 
-[keys](#keyslua) | [keyslib](#keysliblus)
+[keys](#keyslua) | [keyslua](#keysliblua)
  
 <img width="350" 
      align=right 
