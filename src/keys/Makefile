@@ -53,7 +53,7 @@ bestLeaf:;   $(foreach d,$D, lua l5.lua -s ${RANDOM} -S 2000 -m 10 -f ../data/$d
 TWOPLUS=cat $@ | awk 'BEGIN {FS="\n";RS=""} NR==1 { print("\n\n"); next} {print $$0 "\n\n"}'
 
 y?=saving
-bye: ## save all to Github
+m: ## save all to Github
 	echo "git commit -am '$y'"
 	git add *;git commit -am "$y";git push;git status
 
