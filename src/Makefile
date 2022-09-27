@@ -70,7 +70,3 @@ txts :
 		--right-footer="" \
 	  -o	 $@.ps $<
 	ps2pdf $@.ps $@; rm $@.ps
-	@open $@
-
-
-#		--footer='Page %p. or #p.'  \
