@@ -4,7 +4,7 @@ local l={}
 
 -- ## Linting
 local b4={}; for k,v in pairs(_ENV) do b4[k]=v end
-function l.rogues()
+function l.rogues() --- report rogue locals
   for k,v in pairs(_ENV) do
     if not b4[k] then print( l.fmt("#W ?%s %s",k,type(v)) ) end end end
 
