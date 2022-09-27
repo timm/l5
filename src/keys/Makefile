@@ -52,30 +52,31 @@ bestLeaf:;   $(foreach d,$D, lua l5.lua -s ${RANDOM} -S 2000 -m 10 -f ../data/$d
 
 TWOPLUS=cat $@ | awk 'BEGIN {FS="\n";RS=""} NR==1 { print("\n\n"); next} {print $$0 "\n\n"}'
 
-pub: ## save all to Github
-	git add *;git commit -am save;git push;git status
+y?=saving
+bye: ## save all to Github
+	echo "git commit -am '$y'"
+	git add *;git commit -am "$y";git push;git status
 
 ../docs/%.html: %.lua 
-	@mkdir -p $R/docs
-	@cat $R/etc/header > /tmp/$<
-	@cat $< | gawk '/^-- ##/{print $0; print"\n"; next} 1' >> /tmp/$<
-	@cd /tmp; docco -l classic -o $R/docs $<
-	@cp $R/etc/docco.css $R/docs
+	mkdir -p $R/docs
+	cat $R/etc/header > /tmp/$<
+	cat $< | gawk '/^-- ##/{print $0; print"\n"; next} 1' >> /tmp/$<
+	cd /tmp; docco -l classic -o $R/docs $<
+	cp $R/etc/docco.css $R/docs
 
 htmls:
-	@$(foreach f,$(shell ls *.lua), $(MAKE)  -s ../docs/$(basename $f).html;)
+	$(foreach f,$(shell ls *.lua), $(MAKE)  -s ../docs/$(basename $f).html;)
 
 pdf : 
-	@figlet -W -f larry3d keys > _keys.lua; cat keys.lua >> _keys.lua
+	figlet -W -f larry3d keys > _keys.lua; cat keys.lua >> _keys.lua
 	$(foreach f,keyslib.lua keysgo.lua, (echo ""; figlet -W -f cybermedium $(basename $f .lua) ; echo ""; cat $f;) >> _keys.lua;)
 	$(MAKE) ~/tmp/_keys.pdf
 	rm _keys.lua
 
 ~/tmp/%.pdf: %.lua  ## .lua ==> .pdf
-	@echo 1
-	@mkdir -p $R/docs
-	@echo "pdf-ing $@ ... "
-	@a2ps                   \
+	mkdir -p $R/docs
+	echo "pdf-ing $@ ... "
+	a2ps                   \
 		-Br                    \
 		-L 150                  \
 		-l 84                   \
@@ -91,4 +92,4 @@ pdf :
 		--right-footer="" \
 	  -o	 $@.ps $<
 	ps2pdf $@.ps $@; rm $@.ps
-	@open $@
+	open $@
