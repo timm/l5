@@ -67,7 +67,7 @@ htmls:
 
 pdf : 
 	@figlet -W -f larry3d keys > _keys.lua; cat keys.lua >> _keys.lua
-	$(foreach f,keyslib.lua keysgo.lua, (echo ""; figlet -W -f graceful $(basename $f .lua) ; cat $f;) >> _keys.lua;)
+	$(foreach f,keyslib.lua keysgo.lua, (echo ""; figlet -W -f cybermedium $(basename $f .lua) ; echo ""; cat $f;) >> _keys.lua;)
 	$(MAKE) ~/tmp/_keys.pdf
 	rm _keys.lua
 
