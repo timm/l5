@@ -21,7 +21,7 @@ Options:
 
 [keys](\#keys) | [keyslib](\#keyslib)
  
-<img width="280" 
+<img width="400" 
      align=right 
      src="http://division14robots.weebly.com/uploads/2/6/1/9/26190497/3183350_orig.png">
    
