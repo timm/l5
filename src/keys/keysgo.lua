@@ -71,10 +71,13 @@ function go.learn(     data,xyss,B,R)
   local function fun(xys) 
     if #xys>0 then 
       return {score=XY.like(xys,"best",B,R),xys=xys} end end
-  --top(the.beam, sort(map(powerset(top(the.beam,xyss)), fun),gt"score"))
-  map(top(the.beam,
-      sort(map(powerset(top(the.beam,xyss)),fun),gt"score")),
-    oo)
+  rules = map(powerset( top(the.beam,xyss)), fun) 
+  best  = top(the.beam, sort(rules, gt"score"))
+  pretty = map(best,function(two) return {score=two.score,  
+                                          xys=XY.canonical(two.xys)} end)
+  map(pretty,oo)
+  print""
+  map(best,oo)
 end
 
 -------------------------------------------------------------------------------

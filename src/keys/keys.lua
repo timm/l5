@@ -37,10 +37,10 @@ function XY:new(s,n,nlo,nhi) --- Count the `y` values from `xlo` to `xhi`
 
 function XY:__tostring() --- print
   local x,lo,hi,big = self.name, self.xlo, self.xhi, math.huge
-  if     lo ==  hi  then return fmt("%s == %s", x, lo)
-  elseif hi ==  big then return fmt("%s >  %s", x, lo)
-  elseif lo == -big then return fmt("%s <= %s", x, hi)
-  else                   return fmt("%s <  %s <= %s", lo,x,hi) end end
+  if     lo ==  hi  then return fmt("(%s == %s)", x, lo)
+  elseif hi ==  big then return fmt("(%s >  %s)", x, lo)
+  elseif lo == -big then return fmt("(%s <= %s)", x, hi)
+  else                   return fmt("(%s <  %s <= %s)", lo,x,hi) end end
 
 function XY:add(nx,sy,  n) --- `n`[=1] times,count `sy`. Expand to cover `nx` 
   if nx~="?" then
@@ -49,6 +49,12 @@ function XY:add(nx,sy,  n) --- `n`[=1] times,count `sy`. Expand to cover `nx`
     self.y[sy] = n + (self.y[sy] or 0)    -- count
     if nx < self.xlo then self.xlo=nx end -- expand
     if nx > self.xhi then self.xhi=nx end end end
+
+function XY:merge(xy) --- combine two items (assumes both from same column)
+  local combined = XY(self.name, self.at, self.xlo, xy.xhi)
+  for y,n in pairs(self.y) do combined:add(self.xlo,y,n) end
+  for y,n in pairs(xy.y)   do combined:add(xy.xhi,  y,n) end
+  return combined end
 
 local aims={}
 function aims.plan(b,r)    return b*2/(b+r+1E-32) end
@@ -72,10 +78,8 @@ function XY:select(row,     x) --- return true if `row` selected by `self`
 function XY:selects(rows) --- return subset of `rows` selected by `self`
   return map(rows,function(row) return self:select(row) end) end
 
-function XY:merge(xy,nMin) --- if whole simpler than parts, return merged self+xy
-  local whole = XY(self.name, self.at, self.xlo, xy.xhi)
-  for y,n in pairs(self.y) do whole:add(self.xlo,y,n) end
-  for y,n in pairs(xy.y)   do whole:add(xy.xhi,  y,n) end
+function XY:simpler(xy,nMin) --- if whole simpler than parts, return merged self+xy
+  local whole = self:merge(xy)
   if self.n < nMin or xy.n < nMin then return whole end -- merge if too small
   local e1,e2,e12= ent(self.y), ent(xy.y), ent(whole.y)
   if e12 <= (self.n*e1 + xy.n*e2)/whole.n               -- merge if whole simpler
@@ -98,6 +102,18 @@ function XY.like(xys,sWant,nB,nR) --- likelihood we do/dont `sWant` `xys`
       if k==sWant then yes[c]=(yes[c] or 0)+v else no[c]=(no[c] or 0)+v end end end 
   return aims[the.aim](like1(yes,nB,nB + nR,2), like1(no,nR,nB + nR,2)) end
 
+function XY.canonical(xys) --- simplify a list of `xy` ranges
+  local function merges(t,n,u)
+    while n <= #t do
+      local a,b,ab = t[n],t[n+1]
+      ab           = b and a.name==b.name and a.xhi==b.xlo and a:merge(b)
+      u[1+#u]      = ab or a
+      n            = ab and n+2 or n+1 end
+    return #t==#u and t or merges(u,1,{}) 
+  end -------------------------------
+  return merges(sort(xys, function (a,b) 
+              return a.name < b.name or (a.name==b.name and a.xlo < b.xlo) end),
+              1,{}) end
 -------------------------------------------------------------------------------
 function SOME:new(max)
   return {_id=self._id,sorted=false, _has={}, n=0, max=max or the.Some} end
@@ -142,10 +158,10 @@ function COL:merge(xys, nMin) --- Can we combine any adjacent ranges?
   if not self.is.num then return xys end
   local function merges(t,n,u) 
     while n <= #t do
-      local xy1,xy2 = t[n], t[n+1]
-      local xy12    = xy2 and xy1:merge(xy2, nMin) 
-      u[1+#u]       = xy12 or xy1
-      n             = xy12 and n+2 or n+1 end
+      local a,b,ab = t[n], t[n+1]
+      ab           = b and a:simpler(b, nMin) 
+      u[1+#u]      = ab or a
+      n            = ab and n+2 or n+1 end
     return #t == #u and t or merges(u,1,{}) 
   end ---------------------
   xys = merges(xys,1,{})
