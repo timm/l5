@@ -21,6 +21,7 @@ README.md : xplor.lua xplorlib.lua
 
 y?=save
 bye: ## save all to Github
+	echo $y
 	git add *;git commit -am "$(y)" ;git push;git status
 
 ../docs/%.html: %.lua 
