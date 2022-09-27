@@ -64,11 +64,13 @@ function go.xys(     data)
   map(data:xys(),oo)
 end
 
-function go.learn(     data)
+function go.learn(     data,xyss,B,R)
   data = load(the.file) 
   xyss,B,R= data:xys()
-  local function fun(xys) return {score=XY.like(xys,"best",B,R),xys=xys} end 
-  top(the.beam, sort(map(powerset(top(the.beam,xyss)), fun),gt"score"))
+  local function fun(sys) 
+    if #xys>0 then return {score=XY.like(xys,"best",B,R),xys=xys} end end
+  --top(the.beam, sort(map(powerset(top(the.beam,xyss)), fun),gt"score"))
+  map(powerset(top(the.beam,xyss)),fun)
 end
 
 -------------------------------------------------------------------------------

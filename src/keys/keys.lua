@@ -82,6 +82,7 @@ function XY:merge(xy,nMin) --- if whole simpler than parts, return merged self+x
 -- ### Class methods 
 -- For lists of `xy`s.
 function XY.like(xys,sWant,nB,nR) --- likelihood we do/dont `sWant` `xys`
+  oo(xys)
   function like1(f,n,nall,nhypotheses,     prior,like)
     prior = (n+the.K)/(nall + the.K*nhypotheses)
     like  = math.log(prior)
@@ -90,6 +91,7 @@ function XY.like(xys,sWant,nB,nR) --- likelihood we do/dont `sWant` `xys`
     return like 
   end ---------
   for _,xy in pairs(xys) do
+    oo(xy)
     for k,v in pairs(xy.y) do 
       c = xy.at
       if k==sWant then yes[c]=(yes[c] or 0)+v else no[c]=(no[c] or 0)+v end end end 
@@ -230,7 +232,7 @@ function DATA:xys()
   for _,col in pairs(self.cols.x) do
     for i,xy in pairs(xys(col,{best = best, rest = rest})) do
       push(out, {xy=xy, score=xy:score("best",B,R)}) end end
-  return sort(out,gt"score"),B,R end
+  return map(sort(out,gt"score"),function(z) return z.xy end),B,R end
 
 --function DATA:learn()
 
