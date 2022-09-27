@@ -21,41 +21,40 @@ README.md : xplor.lua xplorlib.lua
 
 y?=save
 bye: ## save all to Github
-	echo $y
 	git add *;git commit -am "$(y)" ;git push;git status
 
 ../docs/%.html: %.lua 
-	@mkdir -p $R/docs
-	@cat $R/etc/header > /tmp/$<
-	@cat $< | gawk '/^-- ##/{print $0; print"\n"; next} 1' >> /tmp/$<
-	@cd /tmp; docco -l classic -o $R/docs $<
-	@cp $R/etc/docco.css $R/docs
+	mkdir -p $R/docs
+	cat $R/etc/header > /tmp/$<
+	cat $< | gawk '/^-- ##/{print $0; print"\n"; next} 1' >> /tmp/$<
+	cd /tmp; docco -l classic -o $R/docs $<
+	cp $R/etc/docco.css $R/docs
 
 htmls:
-	@$(foreach f,$(shell ls *.lua), $(MAKE)  -s ../docs/$(basename $f).html;)
+	$(foreach f,$(shell ls *.lua), $(MAKE)  -s ../docs/$(basename $f).html;)
 
 g=about.lua  num.lua sym.lua row.lua cols.lua data.lua eg.lua
 pdfs:
 	a2ps -o ~/tmp/all.ps -qBr -f 5 -M letter --borders=no --pro=color --line-numbers=1 --borders=no -A virtual --pretty-print=$R/etc/lua.ssh --columns 3 $g
-	@a2ps -o ~/tmp/all.ps -qBr -f 5 --columns 3-M letter --pro=color --line-numbers=1 --pretty-print=$R/etc/lua.ssh  -A virtual$g
+	a2ps -o ~/tmp/all.ps -qBr -f 5 --columns 3-M letter --pro=color --line-numbers=1 --pretty-print=$R/etc/lua.ssh  -A virtual$g
 	ps2pdf ~/tmp/all.ps ~/tmp/all.pdf
 
 txts : 
-	@figlet -W -f larry3d xplor > _xplor.lua; cat xplor.lua >> _xplor.lua
+	figlet -W -f larry3d xplor > _xplor.lua; cat xplor.lua >> _xplor.lua
 	#$(foreach f,xplorlib.lua xplorgo.lua, (figlet -W -f contessa $f >> _xplor.lua ; cat $f >> _xplor.lua);)
 	$(foreach f,xplorlib.lua xplorgo.lua, (figlet -W -f contessa $f ; cat $f;) >> _xplor.lua;)
 	$(MAKE) ~/tmp/_xplor.pdf
 	rm _xplor.lua
 
 ~/tmp/%.txt: %.lua
-	@bash  ../etc/comments.sh $<  > $@
-	@cat $@
+	bash  ../etc/comments.sh $<  > $@
+	cat $@
 
 ~/tmp/%.pdf: %.lua  ## .lua ==> .pdf
-	@echo 1
-	@mkdir -p $R/docs
-	@echo "pdf-ing $@ ... "
-	@a2ps                   \
+	echo 1
+	mkdir -p $R/docs
+	echo "pdf-ing $@ ... "
+	a2ps                   \
 		-Br                    \
 		-L 150                  \
 		-l 84                   \
