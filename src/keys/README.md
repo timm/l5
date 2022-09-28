@@ -1,12 +1,20 @@
 
 ```css
-KEYS: multi-objective semi-supervised explainations
+KEYS: Bayesian multi-objective semi-supervised explanations
 (c)2022 Tim Menzies <timm@ieee.org> BSD-2 license
+
+  .-------.                dispute: where bad==better
+  | Ba    | Bad <----.     plan   : better - bad
+  |    56 |          |     watch  : bad - better
+  .-------.------.   |     explore: where bad and better is scarce
+          | Be   |   v  
+          |    4 | Better
+          .------.
 
 Usage: lua keysgo.lua [Options]
 
 Options:
- -a  --aim   aim; One of {plan,watch,explore}    = plan
+ -a  --aim   aim: plan,watch,explore or dispute  = plan
  -b  --bins  minimum bin width                   = 16
  -B  --beam  beam size                           = 10
  -f  --file  file with csv data                  = ../../data/auto93.csv
@@ -20,43 +28,6 @@ Options:
  -s  --seed  random number seed                  = 10019
 ```
 
-[keys](#keyslua) | [keyslua](#keysliblua)
- 
-<img width="350" 
-     align=right 
-     src="http://division14robots.weebly.com/uploads/2/6/1/9/26190497/3183350_orig.png">
-   
-## Code Conventions
-   
- 1. Indent = 2 spaces
- 2. Line width = 80 chars (soft limit)
- 3. The help string at top of file is parsed to create the settings.  
- 4. `function DATA:new()` is a  constructor for class e.g. DATA 
- 5. x.lua is the main code. `xlib.lua` are general utils. `xgo.lua
-    holds demos/tests of the system.
- 5. All the `go.xx` functions in `xgo.lua` can be run with `lua xgo.lua -g x`.  
- 6. Public functions are denoted with a  trailing "---", followed by comment text. 
- 7. Public function arguments have the following type hints:
-   
- | What        | Notes |                                     
- |:------------|:-----------------------------------|
- | 2 blanks    | 2 blanks denote optional arguments |
- | 4 blanks    | 4 blanks denote local arguments |
- | n           | prefix for numerics |
- | s           | prefix for strings |
- | is          | prefix for booleans |
- | suffix fun  | suffix for functions |                      
- | suffix s    | list of thing (so `names` is list of strings) |
-    
-Other conventions:
-    
- - In the code, any upper case name (e.g. `DATA` defines a class type)
- - In public function arguments,
-   lower case versions of class type (e.g. `data`) are instances of that type (e.g. 
-   `data` isa `DATA` so `datas` is a list of `DATA` instances).
- - Polymorphism yes, inheritance no. Why? Well...
-   http://www.cs.kent.edu/~jmaletic/cs69995-PC/papers/Hatton98.pdf     
-   https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.467.5571&rep=rep1&type=pdf
 
 #	keys.lua	
 
@@ -66,10 +37,11 @@ Other conventions:
 | <b>XY:new(s:`str`, n:`num`, nlo:`num`, nhi:`num`)</b> |  Count the `y` values from `xlo` to `xhi` |
 | <b>XY:__tostring()</b> |  print |
 | <b>XY:add(nx:`num`, sy:`str`,   n:`num`?)</b> |  `n`[=1] times,count `sy`. Expand to cover `nx`  |
+| <b>XY:merge(xy:`XY`)</b> |  combine two items (assumes both from same column) |
 | <b>XY:score(want, B, R)</b> |  how well does `self` select for `want`? |
 | <b>XY:select(row)</b> |  return true if `row` selected by `self` |
 | <b>XY:selects(rows:`tab`)</b> |  return subset of `rows` selected by `self` |
-| <b>XY:merge(xy:`XY`, nMin:`num`)</b> |  if whole simpler than parts, return merged self+xy |
+| <b>XY:simpler(xy:`XY`, nMin:`num`)</b> |  if whole simpler than parts, return merged self+xy |
 
 
 ### Class methods 	
@@ -78,6 +50,7 @@ For lists of `xy`s.
 | What | Notes |
 |:---|:---|
 | <b>XY.like(xys:`[XY]`, sWant:`str`, nB:`num`, nR:`num`)</b> |  likelihood we do/dont `sWant` `xys` |
+| <b>XY.canonical(xys:`[XY]`)</b> |  simplify a list of `xy` ranges |
 | <b>COL:merge(xys:`[XY]`,  nMin:`num`)</b> |  Can we combine any adjacent ranges? |
 | <b>DATA:sorted()</b> |  sort `self.rows` |
 

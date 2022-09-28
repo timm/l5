@@ -114,12 +114,13 @@ function l.o(t,  seen) --- table to string (recursive)
 
 -- ## Objects
 local _id=0
-function l.obj(s,    t,i,new) --- Create a klass and a constructor + print method
-  local isa=setmetatable
-  local function id() _id=_id+1; return _id end
-  function new(k,...) i=isa({_id=id()},k); return isa(t.new(i,...) or i,k) end
-  t={_is=s, __tostring = function(x) return l.o(x) end}
-  t.__index = t;return isa(t,{__call=new}) end
+local function id() _id=_id+1; return _id end
+
+function l.obj(s,    t,new) --- Create a klass and a constructor + print method
+  local function new(k,...) 
+     local i=setmetatable({_id=id()},k); t.new(i,...); return i end
+  t={_is=s, __tostring = l.o}
+  t.__index = t;return setmetatable(t,{__call=new}) end
 
 -- That's all folks.
 return l

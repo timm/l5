@@ -8,6 +8,13 @@ mkdir -p $T
 grep '^#$1 ' Makefile | sed 's/#$1 //' > $T/$1
 endef
 
+define pdfs
+echo "" >> $2
+figlet -W -f cybermedium $(basename $1 .lua) >> $2
+echo "" >> $2
+cat $1  >> $2
+endef
+
 README.md : keys.lua keyslib.lua
 	(echo ""; echo "\`\`\`css")  > $@
 	lua keysgo.lua -h       >> $@ 
@@ -38,13 +45,6 @@ itso: ## save all to Github
 htmls:
 	$(foreach f,$(shell ls *.lua), $(MAKE)  -s ../docs/$(basename $f).html;)
 
-define pdfs
-echo "" >> $2
-figlet -W -f cybermedium $(basename $1 .lua) >> $2
-echo "" >> $2
-cat $1  >> $2
-endef
-
 pdf : 
 	(figlet -W -f larry3d keys ; cat keys.lua) > _keys.lua
 	$(foreach f,keyslib.lua keysgo.lua, $(call pdfs,$f,_keys.lua);)
@@ -73,6 +73,9 @@ pdf :
 	ps2pdf $@.ps $@; rm $@.ps
 	open $@
 
+
+#h # KEYS: Bayesian multi-objective optimization semi-supervised explanations
+#h   
 #h [keys](keyslua) | [keyslib](keysliblua)
 #h  
 #h <img width="350" 
@@ -81,15 +84,25 @@ pdf :
 #h    
 #h ## Code Conventions
 #h    
-#h  1. Indent = 2 spaces
-#h  2. Line width = 80 chars (soft limit)
-#h  3. The help string at top of file is parsed to create the settings.  
-#h  4. `function DATA:new()` is a  constructor for class e.g. DATA 
-#h  5. x.lua is the main code. `xlib.lua` are general utils. `xgo.lua
+#h  1. x.lua is the main code. `xlib.lua` are some general utils. `xgo.lua1
 #h     holds demos/tests of the system.
-#h  5. All the `go.xx` functions in `xgo.lua` can be run with `lua xgo.lua -g x`.  
-#h  6. Public functions are denoted with a  trailing "---", followed by comment text. 
-#h  7. Public function arguments have the following type hints:
+#h  2. All the `go.xx` functions in `xgo.lua` can be run via `lua xgo.lua -g x`.  
+#h  3. Indent = 2 spaces
+#h  4. Line width = 80 chars (soft limit)
+#h  5. The help string at top of file is parsed to create a table of global
+#h     settings, store in the `the` variable.
+#h  6. Slots of `the` are updated by command-line flags. 
+#h     - Flags update the first
+#h        slot they match to E.g.   `lua xgo.lua -s 1234` resets `the.seed` 
+#h        (since   `seed` starts with `s`. 
+#h      - If a boolean slot appears on the command line, it
+#h        does not need a following value (we just flip the default value). e.g.
+#h        `lua xgo.lua -h` flips `the.help` from `false` to `true
+#h  7. Any word starting with two upper case leading letters is a class; e.g. DATA
+#h  8. `function DATA:new()` is a  constructor for class e.g. DATA . Constructors 
+#h     are based in `self` so should not use a return statement.
+#h  9. Public functions are denoted with a  trailing "---", followed by comment text. 
+#h  10. Public function arguments have the following type hints:
 #h    
 #h  | What        | Notes |                                     
 #h  |:------------|:-----------------------------------|
@@ -103,7 +116,6 @@ pdf :
 #h     
 #h Other conventions:
 #h     
-#h  - In the code, any upper case name (e.g. `DATA` defines a class type)
 #h  - In public function arguments,
 #h    lower case versions of class type (e.g. `data`) are instances of that type (e.g. 
 #h    `data` isa `DATA` so `datas` is a list of `DATA` instances).

@@ -1,13 +1,21 @@
 local l=require"keyslib"
 local the=l.options[[
 
-KEYS: multi-objective semi-supervised explainations
+KEYS: Bayesian multi-objective semi-supervised explanations
 (c)2022 Tim Menzies <timm@ieee.org> BSD-2 license
+
+  .-------.                dispute: where bad==better
+  | Ba    | Bad <----.     plan   : better - bad
+  |    56 |          |     watch  : bad - better
+  .-------.------.   |     explore: where bad and better is scarce
+          | Be   |   v  
+          |    4 | Better
+          .------.
 
 Usage: lua keysgo.lua [Options]
 
 Options:
- -a  --aim   aim; One of {plan,watch,explore}    = plan
+ -a  --aim   aim: plan,watch,explore or dispute  = plan
  -b  --bins  minimum bin width                   = 16
  -B  --beam  beam size                           = 10
  -f  --file  file with csv data                  = ../../data/auto93.csv
@@ -27,13 +35,12 @@ local push,rand,rint,sort       = l.push, l.rand, l.rint, l.sort
 local SOME,COL,DATA,XY=obj"SOME", obj"COL", obj"DATA", obj"XY"
 -------------------------------------------------------------------------------
 function XY:new(s,n,nlo,nhi) --- Count the `y` values from `xlo` to `xhi`
-  return {_id=self._id,
-          name= s,                  -- name of this column
-          at  = n,                   -- offset for this column
-          xlo = nlo,                 -- min x seen so far
-          xhi = nhi or nlo,          -- max x seen so far
-          n   = 0,                   -- number of items seen
-          y   = {}} end              -- y symbols see so far
+          self.name= s                  -- name of this column
+          self.at  = n                   -- offset for this column
+          self.xlo = nlo                 -- min x seen so far
+          self.xhi = nhi or nlo          -- max x seen so far
+          self.n   = 0                   -- number of items seen
+          self.y   = {} end              -- y symbols see so far
 
 function XY:__tostring() --- print
   local x,lo,hi,big = self.name, self.xlo, self.xhi, math.huge
@@ -60,7 +67,7 @@ local aims={}
 function aims.plan(b,r)    return b*2/(b+r+1E-32) end
 function aims.watch(b,r)   return 0 or r*2/(b+r+1E-32) end
 function aims.explore(b,r) return 1/r + 1/b end
-function aims.refute(b,r) return (b+r)/(b-r+1E-32) end
+function aims.dispute(b,r) return (b+r)/(b-r+1E-32) end
 
 function XY:score(want,B,R) --- how well does `self` select for `want`?
   local b,r,e = 0,0,1E-30
@@ -116,7 +123,10 @@ function XY.canonical(xys) --- simplify a list of `xy` ranges
               1,{}) end
 -------------------------------------------------------------------------------
 function SOME:new(max)
-  return {_id=self._id,sorted=false, _has={}, n=0, max=max or the.Some} end
+  self.sorted=false
+  self._has={}
+  self.n=0
+  self.max=max or the.Some end
 
 function SOME:add(x)
   local function add(pos) self._has[pos]=x; self.sorted=false end
@@ -139,18 +149,20 @@ function is.weight(s) return s:find"-$" and -1 or 1 end
 
 function COL:new(s,n)
   n,s=n or 0, s or ""
-  return {_id=self._id, has=SOME(), at=n, name=s,
-          is=kap(is,function(k,fun)  return fun(s) end)} end 
+  self.some=SOME()
+  self.at=n
+  self.name=s
+  self.is=kap(is,function(k,fun)  return fun(s) end) end 
 
-function COL:add(x) self.has:add(x); return self end
+function COL:add(x) self.some:add(x); return self end
 
 function COL:norm(n)
-  local t=self.has:nums()
+  local t=self.some:nums()
   return n=="?" and n or t[#t]-t[1]<1E-9 and 0 or (n-t[1])/(t[#t]-t[1]) end 
 
 function COL:discretize(x)
   if not self.is.num then return x else
-    local t=self.has:nums()
+    local t=self.some:nums()
     local tmp = (t[#t] - t[1])/(the.bins - 1)
     return t[#t]==t[1] and 1 or math.floor(x/tmp+.5)*tmp end end
 
@@ -171,13 +183,13 @@ function COL:merge(xys, nMin) --- Can we combine any adjacent ranges?
 
 -------------------------------------------------------------------------------
 function DATA:new(names)
-  self = {_id=self._id,rows={}, cols={names=names, all={},x={},y={}}}
+  self.rows={}
+  self.cols={names=names, all={},x={},y={}}
   for n,s in pairs(names) do
     local col = push(self.cols.all, COL(s,n))
     if not is.skip(s) then
       if is.klass(s) then self.cols.klass=col end
-      push(is.goal(s)  and self.cols.y or self.cols.x, col) end end
-  return self end
+      push(is.goal(s)  and self.cols.y or self.cols.x, col) end end end
 
 function DATA:dist(row1,row2)
   local function dist(col,x,y)

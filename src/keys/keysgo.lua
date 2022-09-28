@@ -39,19 +39,19 @@ function go.col(     col)
   col=COL("N")
   for i=1,10^6 do col:add(i) end 
   print(col)
-  oo(col.has:nums()) end 
+  oo(col.some:nums()) end 
 
 function go.data(      data)
   data=load(the.file) 
  oo(data.cols.all)
-  oo(data.cols.all[4].has:nums()) end
+  oo(data.cols.all[4].some:nums()) end
 
 function go.clone(     data1,data2)
   data1=load(the.file) 
   data2=data1:clone(data1.rows)
-  oo(data1.cols.all[4].has:nums()) 
+  oo(data1.cols.all[4].some:nums()) 
   print""
-  oo(data2.cols.all[4].has:nums()) end
+  oo(data2.cols.all[4].some:nums()) end
 
 function go.sorted(      data,rows)
   data = load(the.file) 
