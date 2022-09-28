@@ -1,44 +1,12 @@
-#= [keys](#keyslua) | [keyslua](#keysliblua)
-#=  
-#= <img width="350" 
-#=      align=right 
-#=      src="http://division14robots.weebly.com/uploads/2/6/1/9/26190497/3183350_orig.png">
-#=    
-#= ## Code Conventions
-#=    
-#=  1. Indent = 2 spaces
-#=  2. Line width = 80 chars (soft limit)
-#=  3. The help string at top of file is parsed to create the settings.  
-#=  4. `function DATA:new()` is a  constructor for class e.g. DATA 
-#=  5. x.lua is the main code. `xlib.lua` are general utils. `xgo.lua
-#=     holds demos/tests of the system.
-#=  5. All the `go.xx` functions in `xgo.lua` can be run with `lua xgo.lua -g x`.  
-#=  6. Public functions are denoted with a  trailing "---", followed by comment text. 
-#=  7. Public function arguments have the following type hints:
-#=    
-#=  | What        | Notes |                                     
-#=  |:------------|:-----------------------------------|
-#=  | 2 blanks    | 2 blanks denote optional arguments |
-#=  | 4 blanks    | 4 blanks denote local arguments |
-#=  | n           | prefix for numerics |
-#=  | s           | prefix for strings |
-#=  | is          | prefix for booleans |
-#=  | suffix fun  | suffix for functions |                      
-#=  | suffix s    | list of thing (so `names` is list of strings) |
-#=     
-#= Other conventions:
-#=     
-#=  - In the code, any upper case name (e.g. `DATA` defines a class type)
-#=  - In public function arguments,
-#=    lower case versions of class type (e.g. `data`) are instances of that type (e.g. 
-#=    `data` isa `DATA` so `datas` is a list of `DATA` instances).
-#=  - Polymorphism yes, inheritance no. Why? Well...
-#=    http://www.cs.kent.edu/~jmaletic/cs69995-PC/papers/Hatton98.pdf     
-#=    https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.467.5571&rep=rep1&type=pdf
-
 MAKEFLAGS += --silent
 SHELL=/bin/bash
 R=$(shell git rev-parse --show-toplevel)
+T=/tmp/$(USER)
+
+define xtract
+mkdir -p $T
+grep '^#$1 ' Makefile | sed 's/#$1 //' > $T/$1
+endef
 
 README.md : keys.lua keyslib.lua
 	(echo ""; echo "\`\`\`css")  > $@
@@ -70,29 +38,123 @@ itso: ## save all to Github
 htmls:
 	$(foreach f,$(shell ls *.lua), $(MAKE)  -s ../docs/$(basename $f).html;)
 
+define pdfs
+echo "" >> $2
+figlet -W -f cybermedium $(basename $1 .lua) >> $2
+echo "" >> $2
+cat $1  >> $2
+endef
+
 pdf : 
-	figlet -W -f larry3d keys > _keys.lua; cat keys.lua >> _keys.lua
-	$(foreach f,keyslib.lua keysgo.lua, (echo ""; figlet -W -f cybermedium $(basename $f .lua) ; echo ""; cat $f;) >> _keys.lua;)
+	(figlet -W -f larry3d keys ; cat keys.lua) > _keys.lua
+	$(foreach f,keyslib.lua keysgo.lua, $(call pdfs,$f,_keys.lua);)
 	$(MAKE) ~/tmp/_keys.pdf
 	rm _keys.lua
 
 ~/tmp/%.pdf: %.lua  ## .lua ==> .pdf
 	mkdir -p ~/tmp
+	$(call xtract,lua.ssh)
 	echo "pdf-ing $@ ... "
-	a2ps                   \
-		-Br                   \
-		-L 150                 \
-		-l 84                   \
-		--file-align=fill        \
-		--line-numbers=1          \
-		--borders=no               \
-		--pro=color                 \
-		--left-title=""              \
-		--columns 4                   \
-		--pretty-print=$R/etc/lua.ssh  \
-		-M letter                       \
-		--footer=""                      \
-		--right-footer=""                 \
+	a2ps                 \
+		-Br                 \
+		-L 150               \
+		-l 84                 \
+		--file-align=fill      \
+		--line-numbers=1        \
+		--borders=no             \
+		--pro=color               \
+		--left-title=""            \
+		--pretty-print="$T/lua.ssh" \
+		--columns 4                  \
+		-M letter                     \
+		--footer=""                    \
+		--right-footer=""               \
 	  -o	 $@.ps $<
 	ps2pdf $@.ps $@; rm $@.ps
 	open $@
+
+#h [keys](keyslua) | [keyslib](keysliblua)
+#h  
+#h <img width="350" 
+#h      align=right 
+#h      src="http://division14robots.weebly.com/uploads/2/6/1/9/26190497/3183350_orig.png">
+#h    
+#h ## Code Conventions
+#h    
+#h  1. Indent = 2 spaces
+#h  2. Line width = 80 chars (soft limit)
+#h  3. The help string at top of file is parsed to create the settings.  
+#h  4. `function DATA:new()` is a  constructor for class e.g. DATA 
+#h  5. x.lua is the main code. `xlib.lua` are general utils. `xgo.lua
+#h     holds demos/tests of the system.
+#h  5. All the `go.xx` functions in `xgo.lua` can be run with `lua xgo.lua -g x`.  
+#h  6. Public functions are denoted with a  trailing "---", followed by comment text. 
+#h  7. Public function arguments have the following type hints:
+#h    
+#h  | What        | Notes |                                     
+#h  |:------------|:-----------------------------------|
+#h  | 2 blanks    | 2 blanks denote optional arguments |
+#h  | 4 blanks    | 4 blanks denote local arguments |
+#h  | n           | prefix for numerics |
+#h  | s           | prefix for strings |
+#h  | is          | prefix for booleans |
+#h  | suffix fun  | suffix for functions |                      
+#h  | suffix s    | list of thing (so `names` is list of strings) |
+#h     
+#h Other conventions:
+#h     
+#h  - In the code, any upper case name (e.g. `DATA` defines a class type)
+#h  - In public function arguments,
+#h    lower case versions of class type (e.g. `data`) are instances of that type (e.g. 
+#h    `data` isa `DATA` so `datas` is a list of `DATA` instances).
+#h  - Polymorphism yes, inheritance no. Why? Well...
+#h    http://www.cs.kent.edu/~jmaletic/cs69995-PC/papers/Hatton98.pdf     
+#h    https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.467.5571&rep=rep1&type=pdf
+
+#lua.ssh # Lua.ssh --- Sheet definitions for Lua source code
+#lua.ssh # Copyright (c) 2014 Kenji Rikitake
+#lua.ssh # Copyright (c) 1999 Edward Arthur, Akim Demaille, Miguel Santana
+#lua.ssh 
+#lua.ssh ## This style is derived from Edward Arthur's AWK Style Sheet
+#lua.ssh 
+#lua.ssh style Lua is
+#lua.ssh 
+#lua.ssh written by "Kenji Rikitake <kenji.rikitake@acm.org>"
+#lua.ssh version is 0.1
+#lua.ssh requires a2ps version 4.9.7
+#lua.ssh 
+#lua.ssh documentation is
+#lua.ssh     "This style file is intended to support Lua ."
+#lua.ssh end documentation
+#lua.ssh 
+#lua.ssh alphabets are
+#lua.ssh    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0"
+#lua.ssh case sensitive
+#lua.ssh 
+#lua.ssh keywords in Keyword are
+#lua.ssh     and, false, ipairs, nil, not, or, pairs, rawequal, rawget, 
+#lua.ssh     rawlen, rawset, select, tonumber, tostring, true, type
+#lua.ssh end keywords
+#lua.ssh 
+#lua.ssh #keywords in Keyword_strong are
+#lua.ssh keywords in Keyword_strong are
+#lua.ssh     assert, break, collectgarbage, do, dofile, else, elseif, "end", 
+#lua.ssh     error, for, function, getmetatable, goto, if, "in", local, 
+#lua.ssh     load, loadfile, next, pcall, print, repeat, require, return, 
+#lua.ssh     setmetatable, then, until, while, xpcall, _G, _VERSION
+#lua.ssh end keywords
+#lua.ssh 
+#lua.ssh keywords in Label_strong are
+#lua.ssh     "^" function
+#lua.ssh end keywords
+#lua.ssh 
+#lua.ssh keywords in Comment are
+#lua.ssh     self
+#lua.ssh end keywords
+#lua.ssh 
+#lua.ssh sequences are
+#lua.ssh     "[[" Comment "]]",
+#lua.ssh     "--" Comment,
+#lua.ssh     C-string
+#lua.ssh end sequences
+#lua.ssh end style
