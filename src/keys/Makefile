@@ -35,16 +35,6 @@ itso: ## save all to Github
 	echo "git commit -am '$y'"
 	git add *;git commit -am "$y";git push;git status
 
-../docs/%.html: %.lua 
-	mkdir -p $R/docs
-	cat $R/etc/header > /tmp/$<
-	cat $< | gawk '/^-- ##/{print $0; print"\n"; next} 1' >> /tmp/$<
-	cd /tmp; docco -l classic -o $R/docs $<
-	cp $R/etc/docco.css $R/docs
-
-htmls:
-	$(foreach f,$(shell ls *.lua), $(MAKE)  -s ../docs/$(basename $f).html;)
-
 pdf : 
 	(figlet -W -f larry3d keys ; cat keys.lua) > _keys.lua
 	$(foreach f,keyslib.lua keysgo.lua, $(call pdfs,$f,_keys.lua);)
