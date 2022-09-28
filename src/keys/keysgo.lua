@@ -65,7 +65,7 @@ function go.xys(     data)
   map(data:xys(),oo)
 end
 
-function go.learn(     data,xyss,B,R)
+function go.learn(     data,xyss,B,R,pretty,rules,best)
   data = load(the.file) 
   xyss,B,R= data:xys()
   local function fun(xys) 
@@ -75,9 +75,9 @@ function go.learn(     data,xyss,B,R)
   best  = top(the.beam, sort(rules, gt"score"))
   pretty = map(best,function(two) return {score=two.score,  
                                           xys=XY.canonical(two.xys)} end)
-  map(pretty,oo)
-  print""
   map(best,oo)
+  print""
+  map(pretty,oo)
 end
 
 -------------------------------------------------------------------------------
