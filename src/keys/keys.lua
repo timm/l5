@@ -116,7 +116,7 @@ function XY.canonical(xys) --- simplify a list of `xy` ranges
       ab           = b and a.name==b.name and a.xhi==b.xlo and a:merge(b)
       u[1+#u]      = ab or a
       n            = ab and n+2 or n+1 end
-    return #t==#u and t or merges(u,1,{}) 
+    return #t==#u and t,#t or merges(u,1,{}) 
   end -------------------------------
   return merges(sort(xys, function (a,b) 
               return a.name < b.name or (a.name==b.name and a.xlo < b.xlo) end),

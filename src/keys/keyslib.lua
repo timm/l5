@@ -8,7 +8,22 @@ function l.rogues() --- report rogue locals
   for k,v in pairs(_ENV) do
     if not b4[k] then print( l.fmt("#W ?%s %s",k,type(v)) ) end end end
 
--- ## Random number generator
+-- ## Maths
+function l.balance(t,x,y,xgoal,ygoal)
+  local xlo,ylo =  1E32,  1E32
+  local xhi,yhi = -1E32, -1E32
+  for _,z in pairs(t) do
+    xlo = math.min(xlo, z[x]); xhi = math.max(xhi,z[x])
+    ylo = math.min(ylo, z[y]); yhi = math.max(yhi,z[y]) end
+  l.oo(t[1])
+  for _,z in pairs(t) do
+    print(x,y,l.o(z))
+    local x1  = (z[x] - xlo) / (xhi - xlo + 1E-31) -- normalize
+    local y1  = (z[y] - ylo) / (yhi - ylo + 1E-31) -- normalize
+    t.balance = ((xgoal - x1)^2 + (ygoal - y1)^2)^.5 end 
+  return sort(t,gt"balance") end
+    
+-- ### Random number generator
 -- The LUA doco says its random number generator is not stable across platforms.
 -- Hence, we use our own (using Park-Miller).
 

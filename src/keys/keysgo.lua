@@ -1,9 +1,10 @@
 local l=require"keyslib"
 local k=require"keys"
 
-local fmt,gt,lt,map,o,obj,oo     = l.fmt,l.gt,l.lt,l.map,l.o,l.obj,l.oo
-local powerset, push,sort,top   = l.powerset, l.push,l.sort,l.top
-local the,SOME,COL,DATA,XY = k.the,k.SOME, k.COL, k.DATA, k.XY
+local balance                 = l.balance
+local fmt,gt,lt,map,o,obj,oo  = l.fmt,l.gt,l.lt,l.map,l.o,l.obj,l.oo
+local powerset, push,sort,top = l.powerset, l.push,l.sort,l.top
+local the,SOME,COL,DATA,XY    = k.the,k.SOME, k.COL, k.DATA, k.XY
 
 local function cli(the) --- alters contents of `the` from command-line
   for k,v in pairs(the) do
@@ -72,9 +73,12 @@ function go.learn(     data,xyss,B,R,pretty,rules,best)
     if #xys>0 then 
       return {score=XY.like(xys,"best",B,R),xys=xys} end end
   rules = map(powerset( top(the.beam,xyss)), fun) 
-  best  = top(the.beam, sort(rules, gt"score"))
-  pretty = map(best,function(two) return {score=two.score,  
-                                          xys=XY.canonical(two.xys)} end)
+  best  = sort(rules, gt"score")
+  pretty = balance(
+             map(best,function(two) 
+               local t,n = XY.canonical(two.xys)
+               return {score=two.score, n=n, xys=t} end),
+             "score","n",1,0)
   map(best,oo)
   print""
   map(pretty,oo)
