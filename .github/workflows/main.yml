@@ -10,5 +10,5 @@ jobs:
     #     luaVersion: "5.4"
     - name: test
       run: |
-        sudo apt-get install lua5.4.4
+        sudo apt-get install lua5.2
         ls; lua -v  
