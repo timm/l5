@@ -6,6 +6,6 @@ jobs:
     steps:
       #- uses: actions/checkout@master
     - uses: leafo/gh-actions-lua@v9
-      with: luaVersion: "5.4"
+      - with: luaVersion: "5.4"
     - name: test
       run:  ls; lua -v  
