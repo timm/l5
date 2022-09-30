@@ -8,7 +8,7 @@ as required?
 
 [Let me see....](http://menzies.us/l5/about.html).
 
-Now that was interesting. Underneath all these seemingly different
+Now that was interestinga  . Underneath all these seemingly different
 applications is a  small class library that can be mixed and matched
 in many ways. Here's an idea: before we leap to complex solutions 
 (that are CPU hungry, that are hard to understand), perhaps we should
