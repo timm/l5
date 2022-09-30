@@ -9,6 +9,5 @@ jobs:
       with:
         luaVersion: "5.4"
     - name: test
-      run: |
-        ls; lua -v  
+      run: ls; lua -v  
      
