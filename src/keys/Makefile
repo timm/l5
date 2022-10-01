@@ -20,7 +20,7 @@ README.md : keys.lua keyslib.lua
 	(echo ""; echo "\`\`\`css")  >> $@
 	lua keysgo.lua -h       >> $@ 
 	(echo "\`\`\`"; echo"") >> $@
-	grep '^#h' Makefile | sed 's/^#h //' >> $@ 
+	grep '^#1' Makefile | sed 's/^#1 //' >> $@ 
 	lua ../readme.lua $^ >>$@
 
 D=auto2 auto93 nasa93dem china coc1000 healthCloseIsses12mths0011-easy \
@@ -68,61 +68,61 @@ pdf :
 #0  
 #0 # KEYS: Bayesian multi-objective optimization semi-supervised explanations
 #0     
-#0 [![DOI](https://zenodo.org/badge/526688243.svg)](https://zenodo.org/badge/latestdoi/526688243)
 #0 [![tests](https://github.com/timm/l5/actions/workflows/main.yml/badge.svg)](https://github.com/timm/l5/actions/workflows/main.yml)
 #0 ![](https://img.shields.io/badge/language-lua-blue)
 #0 ![](https://img.shields.io/badge/purpose-xai-orange)
 #0 [![](https://img.shields.io/badge/license-bsd2-lightgrey)](https://github.com/timm/l5/blob/main/LICENSE.md#top)
+#0 [![DOI](https://zenodo.org/badge/526688243.svg)](https://zenodo.org/badge/latestdoi/526688243)
 #0  
 
-#h   
-#h [keys](keyslua) | [keyslib](keysliblua)
-#h   
-#h <img width="350" 
-#h      align=right 
-#h      src="http://division14robots.weebly.com/uploads/2/6/1/9/26190497/3183350_orig.png">
-#h    
-#h ## Code Conventions
-#h    
-#h  1. x.lua is the main code. `xlib.lua` are some general utils. `xgo.lua1
-#h     holds demos/tests of the system.
-#h  2. All the `go.xx` functions in `xgo.lua` can be run via `lua xgo.lua -g x`.  
-#h  3. Indent = 2 spaces
-#h  4. Line width = 80 chars (soft limit)
-#h  5. The help string at top of file is parsed to create a table of global
-#h     settings, store in the `the` variable.
-#h  6. Slots of `the` are updated by command-line flags. 
-#h     - Flags update the first
-#h        slot they match to E.g.   `lua xgo.lua -s 1234` resets `the.seed` 
-#h        (since   `seed` starts with `s`. 
-#h      - If a boolean slot appears on the command line, it
-#h        does not need a following value (we just flip the default value). e.g.
-#h        `lua xgo.lua -h` flips `the.help` from `false` to `true
-#h  7. Any word starting with two upper case leading letters is a class; e.g. DATA
-#h  8. `function DATA:new()` is a  constructor for class e.g. DATA . Constructors 
-#h     are based in `self` so should not use a return statement.
-#h  9. Public functions are denoted with a  trailing "-->", followed by return type and comment text. 
-#h  10. Public function arguments have the following type hints:
-#h    
-#h  | What        | Notes |                                     
-#h  |:------------|:-----------------------------------|
-#h  | 2 blanks    | 2 blanks denote optional arguments |
-#h  | 4 blanks    | 4 blanks denote local arguments |
-#h  | n           | prefix for numerics |
-#h  | s           | prefix for strings |
-#h  | is          | prefix for booleans |
-#h  | suffix fun  | suffix for functions |                      
-#h  | suffix s    | list of thing (so `names` is list of strings) |
-#h     
-#h Other conventions:
-#h     
-#h  - In public function arguments,
-#h    lower case versions of class type (e.g. `data`) are instances of that type (e.g. 
-#h    `data` isa `DATA` so `datas` is a list of `DATA` instances).
-#h  - Polymorphism yes, inheritance no. Why? Well...
-#h    http://www.cs.kent.edu/~jmaletic/cs69995-PC/papers/Hatton98.pdf     
-#h    https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.467.5571&rep=rep1&type=pdf
-#h  
+#1   
+#1 [keys](keyslua) | [keyslib](keysliblua)
+#1   
+#1 <img width="350" 
+#1      align=right 
+#1      src="http://division14robots.weebly.com/uploads/2/6/1/9/26190497/3183350_orig.png">
+#1    
+#1 ## Code Conventions
+#1    
+#1  1. x.lua is the main code. `xlib.lua` are some general utils. `xgo.lua1
+#1     holds demos/tests of the system.
+#1  2. All the `go.xx` functions in `xgo.lua` can be run via `lua xgo.lua -g x`.  
+#1  3. Indent = 2 spaces
+#1  4. Line width = 80 chars (soft limit)
+#1  5. The help string at top of file is parsed to create a table of global
+#1     settings, store in the `the` variable.
+#1  6. Slots of `the` are updated by command-line flags. 
+#1     - Flags update the first
+#1        slot they match to E.g.   `lua xgo.lua -s 1234` resets `the.seed` 
+#1        (since   `seed` starts with `s`. 
+#1      - If a boolean slot appears on the command line, it
+#1        does not need a following value (we just flip the default value). e.g.
+#1        `lua xgo.lua -h` flips `the.help` from `false` to `true
+#1  7. Any word starting with two upper case leading letters is a class; e.g. DATA
+#1  8. `function DATA:new()` is a  constructor for class e.g. DATA . Constructors 
+#1     are based in `self` so should not use a return statement.
+#1  9. Public functions are denoted with a  trailing "-->", followed by return type and comment text. 
+#1  10. Public function arguments have the following type hints:
+#1    
+#1  | What        | Notes |                                     
+#1  |:------------|:-----------------------------------|
+#1  | 2 blanks    | 2 blanks denote optional arguments |
+#1  | 4 blanks    | 4 blanks denote local arguments |
+#1  | n           | prefix for numerics |
+#1  | s           | prefix for strings |
+#1  | is          | prefix for booleans |
+#1  | suffix fun  | suffix for functions |                      
+#1  | suffix s    | list of thing (so `names` is list of strings) |
+#1     
+#1 Other conventions:
+#1     
+#1  - In public function arguments,
+#1    lower case versions of class type (e.g. `data`) are instances of that type (e.g. 
+#1    `data` isa `DATA` so `datas` is a list of `DATA` instances).
+#1  - Polymorphism yes, inheritance no. Why? Well...
+#1    http://www.cs.kent.edu/~jmaletic/cs69995-PC/papers/Hatton98.pdf     
+#1    https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.467.5571&rep=rep1&type=pdf
+#1  
 
 #lua.ssh # Lua.ssh --- Sheet definitions for Lua source code
 #lua.ssh # Copyright (c) 2014 Kenji Rikitake

@@ -1,11 +1,11 @@
  
 # KEYS: Bayesian multi-objective optimization semi-supervised explanations
     
-[![DOI](https://zenodo.org/badge/526688243.svg)](https://zenodo.org/badge/latestdoi/526688243)
 [![tests](https://github.com/timm/l5/actions/workflows/main.yml/badge.svg)](https://github.com/timm/l5/actions/workflows/main.yml)
 ![](https://img.shields.io/badge/language-lua-blue)
 ![](https://img.shields.io/badge/purpose-xai-orange)
 [![](https://img.shields.io/badge/license-bsd2-lightgrey)](https://github.com/timm/l5/blob/main/LICENSE.md#top)
+[![DOI](https://zenodo.org/badge/526688243.svg)](https://zenodo.org/badge/latestdoi/526688243)
  
 
 ```css
