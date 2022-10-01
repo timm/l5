@@ -64,8 +64,8 @@ for _,file in ipairs(arg) do
                             print(x:gsub(" [-][-][-][-][-].*",""),"") end) 
     else  
       line:gsub("[A-Z][A-Z]+", function(x) obj[x:lower()]=x end)
-      line:gsub("^function[%s]+([^(]+)[(]([^)]*).*[-][-][-](.*)",
-                function(fun,args,comment) 
-                   tbl[1+#tbl]={"<b>"..fun..'('..optional(pretty(args))..')</b>',comment} 
+      line:gsub("^function[%s]+([^(]+)[(]([^)]*).*[-][-][>]([^;]+);(.*)",
+                function(fun,args,returns,comment) 
+                   tbl[1+#tbl]={"<b>"..fun..'('..optional(pretty(args))..') --> '..returns..'</b>',comment} 
                    end) end end) 
   dump() end 

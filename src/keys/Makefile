@@ -68,6 +68,7 @@ pdf :
 #0  
 #0 # KEYS: Bayesian multi-objective optimization semi-supervised explanations
 #0     
+#0 [![DOI](https://zenodo.org/badge/526688243.svg)](https://zenodo.org/badge/latestdoi/526688243)
 #0 [![tests](https://github.com/timm/l5/actions/workflows/main.yml/badge.svg)](https://github.com/timm/l5/actions/workflows/main.yml)
 #0 ![](https://img.shields.io/badge/language-lua-blue)
 #0 ![](https://img.shields.io/badge/purpose-xai-orange)
@@ -100,7 +101,7 @@ pdf :
 #h  7. Any word starting with two upper case leading letters is a class; e.g. DATA
 #h  8. `function DATA:new()` is a  constructor for class e.g. DATA . Constructors 
 #h     are based in `self` so should not use a return statement.
-#h  9. Public functions are denoted with a  trailing "---", followed by comment text. 
+#h  9. Public functions are denoted with a  trailing "-->", followed by return type and comment text. 
 #h  10. Public function arguments have the following type hints:
 #h    
 #h  | What        | Notes |                                     

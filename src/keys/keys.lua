@@ -34,7 +34,7 @@ local push,rand,rint,sort       = l.push, l.rand, l.rint, l.sort
 
 local SOME,COL,DATA,XY=obj"SOME", obj"COL", obj"DATA", obj"XY"
 -------------------------------------------------------------------------------
-function XY:new(s,n,nlo,nhi) --- Count the `y` values from `xlo` to `xhi`
+function XY:new(s,n,nlo,nhi) --> XY; count the `y` values from `xlo` to `xhi`
           self.name= s                  -- name of this column
           self.at  = n                   -- offset for this column
           self.xlo = nlo                 -- min x seen so far
@@ -42,14 +42,14 @@ function XY:new(s,n,nlo,nhi) --- Count the `y` values from `xlo` to `xhi`
           self.n   = 0                   -- number of items seen
           self.y   = {} end              -- y symbols see so far
 
-function XY:__tostring() --- print
+function XY:__tostring() --> str;  print
   local x,lo,hi,big = self.name, self.xlo, self.xhi, math.huge
   if     lo ==  hi  then return fmt("(%s == %s)", x, lo)
   elseif hi ==  big then return fmt("(%s >  %s)", x, lo)
   elseif lo == -big then return fmt("(%s <= %s)", x, hi)
   else                   return fmt("(%s <  %s <= %s)", lo,x,hi) end end
 
-function XY:add(nx,sy,  n) --- `n`[=1] times,count `sy`. Expand to cover `nx` 
+function XY:add(nx,sy,  n) -->nil   `n`[=1] times,count `sy`. Expand to cover `nx` 
   if nx~="?" then
     n = n or 1
     self.n     = n + self.n 
@@ -57,7 +57,7 @@ function XY:add(nx,sy,  n) --- `n`[=1] times,count `sy`. Expand to cover `nx`
     if nx < self.xlo then self.xlo=nx end -- expand
     if nx > self.xhi then self.xhi=nx end end end
 
-function XY:merge(xy) --- combine two items (assumes both from same column)
+function XY:merge(xy) --> XY;  combine two items (assumes both from same column)
   local combined = XY(self.name, self.at, self.xlo, xy.xhi)
   for y,n in pairs(self.y) do combined:add(self.xlo,y,n) end
   for y,n in pairs(xy.y)   do combined:add(xy.xhi,  y,n) end
@@ -69,7 +69,7 @@ function aims.watch(b,r)   return 0 or r*2/(b+r+1E-32) end
 function aims.explore(b,r) return 1/r + 1/b end
 function aims.dispute(b,r) return (b+r)/(b-r+1E-32) end
 
-function XY:score(want,B,R) --- how well does `self` select for `want`?
+function XY:score(want,B,R) --> num; how well does `self` select for `want`?
   local b,r,e = 0,0,1E-30
   for got,n in pairs(self.y) do 
     if got==want then b=b+n else r=r+n end end
