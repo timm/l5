@@ -19,7 +19,8 @@ README.md : keys.lua keyslib.lua
 	(echo ""; echo "\`\`\`css")  > $@
 	lua keysgo.lua -h       >> $@ 
 	(echo "\`\`\`"; echo"") >> $@
-	grep '^#=' Makefile | sed 's/^#= //' >> $@ 
+	grep '^#0' Makefile | sed 's/^#0 //' >> $@ 
+	grep '^#h' Makefile | sed 's/^#h //' >> $@ 
 	lua ../readme.lua $^ >>$@
 
 D=auto2 auto93 nasa93dem china coc1000 healthCloseIsses12mths0011-easy \
@@ -64,10 +65,18 @@ pdf :
 	open $@
 
 
-#h # KEYS: Bayesian multi-objective optimization semi-supervised explanations
+#0  
+#0 # KEYS: Bayesian multi-objective optimization semi-supervised explanations
+#0     
+#0 [![tests](https://github.com/timm/l5/actions/workflows/main.yml/badge.svg)](https://github.com/timm/l5/actions/workflows/main.yml)
+#0 ![](https://img.shields.io/badge/language-lua-blue)
+#0 ![](https://img.shields.io/badge/purpose-xai-orange)
+#0 [![](https://img.shields.io/badge/license-bsd2-gray)](https://github.com/timm/l5/blob/main/LICENSE.md#top)
+#0  
+
 #h   
 #h [keys](keyslua) | [keyslib](keysliblua)
-#h  
+#h   
 #h <img width="350" 
 #h      align=right 
 #h      src="http://division14robots.weebly.com/uploads/2/6/1/9/26190497/3183350_orig.png">
@@ -112,6 +121,7 @@ pdf :
 #h  - Polymorphism yes, inheritance no. Why? Well...
 #h    http://www.cs.kent.edu/~jmaletic/cs69995-PC/papers/Hatton98.pdf     
 #h    https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.467.5571&rep=rep1&type=pdf
+#h  
 
 #lua.ssh # Lua.ssh --- Sheet definitions for Lua source code
 #lua.ssh # Copyright (c) 2014 Kenji Rikitake
