@@ -1,0 +1,37 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Keys
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - name-particle: Tim
+    family-names: Menzies
+    email: timm@ieee.org
+    affiliation: NC State
+    orcid: 'https://orcid.org/0000-0002-5040-3196'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.7131549
+    description: Zenodo ID
+repository-code: 'https://github.com/timm/l5/'
+url: >-
+  https://github.com/timm/l5/blob/main/src/keys/README.md
+repository: >-
+  https://github.com/timm/l5/blob/main/src/keys/README.md
+repository-artifact: 'https://github.com/timm/l5/blob/main/src/keys'
+abstract: >-
+  Bayesian multi-objective optimization
+  semi-supervised explanations
+keywords:
+  - optimization
+  - multi-objective
+  - explanation
+  - semi-supervised
+license: BSD-2-Clause
+commit: 358fe5870be79ecba4a21e41d187e8f9c8da94ab
+version: v0.0.1
+date-released: '2022-10-01'
