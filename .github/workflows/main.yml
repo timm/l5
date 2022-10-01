@@ -10,6 +10,6 @@ jobs:
         luaVersion: "5.4.4"
     - name: test
       run: |
-        cd ./src/keys; lua keysgo.lua -g data
+        cd ./src/keys; lua keysgo.lua -g data  
     - run: echo "🍏 This job's status is ${{ job.status }}."
 
