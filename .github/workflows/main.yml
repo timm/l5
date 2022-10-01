@@ -1,15 +1,21 @@
 name: test
+
 on: [push]
+
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
+    - uses: actions/checkout@master
+
     - uses: leafo/gh-actions-lua@v9
       with:
-        luaVersion: "5.4"
+        luaVersion: "5.4.4"
+
     - name: test
-      run:     
-        cd ${{ github.workspace }}/../..; ls -lsaR;
-        lua -v  
+      run: |
+        ls -lsaR;
+        lua -v;
     - run: echo "🍏 This job's status is ${{ job.status }}."
-     
+
