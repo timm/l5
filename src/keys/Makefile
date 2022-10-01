@@ -16,10 +16,10 @@ cat $1  >> $2
 endef
 
 README.md : keys.lua keyslib.lua
-	(echo ""; echo "\`\`\`css")  > $@
+	grep '^#0' Makefile | sed 's/^#0 //' > $@ 
+	(echo ""; echo "\`\`\`css")  >> $@
 	lua keysgo.lua -h       >> $@ 
 	(echo "\`\`\`"; echo"") >> $@
-	grep '^#0' Makefile | sed 's/^#0 //' >> $@ 
 	grep '^#h' Makefile | sed 's/^#h //' >> $@ 
 	lua ../readme.lua $^ >>$@
 
