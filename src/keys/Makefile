@@ -71,7 +71,7 @@ pdf :
 #0 [![tests](https://github.com/timm/l5/actions/workflows/main.yml/badge.svg)](https://github.com/timm/l5/actions/workflows/main.yml)
 #0 ![](https://img.shields.io/badge/language-lua-blue)
 #0 ![](https://img.shields.io/badge/purpose-xai-orange)
-#0 [![](https://img.shields.io/badge/license-bsd2-gray)](https://github.com/timm/l5/blob/main/LICENSE.md#top)
+#0 [![](https://img.shields.io/badge/license-bsd2-lightgrey)](https://github.com/timm/l5/blob/main/LICENSE.md#top)
 #0  
 
 #h   
