@@ -9,7 +9,7 @@ jobs:
         luaVersion: "5.4"
     - name: test
       run: 
-        cd ${{ github.workspace }}; ls
+        cd ${{ github.workspace }}; ls;
         lua -v  
     - run: echo "🍏 This job's status is ${{ job.status }}."
      
