@@ -1,21 +1,15 @@
 name: test
-
 on: [push]
-
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@master
-
     - uses: leafo/gh-actions-lua@v9
       with:
         luaVersion: "5.4.4"
-
     - name: test
       run: |
-        lua -v ;
-        cd ./src/keys; lua keysgo.lua -g the
+        cd ./src/keys; lua keysgo.lua -g data
     - run: echo "🍏 This job's status is ${{ job.status }}."
 
