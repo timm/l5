@@ -16,6 +16,6 @@ jobs:
     - name: test
       run: |
         lua -v ;
-        ls -lsaR ./src
+        cd ./src/keys; lua keysgo.lua -g the
     - run: echo "🍏 This job's status is ${{ job.status }}."
 
