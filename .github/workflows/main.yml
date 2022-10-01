@@ -15,7 +15,7 @@ jobs:
 
     - name: test
       run: |
-        lua -v src;
+        lua -v ;
         ls -lsaR
     - run: echo "🍏 This job's status is ${{ job.status }}."
 
